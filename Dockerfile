@@ -52,9 +52,6 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/bootstrap/cache
     && php artisan storage:link
 
-RUN chown -R www-data:www-data public/build \
-    && chmod -R 755 public/build
-
 # Create SQLite database file
 RUN touch database/database.sqlite
 
