@@ -50,15 +50,13 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
+    && php artisan storage:link
+
+RUN chown -R www-data:www-data /var/www/html/public/build \
+    && chmod -R 755 /var/www/html/public/build
 
 # Create SQLite database file
 RUN touch database/database.sqlite
-
-# Generate application key
-RUN php artisan key:generate
-
-# Run database migrations
-RUN php artisan migrate --force
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -79,3 +77,4 @@ EXPOSE 80
 
 # Start Apache
 CMD ["apache2-foreground"]
+CMD php artisan optimize:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
