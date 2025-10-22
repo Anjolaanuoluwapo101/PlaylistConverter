@@ -33,6 +33,8 @@ const Playlist: React.FC = () => {
   // Selection and deletion state
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingPlaylists, setDeletingPlaylists] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -181,6 +183,18 @@ const Playlist: React.FC = () => {
 
             {fetchingPlaylists && <LoadingState />}
             {error && !fetchingPlaylists && <ErrorState error={error} onDismiss={() => setError(null)} />}
+            {deleteSuccess && (
+              <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-green-800 dark:text-green-200 font-medium">{deleteSuccess}</span>
+                </div>
+              </div>
+            )}
 
             {!fetchingPlaylists && !error && playlists.length === 0 && selectedPlatform && (
               <EmptyPlaylistState platform={selectedPlatform} />
@@ -266,9 +280,12 @@ const Playlist: React.FC = () => {
               isOpen={showDeleteModal}
               title="Delete Playlists"
               message={`Are you sure you want to delete ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}? This action cannot be undone.`}
-              confirmText="Delete"
+              confirmText={deletingPlaylists ? "Deleting..." : "Delete"}
               cancelText="Cancel"
               onConfirm={async () => {
+                setDeletingPlaylists(true);
+                setError(null);
+                setDeleteSuccess(null);
                 try {
                   await axios.delete(`/playlists/${selectedPlatform}`, {
                     data: { playlist_ids: selectedPlaylists }
@@ -277,12 +294,18 @@ const Playlist: React.FC = () => {
                   await fetchPlaylists(selectedPlatform);
                   setSelectedPlaylists([]);
                   setShowDeleteModal(false);
+                  setDeleteSuccess(`Successfully deleted ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}`);
+                  // Clear success message after 3 seconds
+                  setTimeout(() => setDeleteSuccess(null), 3000);
                 } catch (err) {
                   console.error('Error deleting playlists:', err);
                   setError('Failed to delete playlists');
+                } finally {
+                  setDeletingPlaylists(false);
                 }
               }}
               onCancel={() => setShowDeleteModal(false)}
+              disabled={deletingPlaylists}
             />
           </>
         )

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavBarData } from '@/utils/global';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
-import useApiCache from '@/hooks/useApiCache';
+import  useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import NavBar from '@/components/user/NavBar';
@@ -32,7 +32,7 @@ interface SyncJob {
 }
 
 const Sync: React.FC = () => {
-  const { syncs: { getSyncHistory }, conversions: { getConversionHistory } } = useApiCache();
+  const { syncs: { getSyncHistory }, conversions :{ getConversionHistory} } = useApiCache();
 
   // State management
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<string, boolean>>({});
@@ -138,7 +138,8 @@ const Sync: React.FC = () => {
     setSyncJob(null);
 
     try {
-      const response = await axios.post( '/sync' , {
+      const endpoint = useQueue ? '/sync/queued' : '/sync';
+      const response = await axios.post(endpoint, {
         source_playlist_id: sourcePlaylistId.trim(),
         source_platform: sourcePlatform,
         target_playlist_id: targetPlaylistId.trim(),
@@ -146,16 +147,31 @@ const Sync: React.FC = () => {
         remove_extras: removeExtras,
       });
 
-      // For immediate sync, use the returned job
-      setSyncJob(response.data.job);
-
-      pollSyncStatus(response.data.job.id)
-      // Refresh sync history
-      const historyResult = await getSyncHistory();
-      if (historyResult.syncs) {
-        setSyncHistory(historyResult.syncs);
+      if (useQueue) {
+        // For queued sync, create a job object from the response
+        const job: SyncJob = {
+          id: response.data.job_id,
+          status: 'pending',
+          source_playlist_id: sourcePlaylistId.trim(),
+          target_playlist_id: targetPlaylistId.trim(),
+          source_platform: sourcePlatform,
+          target_platform: targetPlatform,
+          remove_extras: removeExtras,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setSyncJob(job);
+        // Start polling for status updates
+        pollSyncStatus(job.id);
+      } else {
+        // For immediate sync, use the returned job
+        setSyncJob(response.data.job);
+        // Refresh sync history
+        const historyResult = await getSyncHistory();
+        if (historyResult.syncs) {
+          setSyncHistory(historyResult.syncs);
+        }
       }
-
     } catch (err) {
       console.error('Sync error:', err);
       const errorData = (err as AxiosError)?.response?.data;

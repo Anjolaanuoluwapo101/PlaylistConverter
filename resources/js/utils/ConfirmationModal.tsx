@@ -8,9 +8,10 @@ interface ConfirmationModalProps {
   cancelText: string;
   onConfirm: () => void;
   onCancel: () => void;
+  disabled?: boolean;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title, message, confirmText, cancelText, onConfirm, onCancel }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title, message, confirmText, cancelText, onConfirm, onCancel, disabled = false }) => {
   if (!isOpen) return null;
 
   return (
@@ -21,13 +22,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title, me
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            disabled={disabled}
+            className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+            disabled={disabled}
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {confirmText}
           </button>
