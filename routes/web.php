@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Conversions
     Route::get('/convert', function(){
-        return Inertia::render('Convert');
+        return Inertia::render('convert');
     })->name('convert');
     Route::post('/convert', [ApiConversionController::class, 'convert'])->name('convert.convert');
     Route::get('/convert/history', [ApiConversionController::class, 'history'])->middleware('cacheResponse:3000');
@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Sync
     Route::get('/sync', function(){
-        return Inertia::render('Sync');
+        return Inertia::render('sync');
     });
     Route::post('/sync', [ApiSyncController::class, 'sync']);
     Route::get('/sync/history', [ApiSyncController::class, 'getUserSyncs']);
