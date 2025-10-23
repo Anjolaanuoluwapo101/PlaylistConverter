@@ -1,6 +1,5 @@
 import React from 'react';
 import { ListMusic, Music } from 'lucide-react';
-import Platform from '@/components/user/Platform';
 
 const NoPlatformsConnect: React.FC = () => (
   <div className="w-full max-w-4xl mx-auto">
