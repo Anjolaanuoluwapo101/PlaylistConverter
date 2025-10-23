@@ -20,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(UrlGenerator $url): void
     {
-        //
-        $url->forceScheme('https');
+        //serves assets via the https
+        if(app()->environment('production')){
+            $url->forceScheme('https');
+        }
     }
 }
