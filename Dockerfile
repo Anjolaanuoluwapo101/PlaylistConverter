@@ -36,6 +36,10 @@ RUN chmod -R 775 storage bootstrap/cache \
 RUN chown -R www-data:www-data public/build \
  && chmod -R 755 public/build
 
+#Create an SQLite Database
+RUN touch database/database.sqlite
+
+
 # Cache everything
 # RUN php artisan config:cache \
 #  && php artisan view:cache 
