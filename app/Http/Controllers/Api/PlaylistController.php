@@ -4,155 +4,101 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlaylistResource;
-use App\Services\Spotify\SpotifyPlaylistService;
-use App\Services\YouTube\YouTubePlaylistService;
+use App\Services\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PlaylistController extends Controller
 {
     public function __construct(
-        private SpotifyPlaylistService $spotifyPlaylist,
-        private YouTubePlaylistService $youtubePlaylist
+        private PlatformFactory $platformFactory
     ) {
     }
 
-    public function getSpotifyPlaylists(Request $request)
+    public function getUserPlaylists(Request $request, string $platform)
     {
         try {
             $user = $request->user();
+            $platformService = $this->platformFactory->make($platform);
 
-            if (!$user->hasSpotifyToken()) {
+            if (!$platformService->isConnected($user)) {
                 return response()->json([
-                    'error' => 'Spotify account not connected'
+                    'error' => ucfirst($platform) . ' account not connected'
                 ], 401);
             }
 
             $limit = $request->query('limit') ? (int) $request->query('limit') : null;
-            $offset = $request->query('offset') ? (int) $request->query('offset') : null;
+            $offset = $request->query('offset');
+            $sortBy = $request->query('sort_by');
+            $order = $request->query('order');
 
-            $playlists = $this->spotifyPlaylist->getUserPlaylists($user, $limit, $offset);
-            if(isset($playlists["error"])){
+            // Convert offset to int for Spotify, keep as string for YouTube
+            if ($platform === 'spotify' && $offset !== null) {
+                $offset = (int) $offset;
+            }
+
+            $playlists = $platformService->getUserPlaylists($user, $limit, $offset, $sortBy, $order);
+            if (isset($playlists["error"])) {
                 return response()->json([
                     'error' => $playlists["error"]
                 ], 400);
             }
+
+            // Normalize the data
             $data = PlaylistResource::collection($playlists['items']);
-            
             $playlists["data"] = $data;
-            return $playlists;
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to fetch Spotify playlists',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getSpotifyPlaylistTracks(Request $request, string $playlistId)
-    {
-        try {
-            $user = $request->user();
-
-            if (!$user->hasSpotifyToken()) {
-                return response()->json([
-                    'error' => 'Spotify account not connected'
-                ], 401);
-            }
-
-            $limit = $request->query('limit') ? (int) $request->query('limit') : null;
-            $offset = $request->query('offset') ? (int) $request->query('offset') : null;
-
-            $tracks = $this->spotifyPlaylist->getPlaylistTracks($playlistId, $user, $limit, $offset);
-            if(isset($tracks["error"])){
-                return response()->json([
-                    'error' => $tracks["error"]
-                ], 400);
-            }
-            Log::info("Fetched Spotify playlist tracks", [
-                'user_id' => $user->id,
-                'playlist_id' => $playlistId,
-                'fetched_count' => count($tracks),
-                'tracks' => $tracks
-            ]);
-            return response()->json([
-                'tracks' => $tracks,
-                'count' => count($tracks)
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to fetch playlist tracks',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getYoutubePlaylists(Request $request)
-    {
-        try {
-            $user = $request->user();
-
-            if (!$user->hasYoutubeToken()) {
-                return response()->json([
-                    'error' => 'YouTube account not connected'
-                ], 401);
-            }
-
-            $limit = $request->query('limit') ? (int) $request->query('limit') : null;
-            $pageToken = $request->query('page_token');
-
-            $playlists = $this->youtubePlaylist->getUserPlaylists($user, $limit, $pageToken);
-            if(isset($playlists["error"])){
-                return response()->json([
-                    'error' => $playlists["error"]
-                ], 400);
-            }
-            Log::info("Fetched YouTube playlists", [
+            Log::info("Fetched {$platform} playlists", [
                 'user_id' => $user->id,
                 'fetched_count' => count($playlists),
-            ]); 
-            //Normalize the data
-            $data = PlaylistResource::collection($playlists["items"]);
-            // replace items key in $playlists with $data
-            $playlists["data"] = $data;
+            ]);
+
             return $playlists;
 
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Failed to fetch YouTube playlists',
+                'error' => 'Failed to fetch ' . ucfirst($platform) . ' playlists',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
 
-    public function getYoutubePlaylistTracks(Request $request, string $playlistId)
+    public function getPlaylistTracks(Request $request, string $platform, string $playlistId)
     {
         try {
             $user = $request->user();
+            $platformService = $this->platformFactory->make($platform);
 
-            if (!$user->hasYoutubeToken()) {
+            if (!$platformService->isConnected($user)) {
                 return response()->json([
-                    'error' => 'YouTube account not connected'
+                    'error' => ucfirst($platform) . ' account not connected'
                 ], 401);
             }
 
             $limit = $request->query('limit') ? (int) $request->query('limit') : null;
-            $pageToken = $request->query('page_token');
+            $offset = $request->query('offset');
+            $sortBy = $request->query('sort_by');
+            $order = $request->query('order');
 
-            $tracks = $this->youtubePlaylist->getPlaylistTracks($playlistId, $user, $limit, $pageToken);
-            if(isset($tracks["error"])){
+            // Convert offset to int for Spotify, keep as string for YouTube
+            if ($platform === 'spotify' && $offset !== null) {
+                $offset = (int) $offset;
+            }
+
+            $tracks = $platformService->getPlaylistTracks($playlistId, $user, $limit, $offset, $sortBy, $order);
+            if (isset($tracks["error"])) {
                 return response()->json([
                     'error' => $tracks["error"]
                 ], 400);
             }
-            Log::info("Fetched YouTube playlist tracks", [
+
+            Log::info("Fetched {$platform} playlist tracks", [
                 'user_id' => $user->id,
                 'playlist_id' => $playlistId,
                 'fetched_count' => count($tracks),
                 'tracks' => $tracks
             ]);
+
             return response()->json([
                 'tracks' => $tracks,
                 'count' => count($tracks)
@@ -175,15 +121,15 @@ class PlaylistController extends Controller
 
         try {
             $user = $request->user();
+            $platform = $this->platformFactory->make('spotify');
 
-            if (!$user->hasSpotifyToken()) {
+            if (!$platform->isConnected($user)) {
                 return response()->json([
                     'error' => 'Spotify account not connected'
                 ], 401);
             }
 
-            $query = "{$request->artist} {$request->title}";
-            $result = $this->spotifyPlaylist->searchTrack($query, $user);
+            $result = $platform->searchTrack($request->artist, $request->title, $user);
 
             if (!$result) {
                 return response()->json([
@@ -214,15 +160,15 @@ class PlaylistController extends Controller
 
         try {
             $user = $request->user();
+            $platform = $this->platformFactory->make('youtube');
 
-            if (!$user->hasYoutubeToken()) {
+            if (!$platform->isConnected($user)) {
                 return response()->json([
                     'error' => 'YouTube account not connected'
                 ], 401);
             }
 
-            $query = "{$request->artist} {$request->title}";
-            $result = $this->youtubePlaylist->searchTrack($query, $user);
+            $result = $platform->searchTrack($request->artist, $request->title, $user);
 
             if (!$result) {
                 return response()->json([
@@ -263,9 +209,7 @@ class PlaylistController extends Controller
                 ], 400);
             }
 
-            $platformService = $platform === 'spotify'
-                ? $this->spotifyPlaylist
-                : $this->youtubePlaylist;
+            $platformService = $this->platformFactory->make($platform);
 
             $results = [
                 'removed' => [],
@@ -323,9 +267,7 @@ class PlaylistController extends Controller
                 ], 400);
             }
 
-            $platformService = $platform === 'spotify'
-                ? $this->spotifyPlaylist
-                : $this->youtubePlaylist;
+            $platformService = $this->platformFactory->make($platform);
 
             $results = [
                 'deleted' => [],

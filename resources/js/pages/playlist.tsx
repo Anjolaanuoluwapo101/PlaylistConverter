@@ -13,6 +13,7 @@ import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import PlaylistGrid from '@/utils/PlaylistGrid';
+import FilterControls from '@/utils/FilterControls';
 
 
 
@@ -35,6 +36,11 @@ const Playlist: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingPlaylists, setDeletingPlaylists] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+
+  // Filter and sort state
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [applyingFilters, setApplyingFilters] = useState(false);
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -92,7 +98,7 @@ const Playlist: React.FC = () => {
   };
 
   // --- Data Fetching ---
-  const fetchPlaylists = async (platform: string, offset?: number, pageToken?: string | null) => {
+  const fetchPlaylists = async (platform: string, offset?: number, pageToken?: string | null, sortByParam?: string, orderParam?: string) => {
     setFetchingPlaylists(true);
     setError(null);
     try {
@@ -101,6 +107,14 @@ const Playlist: React.FC = () => {
         url += `&offset=${offset}`;
       } else if (platform === 'youtube' && pageToken) {
         url += `&page_token=${pageToken}`;
+      }
+
+      // Add sorting parameters
+      if (sortByParam) {
+        url += `&sort_by=${sortByParam}`;
+      }
+      if (orderParam) {
+        url += `&order=${orderParam}`;
       }
 
       const response = await axios.get(url);
@@ -124,6 +138,14 @@ const Playlist: React.FC = () => {
     } finally {
       setFetchingPlaylists(false);
     }
+  };
+
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    setApplyingFilters(true);
+    fetchPlaylists(selectedPlatform, undefined, undefined, sortBy, order).finally(() => {
+      setApplyingFilters(false);
+    });
   };
 
   // Pagination handlers
@@ -203,6 +225,23 @@ const Playlist: React.FC = () => {
             {
               !fetchingPlaylists && !error && playlists.length > 0 && showPlaylists ? (
                 <>
+                  {/* Filter Controls */}
+                  <div className="mb-6">
+                    <FilterControls
+                      sortBy={sortBy}
+                      order={order}
+                      onSortByChange={setSortBy}
+                      onOrderChange={setOrder}
+                      onApplyFilters={handleApplyFilters}
+                      sortOptions={[
+                        { value: 'name', label: 'Name' },
+                        { value: 'tracks', label: 'Track Count' },
+                        { value: 'date', label: 'Created Date' }
+                      ]}
+                      isLoading={applyingFilters}
+                    />
+                  </div>
+
                   {/* Selection controls */}
                   {selectedPlaylists.length > 0 && (
                     <div className="mb-6 flex items-center justify-between bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-4 shadow-lg">
@@ -268,7 +307,7 @@ const Playlist: React.FC = () => {
                   )}
                 </>
               ) :
-                (playlistId && !showPlaylists) && (
+                playlistId !== null && !showPlaylists && (
                   <div>
                     <PlaylistTracks playlistId={playlistId} platformId={selectedPlatform} onHide={() => setShowPlaylists(true)} />
                   </div>

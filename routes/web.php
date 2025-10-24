@@ -30,13 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('playlist');
     })->name('playlist');
     Route::prefix('playlists')->group(function () {
-        Route::get('/spotify', action: [ApiPlaylistController::class, 'getSpotifyPlaylists'])->middleware('cacheResponse:3000');
-        Route::get('/youtube', [ApiPlaylistController::class, 'getYoutubePlaylists'])->middleware('cacheResponse:3000');
-        Route::get('/spotify/{playlistId}/tracks', [ApiPlaylistController::class, 'getSpotifyPlaylistTracks'])->middleware('cacheResponse:3000');
-        Route::get('/youtube/{playlistId}/tracks', [ApiPlaylistController::class, 'getYoutubePlaylistTracks'])->middleware('cacheResponse:3000');
+        Route::get('/{platform}', [ApiPlaylistController::class, 'getUserPlaylists'])->middleware('cacheResponse:3000');
+        Route::get('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'getPlaylistTracks'])->middleware('cacheResponse:3000');
         Route::delete('/{platform}', [ApiPlaylistController::class, 'destroyPlaylists']);
         Route::delete('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'destroyTracks']);
-   
+
     });
 
     // Conversions
@@ -55,8 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sync/history', [ApiSyncController::class, 'getUserSyncs']);
     Route::get('/sync/{jobId}', [ApiSyncController::class, 'getSyncStatus']);
 
-    Route::get('/platforms/connected', [ApiConversionController::class, 'connectedPlatforms'])->middleware('cacheResponse:3000')->name('platforms.connected');
-
+    Route::get('/platforms/connected', [ApiConversionController::class, 'connectedPlatforms'])->name('platforms.connected');
 });
 
 //callbacks

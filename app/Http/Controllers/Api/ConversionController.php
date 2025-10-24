@@ -249,10 +249,13 @@ class ConversionController extends Controller
 
         Log::info("Checking connected platforms", ['user_id' => $user->id]);
 
-        $connected = [
-            'spotify' => $user->hasSpotifyToken(),
-            'youtube' => $user->hasYoutubeToken(),
-        ];
+        $platforms = $this->platformFactory->getAvailablePlatforms();
+        $connected = [];
+
+        foreach ($platforms as $platformName) {
+            $platform = $this->platformFactory->make($platformName);
+            $connected[$platformName] = $platform->isConnected($user);
+        }
 
         Log::info("Connected platforms retrieved", [
             'user_id' => $user->id,

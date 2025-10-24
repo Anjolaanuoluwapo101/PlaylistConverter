@@ -5,6 +5,7 @@ namespace App\Services\Spotify;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class SpotifyPlaylistService
 {
@@ -41,9 +42,88 @@ class SpotifyPlaylistService
     //     return $playlists;
     // }
 
+    // public function isConnected(User $user): bool
+    // {
+    //     $cacheKey = "spotify_connected_{$user->id}";
 
-    public function getUserPlaylists(User $user, ?int $limit = 20, ?int $offset = null): array
-    {
+    //     return Cache::remember($cacheKey, 300, function () use ($user, $cacheKey) {
+    //         Log::info("Checking Spotify connection validity (fresh check)", [
+    //             'user_id' => $user->id,
+    //             'has_access_token' => !empty($user->hasSpotifyToken()),
+    //             'token_expires_at' => $user->spotify_token_expires_at,
+    //         ]);
+
+    //         if (empty($user->spotify_access_token)) {
+    //             Log::info("Spotify not connected - missing tokens", ['user_id' => $user->id]);
+    //             return false;
+    //         }
+
+    //         try {
+    //             $token = $this->authService->getValidToken($user);
+    //             $response = Http::withToken($token)->get('https://api.spotify.com/v1/me');
+
+    //             if ($response->successful()) {
+    //                 Log::info("Spotify connection valid", [
+    //                     'user_id' => $user->id,
+    //                     'spotify_user_id' => $response->json()['id'] ?? 'unknown'
+    //                 ]);
+    //                 return true;
+    //             }
+
+    //             Log::warning("Spotify token invalid", [
+    //                 'user_id' => $user->id,
+    //                 'status' => $response->status()
+    //             ]);
+
+    //             $user->update([
+    //                 'spotify_access_token' => null,
+    //                 'spotify_refresh_token' => null,
+    //                 'spotify_token_expires_at' => null,
+    //             ]);
+
+    //             // Clear cache
+    //             Cache::forget($cacheKey);
+
+    //             return false;
+
+    //         } catch (\Exception $e) {
+    //             Log::error("Spotify connection check failed", [
+    //                 'user_id' => $user->id,
+    //                 'error' => $e->getMessage()
+    //             ]);
+
+    //             $user->update([
+    //                 'spotify_access_token' => null,
+    //                 'spotify_refresh_token' => null,
+    //                 'spotify_token_expires_at' => null,
+    //             ]);
+
+    //             // Clear cache
+    //             Cache::forget($cacheKey);
+
+    //             return false;
+    //         }
+    //     });
+    // }
+
+    public function isConnected($user) : bool {
+        $connected = $user->hasSpotifyToken();
+        if(!$connected){
+            $this->authService->refreshToken($user);
+            return true;
+        }else{
+            return true;
+        }
+    }
+
+
+    public function getUserPlaylists(
+        User $user,
+        ?int $limit = 20,
+        ?int $offset = null,
+        ?string $sortBy = null,
+        ?string $order = null
+    ): array {
         try {
             if ($limit === null) {
                 throw new \Exception('Pagination parameters are required.');
@@ -65,8 +145,27 @@ class SpotifyPlaylistService
 
             $data = $response->json();
 
+            $sorted = null;
+
+            if ($sortBy !== null) {
+                $sorted = collect($data['items'])->sortBy(function ($playlist) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'name':
+                            return strtolower($playlist['name']);
+                        case 'tracks':
+                            return $playlist['track_count'] ?? 0;
+                        case 'date':
+                        default:
+                            // Spotify doesn't provide creation date, use order returned
+                            return $playlist['id'];
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            }
+
             return [
-                'items' => $data['items'],
+                'items' => $sorted ?? $data['items'],
                 'total' => $data['total'],
                 'limit' => $data['limit'],
                 'offset' => $data['offset'],
@@ -83,8 +182,6 @@ class SpotifyPlaylistService
             throw $e;
         }
     }
-
-
 
 
     // public function getPlaylistTracks(string $playlistId, User $user): array
@@ -126,8 +223,14 @@ class SpotifyPlaylistService
     //     return $tracks;
     // }
 
-    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = 20, ?int $offset = null): array
-    {
+    public function getPlaylistTracks(
+        string $playlistId,
+        User $user,
+        ?int $limit = 20,
+        ?int $offset = null,
+        ?string $sortBy = null,
+        ?string $order = null
+    ): array {
         try {
             if ($limit === null) {
                 throw new \Exception('Pagination parameters are required.');
@@ -148,9 +251,33 @@ class SpotifyPlaylistService
             }
 
             $data = $response->json();
+            Log::info("data response", [
+                $data
+            ]);
+            $sorted = null;
+
+            if ($sortBy !== null) {
+                $sorted = collect($data['items'])->sortBy(function ($track) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'title':
+                            return strtolower($track['track']['name']);
+                        case 'artist':
+                            return strtolower($track['track']['artists'][0]['name']);
+                        case 'duration':
+                            return $track['track']['duration_ms'] ?? 0;
+                        case 'date':
+                        default:
+                            // Maintain playlist order for 'date' (Spotify adds tracks chronologically)
+                            return $track['track']['id'];
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            }
 
             $items = [];
-            foreach ($data['items'] as $item) {
+
+            foreach ($sorted ?? $data['items'] as $item) {
                 if ($item['track']) {
                     $items[] = [
                         'id' => $item['track']['id'],

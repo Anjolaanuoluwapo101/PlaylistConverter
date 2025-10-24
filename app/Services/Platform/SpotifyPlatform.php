@@ -31,7 +31,10 @@ class SpotifyPlatform implements PlatformInterface
         $this->logOperationStart('Spotify connection check', $this->createUserContext($user));
 
         try {
-            $connected = $user->hasSpotifyToken();
+            $connected = $this->playlistService->isConnected($user);
+            if(isset($connected['error'])){
+                return false;
+            }
             $this->logOperationSuccess('Spotify connection check', $this->createUserContext($user, [
                 'connected' => $connected
             ]));
@@ -49,12 +52,12 @@ class SpotifyPlatform implements PlatformInterface
         }
     }
 
-    public function getUserPlaylists(User $user, ?int $limit = null, $offset = null): array
+    public function getUserPlaylists(User $user, ?int $limit = null, $offset = null, ?string $sortBy = null, ?string $order = null): array
     {
         $limit = $limit ?? $this->defaultLimit;
 
         try {
-            $playlists = $this->playlistService->getUserPlaylists($user, $limit, $offset);
+            $playlists = $this->playlistService->getUserPlaylists($user, $limit, $offset, $sortBy, $order);
 
             // Validate response structure
             if (!isset($playlists['items']) || !is_array($playlists['items'])) {
@@ -79,7 +82,7 @@ class SpotifyPlatform implements PlatformInterface
         $this->logOperationStart('Fetching Spotify playlist data', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
 
         try {
-            $playlists = $this->getUserPlaylists($user, 20);
+            $playlists = $this->getUserPlaylists($user, 2);
             $playlistInfo = collect($playlists["items"])->firstWhere('id', $playlistId);
 
             if (!$playlistInfo) {
@@ -122,7 +125,7 @@ class SpotifyPlatform implements PlatformInterface
         }
     }
 
-    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null): array
+    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null,  ?string $sortBy = null, ?string $order = null): array
     {
         $limit = $limit ?? $this->defaultLimit;
         $this->logOperationStart('Fetching Spotify playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
@@ -131,7 +134,7 @@ class SpotifyPlatform implements PlatformInterface
         ])));
 
         try {
-            $tracks = $this->playlistService->getPlaylistTracks($playlistId, $user, $limit, $offset);
+            $tracks = $this->playlistService->getPlaylistTracks($playlistId, $user, $limit, $offset,   $sortBy , $order );
             $this->logOperationSuccess('Fetching Spotify playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
                 'limit' => $limit,
                 'offset' => $offset,

@@ -5,6 +5,7 @@ namespace App\Services\YouTube;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class YouTubePlaylistService
 {
@@ -51,8 +52,89 @@ class YouTubePlaylistService
     //     return $playlists;
     // }
 
-    public function getUserPlaylists(User $user, ?int $limit = 20, ?string $pageToken = null): array
-    {
+    // public function isConnected(User $user): bool
+    // {
+    //     $cacheKey = "youtube_connected_{$user->id}";
+        
+    //     return Cache::remember($cacheKey, 300, function() use ($user, $cacheKey) {
+    //         // ... all the validation logic from above ...
+    //         Log::info("Checking Youtube connection validity (fresh check)", [
+    //         'user_id' => $user->id,
+    //         'has_access_token' => !empty($user->youtube_access_token),
+    //     ]);
+
+    //     if (empty($user->spotify_access_token) || empty($user->spotify_refresh_token)) {
+    //         Log::info("Spotify not connected - missing tokens", ['user_id' => $user->id]);
+    //         return false;
+    //     }
+
+    //     try {
+    //         $token = $this->authService->getValidToken($user);
+    //         $response = Http::withToken($token)->get('https://www.googleapis.com/youtube/v3');
+
+    //         if ($response->successful()) {
+    //             Log::info("Yotube connection valid", [
+    //                 'user_id' => $user->id,
+    //                 'spotify_user_id' => $response->json()['id'] ?? 'unknown'
+    //             ]);
+    //             return true;
+    //         }
+
+    //         Log::warning("Youtube token invalid", [
+    //             'user_id' => $user->id,
+    //             'status' => $response->status()
+    //         ]);
+            
+    //         $user->update([
+    //             'youtube_access_token' => null,
+    //             'youtube_refresh_token' => null,
+    //             'youtube_token_expires_at' => null,
+    //         ]);
+            
+    //         // Clear cache
+    //         Cache::forget($cacheKey);
+            
+    //         return false;
+
+    //     } catch (\Exception $e) {
+    //         Log::error("Spotify connection check failed", [
+    //             'user_id' => $user->id,
+    //             'error' => $e->getMessage()
+    //         ]);
+            
+    //         $user->update([
+    //             'youtube_access_token' => null,
+    //             'youtube_refresh_token' => null,
+    //             'youtube_token_expires_at' => null,
+    //         ]);
+            
+    //         // Clear cache
+    //         Cache::forget($cacheKey);
+            
+    //         return false;
+    //     }
+            
+    //     });
+    // }
+
+    public function isConnected($user) : bool {
+        $connected = $user->hasYoutubeToken();
+        if(!$connected){
+            $this->authService->refreshToken($user);
+            return true;
+        }else{
+            return true;
+        }
+    }
+
+
+    public function getUserPlaylists(
+        User $user,
+        ?int $limit = 20,
+        ?string $pageToken = null,
+        ?string $sortBy = null,
+        ?string $order = null
+    ): array {
         try {
             if ($limit === null) {
                 throw new \Exception('Pagination parameters are required.');
@@ -76,9 +158,27 @@ class YouTubePlaylistService
             }
 
             $data = $response->json();
+            $sorted = null;
+
+            if ($sortBy !== null) {
+                $sorted = collect($data['items'])->sortBy(function ($playlist) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'name':
+                            return strtolower($playlist['snippet']['title']);
+                        case 'tracks':
+                            return $playlist['contentDetails']['itemCount'] ?? 0;
+                        case 'date':
+                        default:
+                            // Use published date
+                            return $playlist['snippet']['publishedAt'] ?? '';
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            }
 
             return [
-                'items' => $data['items'] ?? [],
+                'items' => $sorted ?? $data['items'] ?? [],
                 'total' => $data['pageInfo']['totalResults'] ?? 0,
                 'next_page_token' => $data['nextPageToken'] ?? null,
                 'prev_page_token' => $data['prevPageToken'] ?? null,
@@ -138,7 +238,7 @@ class YouTubePlaylistService
     //     return $tracks;
     // }
 
-    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = 20, ?string $pageToken = null): array
+    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = 20, ?string $pageToken = null, ?string $sortBy = null, ?string $order = null): array
     {
         try {
             if ($limit === null) {
@@ -164,9 +264,32 @@ class YouTubePlaylistService
             }
 
             $data = $response->json();
+            Log::info('Yotube Fetched',[
+                $data
+            ]);
+
+            if ($sortBy !== null) {
+                $sorted = collect($data['items'])->sortBy(function ($track) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'title':
+                            return strtolower($track['title']);
+                        case 'artist':
+                            return strtolower($track['artist']);
+                        case 'date':
+                        default:
+                            // YouTube tracks don't have date added, maintain order
+                            return $track['id'];
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            }
+
 
             $items = [];
-            foreach ($data['items'] ?? [] as $item) {
+
+
+            foreach ($sorted ?? $data['items'] as $item) {
                 $items[] = [
                     'id' => $item['contentDetails']['videoId'],
                     'title' => $item['snippet']['title'],

@@ -31,7 +31,10 @@ class YouTubePlatform implements PlatformInterface
         $this->logOperationStart('YouTube connection check', $this->createUserContext($user));
 
         try {
-            $connected = $user->hasYoutubeToken();
+            $connected = $this->playlistService->isConnected($user);
+            if(isset($connected['error'])){
+                return false;
+            }
             $this->logOperationSuccess('YouTube connection check', $this->createUserContext($user, [
                 'connected' => $connected
             ]));
@@ -49,12 +52,12 @@ class YouTubePlatform implements PlatformInterface
         }
     }
 
-    public function getUserPlaylists(User $user, ?int $limit = null, $pageToken = null): array
+    public function getUserPlaylists(User $user, ?int $limit = null, $pageToken = null,  ?string $sortBy = null, ?string $order = null): array
     {
         $limit = $limit ?? $this->defaultLimit;
 
         try {
-            $playlists = $this->playlistService->getUserPlaylists($user, $limit, $pageToken);
+            $playlists = $this->playlistService->getUserPlaylists($user, $limit, $pageToken, $sortBy, $order);
 
             // Validate response structure
             if (!isset($playlists['items']) || !is_array($playlists['items'])) {
@@ -122,7 +125,7 @@ class YouTubePlatform implements PlatformInterface
         }
     }
 
-    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $pageToken = null): array
+    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $pageToken = null,  ?string $sortBy = null, ?string $order = null): array
     {
         $limit = $limit ?? $this->defaultLimit;
         $this->logOperationStart('Fetching YouTube playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
@@ -131,7 +134,7 @@ class YouTubePlatform implements PlatformInterface
         ])));
 
         try {
-            $tracks = $this->playlistService->getPlaylistTracks($playlistId, $user, $limit, $pageToken);
+            $tracks = $this->playlistService->getPlaylistTracks($playlistId, $user, $limit, $pageToken, $sortBy, $order);
             $this->logOperationSuccess('Fetching YouTube playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
                 'limit' => $limit,
                 'page_token' => $pageToken,

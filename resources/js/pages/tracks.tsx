@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Music, Trash2, CheckSquare, Square } from 'lucide-react';
 import axios from 'axios';
+import FilterControls from '@/utils/FilterControls';
 
 export interface Track {
   id: string;
@@ -43,6 +44,11 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Filter and sort state
+  const [sortBy, setSortBy] = useState<string>('title');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [applyingFilters, setApplyingFilters] = useState(false);
+
   // Pagination state
   const [pagination, setPagination] = useState({
     offset: 0,
@@ -52,7 +58,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
     total: 0
   });
 
-  const fetchTracks = async (offset?: number, pageToken?: string | null) => {
+  const fetchTracks = async (offset?: number, pageToken?: string | null, sortByParam?: string, orderParam?: string) => {
     try {
       setIsLoading(true);
       let url = `/playlists/${platformId}/${playlistId}/tracks?limit=20`;
@@ -62,12 +68,20 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
         url += `&page_token=${pageToken}`;
       }
 
+      // Add sorting parameters
+      if (sortByParam) {
+        url += `&sort_by=${sortByParam}`;
+      }
+      if (orderParam) {
+        url += `&order=${orderParam}`;
+      }
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch tracks');
       }
       const data: TracksResponse = await response.json();
-      setTracks(data.tracks);
+      setTracks(data.tracks.items);
 
       // Update pagination state
       setPagination({
@@ -88,6 +102,14 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   useEffect(() => {
     fetchTracks();
   }, [playlistId, platformId]);
+
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    setApplyingFilters(true);
+    fetchTracks(undefined, undefined, sortBy, order).finally(() => {
+      setApplyingFilters(false);
+    });
+  };
 
   // Pagination handlers
   const loadNextPage = () => {
@@ -129,6 +151,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       </div>
     </div>
   );
+  
 
   return (
     <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
@@ -143,6 +166,22 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
           Hide
         </button>
       </div>
+
+      {/* Filter Controls */}
+      <FilterControls
+        sortBy={sortBy}
+        order={order}
+        onSortByChange={setSortBy}
+        onOrderChange={setOrder}
+        onApplyFilters={handleApplyFilters}
+        sortOptions={[
+          { value: 'name', label: 'Title' },
+          { value: 'artist', label: 'Artist' },
+          { value: 'date', label: 'Date added' },
+          { value: 'duration', label: 'Duration' }
+        ]}
+        isLoading={applyingFilters}
+      />
 
       {/* Selection controls, at the top of the tracks*/}
       {selectedTracks.length > 0 && (
@@ -206,7 +245,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
               <p className="text-purple-700 dark:text-purple-300 line-clamp-1">{track.artist}</p>
               <p className="text-purple-600/80 dark:text-purple-400/80 text-sm line-clamp-1">{track.album}</p>
               <p className="text-purple-500/70 dark:text-purple-500/70 text-sm">
-                {track.duration_ms && Math.floor(track.duration_ms / 60000)}:{((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}
+                {track.duration_ms ? Math.floor(track.duration_ms / 60000)  + ':' : "Duration not availabale"}{ track.duration_ms ? ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0') : ''}
               </p>
             </div>
           </div>

@@ -82,7 +82,10 @@ class SpotifyAuthService
                 'status' => $response->status(),
                 'response' => $response->body(),
             ]);
-            throw new \Exception('Failed to refresh Spotify token');
+            // throw new \Exception('Failed to refresh Spotify token');
+            return [
+                'error' => $response->status()
+            ];
         }
 
         $data = $response->json();
@@ -102,6 +105,9 @@ class SpotifyAuthService
     {
         if (!$user->spotify_token_expires_at || Carbon::now()->greaterThan($user->spotify_token_expires_at)) {
             $tokenData = $this->refreshToken($user);
+            if(isset($tokenData['error'])){
+                throw new \Exception('Failed to refresh Spotify token');
+            }
             return $tokenData['access_token'];
         }
 

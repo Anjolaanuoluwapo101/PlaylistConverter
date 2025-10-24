@@ -66,7 +66,7 @@ interface PlatformInterface
      * @param int|null $limit Optional limit for pagination
      * @param int|string|null $offset Offset (Spotify) or pageToken (YouTube)
      */
-    public function getUserPlaylists(User $user, int $limit , $offset = null): array;
+    public function getUserPlaylists(User $user, int $limit , $offset = null, ?string $sortBy , ?string $order): array;
 
     /**
      * Get tracks from a playlist
@@ -75,6 +75,6 @@ interface PlatformInterface
      * @param int|null $limit Optional limit for pagination
      * @param int|string|null $offset Offset (Spotify) or pageToken (YouTube)
      */
-    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null): array;
+    public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null, ?string $sortBy = null, ?string $order = null): array;
 
 }

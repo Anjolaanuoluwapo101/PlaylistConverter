@@ -86,7 +86,10 @@ class YouTubeAuthService
                 'status' => $response->status(),
                 'response' => $response->body(),
             ]);
-            throw new \Exception('Failed to refresh YouTube token');
+            // throw new \Exception('Failed to refresh YouTube token');
+            return [
+                'error' => $response->status()
+            ];
         }
 
         $data = $response->json();
@@ -106,6 +109,9 @@ class YouTubeAuthService
     {
         if (!$user->youtube_token_expires_at || Carbon::now()->greaterThan($user->youtube_token_expires_at)) {
             $tokenData = $this->refreshToken($user);
+            if(isset($tokenData['error'])){
+                throw new \Exception('Failed to refresh Spotify token');
+            }
             return $tokenData['access_token'];
         }
 
