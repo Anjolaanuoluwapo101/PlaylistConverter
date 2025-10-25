@@ -5,6 +5,7 @@ namespace App\Services\Spotify;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\Spotify\SpotifyAuthService;
 use Illuminate\Support\Facades\Cache;
 
 class SpotifyPlaylistService
