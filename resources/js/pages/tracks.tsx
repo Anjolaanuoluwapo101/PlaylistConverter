@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Music, Trash2, CheckSquare, Square } from 'lucide-react';
 import axios from 'axios';
+import ErrorState from '@/utils/ErrorState';
 import FilterControls from '@/utils/FilterControls';
+import ConfirmationModal from '@/utils/ConfirmationModal';
+import WarningComponent from '@/utils/WarningComponent';
 
 export interface Track {
   id: string;
@@ -13,7 +16,16 @@ export interface Track {
 }
 
 export interface TracksResponse {
-  tracks: Track[];
+  tracks: {
+    items: Track[];
+    count: number;
+    offset?: number;
+    next_page_token?: string | null;
+    prev_page_token?: string | null;
+    has_more?: boolean;
+    has_previous?: boolean;
+    total?: number;
+  };
   count: number;
   offset?: number;
   next_page_token?: string | null;
@@ -43,11 +55,13 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   // Selection and deletion state
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
   // Filter and sort state
   const [sortBy, setSortBy] = useState<string>('title');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [applyingFilters, setApplyingFilters] = useState(false);
+
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -87,9 +101,9 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       setPagination({
         offset: offset || 0,
         pageToken: pageToken || null,
-        hasMore: data.tracks.length === 20,
-        hasPrevious: (offset || 0) > 0,
-        total: data.total || 0
+        hasMore: data.tracks.has_more || false,
+        hasPrevious: data.tracks.has_previous || false,
+        total: data.tracks.total || 0
       });
 
       setIsLoading(false);
@@ -142,14 +156,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   );
 
   if (error) return (
-    <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="text-red-500 dark:text-red-400 mb-2">⚠️</div>
-          <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
-        </div>
-      </div>
-    </div>
+    <ErrorState error={error} onDismiss={() => setError(null)} />
   );
   
 
@@ -166,6 +173,9 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
           Hide
         </button>
       </div>
+
+      {/* Warning for playlists created by others */}
+      <WarningComponent message="Playlists created by another person cannot be modified." />
 
       {/* Filter Controls */}
       <FilterControls
@@ -276,43 +286,38 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       )}
 
       {/* Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-3">Delete Tracks</h3>
-            <p className="text-purple-700 dark:text-purple-300 mb-6">
-              Are you sure you want to delete {selectedTracks.length} track{selectedTracks.length !== 1 ? 's' : ''} from this playlist? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await axios.delete(`/${platformId}/${playlistId}/tracks`, {
-                      data: { track_ids: selectedTracks }
-                    });
-                    // Refresh tracks after deletion
-                    fetchTracks();
-                    setSelectedTracks([]);
-                    setShowDeleteModal(false);
-                  } catch (err) {
-                    console.error('Error deleting tracks:', err);
-                    setError('Failed to delete tracks');
-                  }
-                }}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete Tracks"
+        message={`Are you sure you want to delete ${selectedTracks.length} track${selectedTracks.length !== 1 ? 's' : ''} from this playlist? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          setError(null);
+          setDeleteSuccess(null);
+          try {
+            await axios.delete(`/playlists/${platformId}/${playlistId}/tracks`, {
+              data: { track_ids: selectedTracks }
+            });
+            // Refresh tracks after deletion
+            fetchTracks();
+            setSelectedTracks([]);
+            setShowDeleteModal(false);
+            setDeleteSuccess(`Successfully deleted ${selectedTracks.length} track${selectedTracks.length !== 1 ? 's' : ''}`);
+            // Clear success message after 3 seconds
+            setTimeout(() => setDeleteSuccess(null), 3000);
+          } catch (err) {
+            console.error('Error deleting tracks:', err);
+            setError('Failed to delete tracks');
+            throw err; // Re-throw to trigger error state in modal
+          }
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+        showSuccess={!!deleteSuccess}
+        successMessage={deleteSuccess || "Operation completed successfully!"}
+        showError={!!error && error === 'Failed to delete tracks'}
+        errorMessage={error === 'Failed to delete tracks' ? error : "An error occurred. Please try again."}
+      />
     </div>
   );
 };

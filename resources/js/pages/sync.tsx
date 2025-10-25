@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavBarData } from '@/utils/global';
+import PageHeader from '@/components/PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import  useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
@@ -242,14 +243,10 @@ const Sync: React.FC = () => {
     <>
       <NavBar items={NavBarData} />
       <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-            Sync Playlists
-          </h2>
-          <p className="text-lg text-purple-600/80 dark:text-purple-400/80 font-medium">
-            Keep your playlists synchronized across platforms
-          </p>
-        </div>
+        <PageHeader
+          title="Sync Playlists"
+          description="Keep your playlists synchronized across platforms"
+        />
 
         {connectedPlatformKeys.length === 0 ? (
           <NoPlatformsConnect />
@@ -348,7 +345,7 @@ const Sync: React.FC = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
                     id="useQueue"
@@ -359,7 +356,7 @@ const Sync: React.FC = () => {
                   <label htmlFor="useQueue" className="text-sm font-medium text-purple-900 dark:text-purple-100">
                     Queue sync for background processing (recommended for large playlists)
                   </label>
-                </div>
+                </div> */}
               </div>
 
               {/* Sync Button */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavBarData } from '@/utils/global';
+import PageHeader from '@/components/PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import  useApiCache  from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
@@ -54,6 +55,8 @@ const Convert: React.FC = () => {
   const [conversionJob, setConversionJob] = useState<ConversionJob | null>(null);
   const [conversionHistory, setConversionHistory] = useState<ConversionJob[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [targetPlaylistName, setTargetPlaylistName] = useState<string>('');
+  const [targetPlaylistDescription, setTargetPlaylistDescription] = useState<string>('');
 
   // Load connected platforms and conversion history on initial render
   useEffect(() => {
@@ -135,6 +138,8 @@ const Convert: React.FC = () => {
         source_playlist_id: sourcePlaylistId.trim(),
         source_platform: sourcePlatform,
         target_platform: targetPlatform,
+        target_playlist_name: targetPlaylistName.trim() || undefined,
+        target_playlist_description: targetPlaylistDescription.trim() || undefined,
       }); //since backend is not currently utilizing queued conversion, we call the normal convert endpoint
       
       setConversionJob(response.data.job);
@@ -149,6 +154,7 @@ const Convert: React.FC = () => {
       const errorData = (err as AxiosError)?.response?.data;
       const errorMessage = typeof errorData === 'string' ? errorData : (errorData as { message?: string })?.message || 'Failed to start conversion';
       setError(errorMessage);
+      setConverting(false);
     } finally {
       setConverting(false);
     }
@@ -205,14 +211,10 @@ const Convert: React.FC = () => {
     <>
       <NavBar items={NavBarData} />
       <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-            Convert Playlists
-          </h2>
-          <p className="text-lg text-purple-600/80 dark:text-purple-400/80 font-medium">
-            Convert your playlists between Spotify and YouTube Music
-          </p>
-        </div>
+        <PageHeader
+          title="Convert Playlists"
+          description="Convert your playlists between Spotify and YouTube Music"
+        />
 
         {connectedPlatformKeys.length === 0 ? (
           <NoPlatformsConnect />
@@ -286,6 +288,29 @@ const Convert: React.FC = () => {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Target Playlist Details */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  Target Playlist Details (Optional)
+                </label>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Custom playlist name (leave empty for default)"
+                    value={targetPlaylistName}
+                    onChange={(e) => setTargetPlaylistName(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                  <textarea
+                    placeholder="Custom playlist description (leave empty for default)"
+                    value={targetPlaylistDescription}
+                    onChange={(e) => setTargetPlaylistDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                  />
+                </div>
               </div>
 
               {/* Convert Button */}

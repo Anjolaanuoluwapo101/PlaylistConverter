@@ -26,7 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/platforms/youtube/disconnect', [PlatformController::class, 'disconnectYoutube'])->name('platforms.youtube.disconnect');
     
     // Playlists
-    Route::get('/playlists/show', function(){
+    Route::get('/playlists', function(){
         return Inertia::render('playlist');
     })->name('playlist');
     Route::prefix('playlists')->group(function () {
@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Conversions
     Route::get('/convert', function(){
         return Inertia::render('convert');
-    })->name('convert');
+    })->name('Convert');
     Route::post('/convert', [ApiConversionController::class, 'convert'])->name('convert.convert');
     Route::get('/convert/history', [ApiConversionController::class, 'history'])->middleware('cacheResponse:3000');
     Route::get('/convert/{id}', [ApiConversionController::class, 'status'])->name('convert.status');

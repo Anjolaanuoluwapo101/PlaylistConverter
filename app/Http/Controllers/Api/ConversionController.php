@@ -32,6 +32,8 @@ class ConversionController extends Controller
             'source_playlist_id' => 'required|string', // Can be ID or URL
             'source_platform' => ['required', 'string', Rule::in($availablePlatforms)],
             'target_platform' => ['required', 'string', Rule::in($availablePlatforms)],
+            'target_playlist_name' => 'nullable|string|max:255',
+            'target_playlist_description' => 'nullable|string|max:1000',
         ]);
 
         Log::info("Validation passed", ['validated_data' => $validated]);
@@ -48,7 +50,9 @@ class ConversionController extends Controller
                 $parsedPlaylistId,
                 $validated['source_platform'],
                 $validated['target_platform'],
-                $user
+                $user,
+                $validated['target_playlist_name'] ?? null,
+                $validated['target_playlist_description'] ?? null
             );
 
             Log::info("Conversion initiated successfully", [

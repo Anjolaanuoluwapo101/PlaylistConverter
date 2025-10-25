@@ -9,7 +9,7 @@ const NavBarData = [
     },
     {
         title: "Playlists",
-        uri: "/playlists/show",
+        uri: "/playlists",
         icon: Music
     },
     {

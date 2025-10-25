@@ -25,7 +25,9 @@ class PlaylistConverterService
         string $sourcePlaylistId,
         string $sourcePlatform,
         string $targetPlatform,
-        User $user
+        User $user,
+        ?string $targetPlaylistName = null,
+        ?string $targetPlaylistDescription = null
     ): ConversionJob {
         Log::info("Initiating playlist conversion", [
             'user_id' => $user->id,
@@ -87,9 +89,10 @@ class PlaylistConverterService
                 'data' => $playlistData
             ]);
             // Save playlist to database
+            $trackCount = count($playlistData['tracks']['items'] ?? $playlistData['tracks']);
             Log::info("Saving playlist to database", [
                 'name' => $playlistData['name'],
-                'track_count' => count($playlistData['tracks'])
+                'track_count' => $trackCount
             ]);
 
             $playlist = Playlist::create([
@@ -98,14 +101,14 @@ class PlaylistConverterService
                 'source_playlist_id' => $sourcePlaylistId,
                 'name' => $playlistData['name'],
                 'description' => $playlistData['description'] ?? '',
-                'track_count' => count($playlistData['tracks']),
+                'track_count' => $trackCount,
                 'image_url' => $playlistData['image_url'] ?? null,
             ]);
 
             Log::info("Playlist saved to database", ['playlist_id' => $playlist->id]);
 
             // Save tracks
-            Log::info("Saving tracks to database", ['count' => count($playlistData['tracks'])]);
+            Log::info("Saving tracks to database", ['count' => $trackCount]);
 
             foreach ($playlistData['tracks']['items'] as $track) {
                 Track::create([
@@ -126,10 +129,12 @@ class PlaylistConverterService
                 'source_playlist_id' => $playlist->id,
                 'target_platform' => $targetPlatform,
                 'status' => 'pending',
-                'total_tracks' => count($playlistData['tracks']),
+                'total_tracks' => $trackCount,
                 'matched_tracks' => 0,
                 'failed_tracks' => 0,
                 'progress_percentage' => 0,
+                'target_playlist_name' => $targetPlaylistName,
+                'target_playlist_description' => $targetPlaylistDescription,
             ]);
 
             Log::info("Conversion job created", ['job_id' => $conversionJob->id]);
@@ -185,12 +190,18 @@ class PlaylistConverterService
             $targetPlatform = $this->platformFactory->make($job->target_platform);
 
             // Create target playlist
-            Log::info("Creating target playlist", ['name' => $playlist->name]);
+            $targetName = $job->target_playlist_name ?? "{$playlist->name} (Converted)";
+            $targetDescription = $job->target_playlist_description ?? $playlist->description;
+
+            Log::info("Creating target playlist", [
+                'name' => $targetName,
+                'custom_name' => $job->target_playlist_name !== null
+            ]);
 
             $targetPlaylistData = $targetPlatform->createPlaylist(
                 $user,
-                "{$playlist->name} (Converted)",
-                $playlist->description
+                $targetName,
+                $targetDescription
             );
 
             $job->update(['target_playlist_id' => $targetPlaylistData['id']]);

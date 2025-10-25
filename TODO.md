@@ -1,34 +1,16 @@
-# Sync Method Refactoring Plan
+# Dashboard Modernization TODO
 
-## Current Issues
-- PlaylistSyncService::sync() performs operations synchronously without job tracking
-- SyncJob model is empty and migration lacks proper fields
-- No separation between job creation and execution like in PlaylistConverterService
+## 1. Modernize FeatureShowcase.tsx
+- [x] Enhance feature card animations: Add parallax scrolling, dynamic entrances (rotate/scale), interactive hovers
+- [x] Add Customer Reviews section: Horizontal carousel with testimonials and fade/slide animations
+- [x] Add Animated Progress section: Progress bar animating to show conversions count (e.g., 10,000)
+- [x] Add Playlists Around the World section: World map icon with animated counters for synced playlists
+- [x] Maintain purple gradient and neutral color scheme throughout
 
-## Plan
-1. **Update SyncJob Model and Migration**
-   - Add proper fields to SyncJob model (similar to ConversionJob)
-   - Update sync_jobs migration with required columns
+## 2. Adjust Dashboard.tsx Layout
+- [x] Reduce spacing between FeatureShowcase and Platform components (change space-y-12 to space-y-8)
+- [x] Ensure responsive layout adjustments
 
-2. **Refactor PlaylistSyncService**
-   - Create sync() method that creates SyncJob and calls performSyncing()
-   - Rename current sync() logic to performSyncing()
-   - Add job status tracking and progress updates
-
-3. **Update SyncController**
-   - Modify to work with new sync job structure
-   - Add job status retrieval methods
-
-4. **Update SyncPlaylistJob**
-   - Change to call performSyncing() instead of sync()
-
-5. **Testing**
-   - Verify sync job creation and execution
-   - Test both queued and immediate sync modes
-
-## Files to Modify
-- app/Models/SyncJob.php
-- database/migrations/2025_10_20_200912_create_sync_jobs_table.php
-- app/Services/Converter/PlaylistSyncService.php
-- app/Http/Controllers/Api/SyncController.php
-- app/Jobs/SyncPlaylistJob.php
+## 3. Testing and Followup
+- [ ] Test animations and responsiveness
+- [ ] Add mock data for reviews/progress if needed

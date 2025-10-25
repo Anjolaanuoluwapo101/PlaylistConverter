@@ -19,6 +19,8 @@ class ConversionJob extends Model
         'failed_tracks',
         'progress_percentage',
         'target_playlist_id',
+        'target_playlist_name',
+        'target_playlist_description',
         'error_message',
         'failed_track_details',
     ];

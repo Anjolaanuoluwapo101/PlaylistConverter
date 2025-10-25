@@ -7,6 +7,7 @@ use App\Http\Resources\PlaylistResource;
 use App\Services\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Spatie\ResponseCache\Facades\ResponseCache;
 
 class PlaylistController extends Controller
 {
@@ -235,6 +236,8 @@ class PlaylistController extends Controller
                 }
             }
 
+            ResponseCache::forget("/$platform/$playlistId/tracks");
+
             return response()->json([
                 'message' => 'Batch track removal completed',
                 'results' => $results
@@ -292,6 +295,9 @@ class PlaylistController extends Controller
                     ];
                 }
             }
+
+            //Forget the currrent playlist cache
+            ResponseCache::forget("/$platform");
 
             return response()->json([
                 'message' => 'Batch playlist deletion completed',
