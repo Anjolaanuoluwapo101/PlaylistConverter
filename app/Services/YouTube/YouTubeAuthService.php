@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class YouTubeAuthService
 {
-    private string $clientId;
+    private string $clientId; 
     private string $clientSecret;
     private string $redirectUri;
     private string $tokenUrl = 'https://oauth2.googleapis.com/token';

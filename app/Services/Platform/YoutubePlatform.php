@@ -14,7 +14,7 @@ class YouTubePlatform implements PlatformInterface
 {
     use LogsOperations;
 
-    private int $defaultLimit = 20;
+    private int $defaultLimit = 20; 
 
     public function __construct(
         private YouTubePlaylistService $playlistService,

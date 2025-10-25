@@ -13,7 +13,7 @@ class YouTubePlaylistService
     private string $baseUrl = 'https://www.googleapis.com/youtube/v3';
 
     public function __construct(
-        private YouTubeAuthService $authService
+        private YouTubeAuthService $authService 
     ) {
     }
 

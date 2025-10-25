@@ -10,7 +10,7 @@ class YouTubeSearchService
     public function __construct(
         private YouTubePlaylistService $playlistService
     ) {}
-
+ 
     public function findTrack(string $artist, string $title, User $user): ?array
     {
         // Try with artist and title
