@@ -2,7 +2,7 @@
 
 A modern, secure web application that seamlessly converts and synchronizes music playlists between Spotify and YouTube Music platforms. Built with Laravel 12, React 19, and TypeScript for a robust, scalable experience.
 
-## 🌟 Features
+## Features
 
 ### 🎵 **Playlist Conversion**
 - Convert playlists between Spotify and YouTube Music with high accuracy
@@ -10,36 +10,36 @@ A modern, secure web application that seamlessly converts and synchronizes music
 - Real-time progress tracking with detailed status updates
 - Support for both playlist URLs and IDs
 
-### 🔄 **Real-Time Sync**
+### **Real-Time Sync**
 - Bidirectional synchronization between platforms
 - Automatic updates when playlists change on either platform
 - Option to remove extra tracks during sync
 - Background job processing for reliability
 
-### 🎨 **Custom Playlist Builder**
+### **Custom Playlist Builder**
 - Create new playlists from scratch across multiple platforms
 - Search and add tracks from both Spotify and YouTube Music
 - Build playlists with up to 5 tracks per creation
 - Simultaneous creation on multiple platforms
 
-### 🔐 **Secure Authentication**
+### **Secure Authentication**
 - OAuth integration with Spotify and YouTube Music APIs
 - Encrypted data handling with no storage of user credentials
 - Secure token management and refresh handling
 - Complete privacy protection
 
-### 👥 **Social Features**
+### **Social Features**
 - Share converted playlists with friends
 - Collaborate on playlist builds
 - Cross-platform sharing capabilities
 
-### ⚙️ **Personalized Settings**
+### **Personalized Settings**
 - Customizable themes and UI preferences
 - Platform-specific settings
 - Notification preferences
 - User profile management
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Laravel 12** - PHP web framework
@@ -69,7 +69,7 @@ A modern, secure web application that seamlessly converts and synchronizes music
 - **Composer** - PHP dependency management
 - **NPM** - JavaScript dependency management
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - PHP 8.2 or higher
@@ -153,7 +153,7 @@ php artisan serve
 docker-compose up -d
 ```
 
-## 📖 API Documentation
+##  API Documentation
 
 ### Authentication Endpoints
 - `POST /login` - User login
@@ -212,7 +212,7 @@ Start the queue worker:
 php artisan queue:work
 ```
 
-## 🧪 Testing
+##  Testing
 
 Run the test suite:
 ```bash
@@ -224,7 +224,7 @@ Run with coverage:
 php artisan test --coverage
 ```
 
-## 📦 Deployment
+##  Deployment
 
 ### Using Docker
 ```bash
@@ -257,7 +257,7 @@ MAIL_MAILER=smtp
 # ... mail config
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -272,11 +272,11 @@ MAIL_MAILER=smtp
 - Update documentation for API changes
 - Ensure code passes linting and formatting
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - [Laravel](https://laravel.com/) - The PHP framework
 - [React](https://reactjs.org/) - The JavaScript library
@@ -284,7 +284,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
 - [YouTube Data API](https://developers.google.com/youtube/v3)
 
-## 📞 Support
+##  Support
 
 For support, email support@playlistconverter.com or join our Discord community.
 
