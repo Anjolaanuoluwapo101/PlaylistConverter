@@ -1,12 +1,14 @@
 FROM php:8.2-fpm
 
-# Install PHP extensions & system tools
+# Install system tools & PHP extensions
 RUN apt-get update && apt-get install -y \
     apt-utils \
     git \
     curl \
     zip \
     unzip \
+    nodejs \
+    npm \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -25,30 +27,23 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy your application code
+# Copy app code
 COPY . .
 
-# Install PHP deps
+#  Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions & storage link
+#  Install Node deps & build assets
+RUN npm install && npm run build
+
+# Fix permissions & create SQLite DB
 RUN chmod -R 775 storage bootstrap/cache \
- && php artisan storage:link
+ && php artisan storage:link \
+ && chown -R www-data:www-data public/build \
+ && chmod -R 755 public/build \
+ && touch database/database.sqlite
 
-# Fix permissions for built assets
-RUN chown -R www-data:www-data public/build \
- && chmod -R 755 public/build
-
-#Create an SQLite Database
-RUN touch database/database.sqlite
-
-
-# Cache everything
-# RUN php artisan config:cache \
-#  && php artisan view:cache 
-
-# Expose port & serve
 EXPOSE 8000
 
+# Run migrations & start app
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
-# CMD ["php","artisan","serve","--host=0.0.0.0","--port=8000"]
