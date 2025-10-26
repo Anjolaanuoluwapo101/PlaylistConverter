@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PlaylistController as ApiPlaylistController;
 use App\Http\Controllers\Api\ConversionController as ApiConversionController;
 use App\Http\Controllers\Api\SyncController as ApiSyncController;
 use App\Http\Controllers\Api\BuildController as ApiBuildController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -70,6 +71,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::get('/platforms/connected', [ApiConversionController::class, 'connectedPlatforms'])->name('platforms.connected');
+
+    // User deletion
+    Route::delete('/user/delete', [AuthenticatedSessionController::class, 'delete'])->name('user.delete');
 });
 
 //callbacks

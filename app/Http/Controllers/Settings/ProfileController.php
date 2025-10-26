@@ -27,7 +27,7 @@ class ProfileController extends Controller
     /**
      * Update the user's profile settings.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request)
     {
         $request->user()->fill($request->validated());
 
@@ -37,7 +37,10 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return to_route('profile.edit');
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => $request->user()->only(['name', 'email'])
+        ]);
     }
 
     /**

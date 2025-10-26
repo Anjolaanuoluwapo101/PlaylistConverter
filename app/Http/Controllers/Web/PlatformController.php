@@ -98,8 +98,8 @@ class PlatformController extends Controller
         ResponseCache::forget('/convert/history');
         ResponseCache::forget('/platforms/connected');
 
-        return redirect()->route('platforms.index')
-            ->with('success', 'Spotify disconnected successfully');
+        return redirect()->route('profile.edit')
+            ->with('platformLogout', true);
     }
 
     public function disconnectYoutube(Request $request)
@@ -116,7 +116,7 @@ class PlatformController extends Controller
         ResponseCache::forget('/convert/history');
         ResponseCache::forget('/platforms/connected');
 
-        return redirect()->route('platforms.index')
-            ->with('success', 'YouTube disconnected successfully');
+        return redirect()->route('profile.edit')
+            ->with('platformLogout', true);
     }
 }
