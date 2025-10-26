@@ -14,7 +14,7 @@ class YouTubeSearchService
     public function findTrack(string $artist, string $title, User $user): ?array
     {
         // Try with artist and title
-        $query = "{$artist} {$title} official audio";
+        $query = "$title $artist";
         $result = $this->playlistService->searchTrack($query, $user);
 
         if ($result) {
@@ -22,12 +22,12 @@ class YouTubeSearchService
         }
 
         // Try without "official audio"
-        $query = "{$artist} {$title}";
-        $result = $this->playlistService->searchTrack($query, $user);
+        // $query = "$artist $title";
+        // $result = $this->playlistService->searchTrack($query, $user);
 
-        if ($result) {
-            return $result;
-        }
+        // if ($result) {
+        //     return $result;
+        // }
 
         // Try cleaned query
         $cleanQuery = $this->cleanSearchQuery($artist, $title);

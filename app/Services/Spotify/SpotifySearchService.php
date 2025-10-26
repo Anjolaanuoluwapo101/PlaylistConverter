@@ -14,7 +14,7 @@ class SpotifySearchService
     public function findTrack(string $artist, string $title, User $user): ?array
     {
         // Try exact match first
-        $query = "{$artist} {$title}";
+        $query = "$title $artist";
         $result = $this->playlistService->searchTrack($query, $user);
 
         if ($result) {

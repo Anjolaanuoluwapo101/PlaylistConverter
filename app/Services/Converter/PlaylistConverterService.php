@@ -19,15 +19,14 @@ class PlaylistConverterService
     }
 
     /**
-     * Initiate a playlist conversion (creates job and dispatches to queue)
+     * Perform a playlist conversion using an existing job
      */
     public function convert(
         string $sourcePlaylistId,
         string $sourcePlatform,
         string $targetPlatform,
         User $user,
-        ?string $targetPlaylistName = null,
-        ?string $targetPlaylistDescription = null
+        ConversionJob $job
     ): ConversionJob {
         Log::info("Initiating playlist conversion", [
             'user_id' => $user->id,
@@ -123,45 +122,23 @@ class PlaylistConverterService
 
             Log::info("Tracks saved to database successfully");
 
-            // Create conversion job
-            $conversionJob = ConversionJob::create([
-                'user_id' => $user->id,
+            // Update the job with playlist and track info
+            $job->update([
                 'source_playlist_id' => $playlist->id,
-                'target_platform' => $targetPlatform,
-                'status' => 'pending',
                 'total_tracks' => $trackCount,
-                'matched_tracks' => 0,
-                'failed_tracks' => 0,
-                'progress_percentage' => 0,
-                'target_playlist_name' => $targetPlaylistName,
-                'target_playlist_description' => $targetPlaylistDescription,
             ]);
 
-            Log::info("Conversion job created", ['job_id' => $conversionJob->id]);
+            Log::info("Conversion job updated", ['job_id' => $job->id]);
 
             DB::commit();
 
-            // Dispatch the job to the queue
-            // ConvertPlaylistJobQueue::dispatch(
-            //     $conversionJob->id,
-            //     $user->id,
-            //     $sourcePlatform,
-            //     $targetPlatform
-            // );
-
-
-
-            // Log::info("Conversion job dispatched to queue", [
-            //     'job_id' => $conversionJob->id,
-            //     'queue' => "conversions-{$sourcePlatform}-to-{$targetPlatform}"
-            // ]);
-
-            $this->performConversion($conversionJob, $user);
+            // Perform the conversion immediately
+            $this->performConversion($job, $user);
             Log::info("Conversion job performed immediately (not queued)", [
-                'job_id' => $conversionJob->id
+                'job_id' => $job->id
             ]);
 
-            return $conversionJob->fresh();
+            return $job->fresh();
 
         } catch (\Exception $e) {
             DB::rollBack();

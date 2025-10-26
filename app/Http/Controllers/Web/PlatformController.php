@@ -7,6 +7,7 @@ use App\Services\Spotify\SpotifyAuthService;
 use App\Services\YouTube\YouTubeAuthService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\ResponseCache\Facades\ResponseCache;
 
 class PlatformController extends Controller
 {
@@ -14,26 +15,6 @@ class PlatformController extends Controller
         private SpotifyAuthService $spotifyAuth,
         private YouTubeAuthService $youtubeAuth
     ) {}
-
-    public function index(Request $request)
-    {
-        $user = $request->user();
-
-        //return as 
-        
-        return Inertia::render('Platforms/Index', [
-            'connections' => [
-                'spotify' => [
-                    'connected' => $user->hasSpotifyToken(),
-                    'expires_at' => $user->spotify_token_expires_at,
-                ],
-                'youtube' => [
-                    'connected' => $user->hasYoutubeToken(),
-                    'expires_at' => $user->youtube_token_expires_at,
-                ],
-            ],
-        ]);
-    }
 
     public function connectSpotify()
     {
@@ -112,6 +93,11 @@ class PlatformController extends Controller
             'spotify_token_expires_at' => null,
         ]);
 
+        // Clear Spotify-related caches after disconnect
+        ResponseCache::forget('/playlists/spotify');
+        ResponseCache::forget('/convert/history');
+        ResponseCache::forget('/platforms/connected');
+
         return redirect()->route('platforms.index')
             ->with('success', 'Spotify disconnected successfully');
     }
@@ -124,6 +110,11 @@ class PlatformController extends Controller
             'youtube_refresh_token' => null,
             'youtube_token_expires_at' => null,
         ]);
+
+        // Clear YouTube-related caches after disconnect
+        ResponseCache::forget('/playlists/youtube');
+        ResponseCache::forget('/convert/history');
+        ResponseCache::forget('/platforms/connected');
 
         return redirect()->route('platforms.index')
             ->with('success', 'YouTube disconnected successfully');

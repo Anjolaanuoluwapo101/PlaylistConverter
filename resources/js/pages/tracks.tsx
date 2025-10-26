@@ -5,6 +5,8 @@ import ErrorState from '@/utils/ErrorState';
 import FilterControls from '@/utils/FilterControls';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import WarningComponent from '@/utils/WarningComponent';
+import { usePagination } from '@/hooks/usePagination';
+import { useDataFetcher } from '@/hooks/useDataFetcher';
 
 export interface Track {
   id: string;
@@ -67,6 +69,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   const [pagination, setPagination] = useState({
     offset: 0,
     pageToken: null as string | null,
+    prevPageToken: null as string | null,
     hasMore: false,
     hasPrevious: false,
     total: 0
@@ -101,6 +104,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       setPagination({
         offset: offset || 0,
         pageToken: pageToken || null,
+        prevPageToken: data.tracks.prev_page_token || null,
         hasMore: data.tracks.has_more || false,
         hasPrevious: data.tracks.has_previous || false,
         total: data.tracks.total || 0
@@ -137,10 +141,8 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   const loadPreviousPage = () => {
     if (platformId === 'spotify' && pagination.offset !== null && pagination.offset > 0) {
       fetchTracks(Math.max(0, pagination.offset - 20));
-    } else if (platformId === 'youtube' && pagination.pageToken) {
-      // For YouTube, we need to use prev_page_token from the response
-      // This would require storing the previous token, but for simplicity we'll refetch from start
-      fetchTracks();
+    } else if (platformId === 'youtube' && pagination.prevPageToken) {
+      fetchTracks(undefined, pagination.prevPageToken);
     }
   };
 

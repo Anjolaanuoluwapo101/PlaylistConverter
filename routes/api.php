@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\YouTubeAuthController;
 use App\Http\Controllers\Api\PlaylistController;
 use App\Http\Controllers\Api\ConversionController;
 use App\Http\Controllers\Api\SyncController;
+use App\Http\Controllers\Api\BuildController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -69,5 +70,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/queued', [SyncController::class, 'syncQueued']);
         Route::get('/status/{jobId}', [SyncController::class, 'getSyncStatus']);
         Route::get('/user', [SyncController::class, 'getUserSyncs']);
+    });
+
+    // Playlist build
+    Route::prefix('build')->group(function () {
+        Route::post('/', [BuildController::class, 'build']);
+        Route::get('/jobs', [BuildController::class, 'jobs']);
+        Route::get('/status/{jobId}', [BuildController::class, 'status']);
     });
 });

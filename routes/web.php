@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\PlatformController;
 use App\Http\Controllers\Api\PlaylistController as ApiPlaylistController;
 use App\Http\Controllers\Api\ConversionController as ApiConversionController;
 use App\Http\Controllers\Api\SyncController as ApiSyncController;
+use App\Http\Controllers\Api\BuildController as ApiBuildController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -17,16 +18,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    
+
     // Platform connections
     // Route::get('/platforms', [PlatformController::class, 'index'])->name('platforms.index');
     Route::get('/platforms/spotify/connect', [PlatformController::class, 'connectSpotify'])->name('platforms.spotify.connect');
     Route::get('/platforms/youtube/connect', [PlatformController::class, 'connectYoutube'])->name('platforms.youtube.connect');
     Route::post('/platforms/spotify/disconnect', [PlatformController::class, 'disconnectSpotify'])->name('platforms.spotify.disconnect');
     Route::post('/platforms/youtube/disconnect', [PlatformController::class, 'disconnectYoutube'])->name('platforms.youtube.disconnect');
-    
+
     // Playlists
-    Route::get('/playlists', function(){
+    Route::get('/playlists', function () {
         return Inertia::render('playlist');
     })->name('playlist');
     Route::prefix('playlists')->group(function () {
@@ -38,20 +39,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Conversions
-    Route::get('/convert', function(){
+    Route::get('/convert', function () {
         return Inertia::render('convert');
     })->name('Convert');
     Route::post('/convert', [ApiConversionController::class, 'convert'])->name('convert.convert');
     Route::get('/convert/history', [ApiConversionController::class, 'history'])->middleware('cacheResponse:3000');
     Route::get('/convert/{id}', [ApiConversionController::class, 'status'])->name('convert.status');
-    
+
     // Sync
-    Route::get('/sync', function(){
+    Route::get('/sync', function () {
         return Inertia::render('sync');
     });
     Route::post('/sync', [ApiSyncController::class, 'sync']);
     Route::get('/sync/history', [ApiSyncController::class, 'getUserSyncs']);
     Route::get('/sync/{jobId}', [ApiSyncController::class, 'getSyncStatus']);
+
+    // Build
+    Route::get('/builder', function () {
+        return Inertia::render('build');
+    })->name('build');
+
+    Route::prefix('builder')->group(function () {
+        Route::post('/', [ApiBuildController::class, 'build']);
+        Route::get('/jobs', [ApiBuildController::class, 'jobs']);
+        Route::get('/{jobId}', [ApiBuildController::class, 'status']);
+    });
+
+    Route::post('/spotify/search', [ApiPlaylistController::class, 'testSpotifySearch']);
+    Route::post('/youtube/search', [ApiPlaylistController::class, 'testYoutubeSearch']);
+
 
     Route::get('/platforms/connected', [ApiConversionController::class, 'connectedPlatforms'])->name('platforms.connected');
 });
@@ -60,5 +76,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/auth/spotify/callback', [PlatformController::class, 'spotifyCallback'])->name('platforms.spotify.callback');
 Route::get('/auth/youtube/callback', [PlatformController::class, 'youtubeCallback'])->name('platforms.youtube.callback');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

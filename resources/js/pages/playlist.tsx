@@ -1,7 +1,6 @@
 import { ConnectedPlatforms, Playlist as PlaylistType } from '@/types/index';
 import { NavBarData } from '@/utils/global';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
-import PageHeader from '@/components/PageHeader';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +15,9 @@ import ConfirmationModal from '@/utils/ConfirmationModal';
 import PlaylistGrid from '@/utils/PlaylistGrid';
 import FilterControls from '@/utils/FilterControls';
 import WarningComponent from '@/utils/WarningComponent';
+import PageHeader from '@/components/PageHeader';
+import { usePagination } from '@/hooks/usePagination';
+import { useDataFetcher } from '@/hooks/useDataFetcher';
 
 
 
@@ -47,6 +49,7 @@ const Playlist: React.FC = () => {
   const [pagination, setPagination] = useState({
     offset: 0,
     pageToken: null as string | null,
+    prevPageToken: null as string | null,
     hasMore: false,
     hasPrevious: false,
     total: 0
@@ -92,6 +95,7 @@ const Playlist: React.FC = () => {
     setPagination({
       offset: 0,
       pageToken: null,
+      prevPageToken: null,
       hasMore: false,
       hasPrevious: false,
       total: 0
@@ -128,6 +132,7 @@ const Playlist: React.FC = () => {
       setPagination({
         offset: data.offset || 0,
         pageToken: data.next_page_token || null,
+        prevPageToken: data.prev_page_token || null,
         hasMore: data.has_more || false,
         hasPrevious: data.has_previous || false,
         total: data.total || 0
@@ -161,10 +166,8 @@ const Playlist: React.FC = () => {
   const loadPreviousPage = () => {
     if (selectedPlatform === 'spotify' && pagination.offset !== null && pagination.offset > 0) {
       fetchPlaylists(selectedPlatform, Math.max(0, pagination.offset - 20));
-    } else if (selectedPlatform === 'youtube' && pagination.pageToken) {
-      // For YouTube, we need to use prev_page_token from the response
-      // This would require storing the previous token, but for simplicity we'll refetch from start
-      fetchPlaylists(selectedPlatform);
+    } else if (selectedPlatform === 'youtube' && pagination.prevPageToken) {
+      fetchPlaylists(selectedPlatform, undefined, pagination.prevPageToken);
     }
   };
 

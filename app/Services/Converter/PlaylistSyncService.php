@@ -15,7 +15,7 @@ class PlaylistSyncService
     ) {}
 
     /**
-     * Initiate a playlist sync (creates job and dispatches to queue)
+     * Perform a playlist sync using an existing job
      */
     public function sync(
         string $sourcePlaylistId,
@@ -23,7 +23,7 @@ class PlaylistSyncService
         string $targetPlaylistId,
         string $targetPlatform,
         User $user,
-        bool $removeExtras = false
+        SyncJob $job
     ): SyncJob {
         Log::info("Initiating playlist sync", [
             'user_id' => $user->id,
@@ -31,7 +31,7 @@ class PlaylistSyncService
             'source_platform' => $sourcePlatform,
             'target_playlist_id' => $targetPlaylistId,
             'target_platform' => $targetPlatform,
-            'remove_extras' => $removeExtras
+            'remove_extras' => $job->remove_extras
         ]);
 
         // Validate platforms
@@ -65,43 +65,13 @@ class PlaylistSyncService
             throw new \Exception("{$targetPlatform} account not connected");
         }
 
-        DB::beginTransaction();
+        // Perform the sync immediately using the provided job
+        $this->performSyncing($job, $user);
+        Log::info("Sync job performed immediately (not queued)", [
+            'job_id' => $job->id
+        ]);
 
-        try {
-            // Create sync job
-            $syncJob = SyncJob::create([
-                'user_id' => $user->id,
-                'source_playlist_id' => $sourcePlaylistId,
-                'source_platform' => $sourcePlatform,
-                'target_playlist_id' => $targetPlaylistId,
-                'target_platform' => $targetPlatform,
-                'remove_extras' => $removeExtras,
-                'status' => 'pending',
-            ]);
-
-            Log::info("Sync job created", ['job_id' => $syncJob->id]);
-
-            DB::commit();
-
-            // Perform the sync immediately (not queued)
-            $this->performSyncing($syncJob, $user);
-            Log::info("Sync job performed immediately (not queued)", [
-                'job_id' => $syncJob->id
-            ]);
-            
-
-            return $syncJob->fresh();
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Failed to initiate playlist sync", [
-                'user_id' => $user->id,
-                'source_playlist_id' => $sourcePlaylistId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
-        }
+        return $job->fresh();
     }
 
     /**
@@ -173,7 +143,7 @@ class PlaylistSyncService
             // Update job with comparison results
             $job->update([
                 'tracks_to_add' => count($comparison['to_add']),
-                'tracks_to_remove' => count($comparison['to_remove']),
+                'tracks_to_remove' => $job->remove_extras ? count($comparison['to_remove']) : 0,
                 'tracks_in_sync' => count($comparison['in_sync']),
             ]);
 

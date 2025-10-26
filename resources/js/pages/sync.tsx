@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { NavBarData } from '@/utils/global';
-import PageHeader from '@/components/PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import  useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
@@ -10,6 +9,7 @@ import LoadingState from '@/utils/LoadingState';
 import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
 import PlaylistDropdown from '@/utils/PlaylistDropdown';
+import PageHeader from '@/components/PageHeader';
 
 interface Playlist {
   id: string;
@@ -51,7 +51,6 @@ const Sync: React.FC = () => {
   const [syncHistory, setSyncHistory] = useState<SyncJob[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [removeExtras, setRemoveExtras] = useState(false);
-  const [useQueue, setUseQueue] = useState(false);
 
   // Load connected platforms and sync history on initial render
   useEffect(() => {
@@ -139,8 +138,7 @@ const Sync: React.FC = () => {
     setSyncJob(null);
 
     try {
-      const endpoint = useQueue ? '/sync/queued' : '/sync';
-      const response = await axios.post(endpoint, {
+      const response = await axios.post('/sync', {
         source_playlist_id: sourcePlaylistId.trim(),
         source_platform: sourcePlatform,
         target_playlist_id: targetPlaylistId.trim(),
@@ -148,30 +146,14 @@ const Sync: React.FC = () => {
         remove_extras: removeExtras,
       });
 
-      if (useQueue) {
-        // For queued sync, create a job object from the response
-        const job: SyncJob = {
-          id: response.data.job_id,
-          status: 'pending',
-          source_playlist_id: sourcePlaylistId.trim(),
-          target_playlist_id: targetPlaylistId.trim(),
-          source_platform: sourcePlatform,
-          target_platform: targetPlatform,
-          remove_extras: removeExtras,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        setSyncJob(job);
-        // Start polling for status updates
-        pollSyncStatus(job.id);
-      } else {
-        // For immediate sync, use the returned job
-        setSyncJob(response.data.job);
-        // Refresh sync history
-        const historyResult = await getSyncHistory();
-        if (historyResult.syncs) {
-          setSyncHistory(historyResult.syncs);
-        }
+      // For immediate sync, use the returned job
+      setSyncJob(response.data.job);
+      // Start polling for status updates
+      pollSyncStatus(response.data.job.id);
+      // Refresh sync history
+      const historyResult = await getSyncHistory();
+      if (historyResult.syncs) {
+        setSyncHistory(historyResult.syncs);
       }
     } catch (err) {
       console.error('Sync error:', err);
@@ -188,7 +170,7 @@ const Sync: React.FC = () => {
     console.log("Starting to poll sync status for job ID:", jobId);
     const poll = async () => {
       try {
-        const response = await axios.get(`/sync/status/${jobId}`);
+        const response = await axios.get(`/sync/${jobId}`);
         const job = response.data.job;
         setSyncJob(job);
 
@@ -212,6 +194,8 @@ const Sync: React.FC = () => {
 
     poll();
   };
+
+
 
   // Get status color and icon
   const getStatusDisplay = (status: string) => {
@@ -345,18 +329,7 @@ const Sync: React.FC = () => {
                   </label>
                 </div>
 
-                {/* <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="useQueue"
-                    checked={useQueue}
-                    onChange={(e) => setUseQueue(e.target.checked)}
-                    className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
-                  />
-                  <label htmlFor="useQueue" className="text-sm font-medium text-purple-900 dark:text-purple-100">
-                    Queue sync for background processing (recommended for large playlists)
-                  </label>
-                </div> */}
+
               </div>
 
               {/* Sync Button */}
@@ -369,12 +342,12 @@ const Sync: React.FC = () => {
                   {syncing ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      {useQueue ? 'Queueing Sync...' : 'Syncing...'}
+                      Syncing...
                     </>
                   ) : (
                     <>
                       <ArrowLeftRight className="w-5 h-5" />
-                      {useQueue ? 'Queue Sync' : 'Sync Now'}
+                      Sync Now
                     </>
                   )}
                 </button>

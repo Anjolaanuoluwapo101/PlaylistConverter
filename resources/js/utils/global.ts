@@ -1,4 +1,4 @@
-import { LayoutDashboard, Music, Replace, RefreshCw } from "lucide-react";
+import { LayoutDashboard, Music, Replace, RefreshCw, Wrench } from "lucide-react";
 
 const NavBarData = [
     {
@@ -21,6 +21,11 @@ const NavBarData = [
         title: "Sync",
         uri: "/sync",
         icon: RefreshCw
+    },
+    {
+        title: "Build",
+        uri: "/builder",
+        icon: Wrench
     }
 ]
 

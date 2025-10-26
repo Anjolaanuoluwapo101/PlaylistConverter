@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ConversionJob;
 use App\Services\Converter\PlaylistConverterService;
 use App\Services\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Spatie\ResponseCache\Facades\ResponseCache;
 
 class ConversionController extends Controller
 {
@@ -46,14 +48,31 @@ class ConversionController extends Controller
         try {
             $user = $request->user();
 
+            // Create conversion job in controller
+            $conversionJob = ConversionJob::create([
+                'user_id' => $user->id,
+                'source_playlist_id' => null, // Will be set by service
+                'target_platform' => $validated['target_platform'],
+                'status' => 'pending',
+                'total_tracks' => 0, // Will be updated by service
+                'matched_tracks' => 0,
+                'failed_tracks' => 0,
+                'progress_percentage' => 0,
+                'target_playlist_name' => $validated['target_playlist_name'] ?? null,
+                'target_playlist_description' => $validated['target_playlist_description'] ?? null,
+            ]);
+
+            // Perform synchronous conversion - pass job to service
             $conversionJob = $this->converterService->convert(
                 $parsedPlaylistId,
                 $validated['source_platform'],
                 $validated['target_platform'],
                 $user,
-                $validated['target_playlist_name'] ?? null,
-                $validated['target_playlist_description'] ?? null
+                $conversionJob
             );
+
+            // Clear conversion history cache after successful conversion
+            ResponseCache::forget('/convert/history');
 
             Log::info("Conversion initiated successfully", [
                 'job_id' => $conversionJob->id,
