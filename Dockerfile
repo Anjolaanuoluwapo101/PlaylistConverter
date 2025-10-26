@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     sqlite3 \
     libsqlite3-dev \
-    docker-php-ext-install pdo_pgsql \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
