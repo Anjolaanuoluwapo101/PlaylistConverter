@@ -70,6 +70,12 @@ class SpotifyAuthService
 
     public function refreshToken(User $user): array
     {
+
+        if (!$user->spotify_refresh_token) {
+            Log::error('No Spotify refresh token available for user ' . $user->id);
+            throw new \Exception('No refresh token available');
+        }
+
         $response = Http::asForm()->post($this->authUrl, [
             'grant_type' => 'refresh_token',
             'refresh_token' => $user->spotify_refresh_token,

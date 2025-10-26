@@ -121,8 +121,10 @@ class YouTubePlaylistService
     public function isConnected($user) : bool {
         $connected = $user->hasYoutubeToken();
         if(!$connected){
-            $this->authService->refreshToken($user);
-            return true;
+            if($user->youtube_refresh_token){
+                $this->authService->refreshToken($user);
+            }
+            return false;
         }else{
             return true;
         }

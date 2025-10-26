@@ -50,7 +50,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        patch(route('profile.update'));
+        patch('/settings/update');
     };
 
     const handleDisconnectPlatform = async (platform: string) => {
@@ -110,6 +110,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                     <Label htmlFor="name">Name</Label>
                                     <Input
                                         id="name"
+                                        name = "name"
                                         type="text"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
@@ -122,9 +123,11 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
+                                        name = "email"
                                         type="email"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        // onChange={(e) => setData('email', e.target.value)}
+                                        disabled = {true}
                                         className="mt-1"
                                     />
                                     {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}

@@ -110,8 +110,10 @@ class SpotifyPlaylistService
     public function isConnected($user) : bool {
         $connected = $user->hasSpotifyToken();
         if(!$connected){
-            $this->authService->refreshToken($user);
-            return true;
+            if($user->spotify_refresh_token){
+                $this->authService->refreshToken($user);
+            }
+            return false;
         }else{
             return true;
         }
