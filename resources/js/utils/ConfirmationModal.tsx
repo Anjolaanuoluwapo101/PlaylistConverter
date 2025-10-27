@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -33,18 +33,43 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const [showResult, setShowResult] = useState(false);
   const [resultType, setResultType] = useState<'success' | 'error' | null>(null);
 
+  const onCancelRef = useRef(onCancel);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    if (showSuccess || showError) {
+    onCancelRef.current = onCancel;
+  }, [onCancel]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShowResult(false);
+      setResultType(null);
+      // Clear any existing timer when modal opens
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if ((showSuccess || showError) && !timerRef.current) {
       setShowResult(true);
       setResultType(showSuccess ? 'success' : 'error');
-      const timer = setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setShowResult(false);
         setResultType(null);
-        onCancel(); // Close modal after showing result
-      }, 2000);
-      return () => clearTimeout(timer);
+        onCancelRef.current(); // Close modal after showing result
+        timerRef.current = null;
+      }, 3000);
     }
-  }, [showSuccess, showError, onCancel]);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [showSuccess, showError]);
 
   const handleConfirm = async () => {
     setIsLoading(true);

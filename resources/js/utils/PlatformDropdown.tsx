@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import {  Music, Play} from 'lucide-react';
+
 
 const PLATFORM_CONFIG = [
   {
     key: 'spotify',
     label: 'Spotify',
-    icon: () => <img src="/logos/SpotifyLogo.png" alt="Spotify" className="w-8 h-8 object-contain" />,
+    icon: () => <Music className='h-6 w-6 text-green-500' />,
     gradient: 'from-green-500 to-green-600',
   },
   {
     key: 'youtube',
     label: 'YouTube',
-    icon: () => <img src="/logos/YoutubeLogo.png" alt="YouTube" className="w-8 h-8 object-contain" />,
+    icon: () =>  <Play className='h-6 w-6 text-red-500' />,
     gradient: 'from-red-500 to-red-600',
   },
 ];

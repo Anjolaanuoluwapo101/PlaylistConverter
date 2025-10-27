@@ -236,7 +236,7 @@ class PlaylistController extends Controller
                 }
             }
 
-            ResponseCache::forget("/playlists/{$platform}/{$playlistId}/tracks");
+            ResponseCache::forget("/playlists/$platform/$playlistId/tracks");
 
             return response()->json([
                 'message' => 'Batch track removal completed',
@@ -297,7 +297,7 @@ class PlaylistController extends Controller
             }
 
             //Forget the current playlist cache
-            ResponseCache::forget("/playlists/{$platform}");
+            ResponseCache::forget("/playlists/$platform");
 
             return response()->json([
                 'message' => 'Batch playlist deletion completed',

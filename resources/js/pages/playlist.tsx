@@ -14,10 +14,8 @@ import PlatformDropdown from '@/utils/PlatformDropdown';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import PlaylistGrid from '@/utils/PlaylistGrid';
 import FilterControls from '@/utils/FilterControls';
-import WarningComponent from '@/utils/WarningComponent';
+import AlertComponent from '@/utils/AlertComponent';
 import PageHeader from '@/components/PageHeader';
-import { usePagination } from '@/hooks/usePagination';
-import { useDataFetcher } from '@/hooks/useDataFetcher';
 
 
 
@@ -254,6 +252,8 @@ const Playlist: React.FC = () => {
         {/* Playlists View */}
         {selectedPlatform && !fetchingPlaylists && !error && playlists.length > 0 && showPlaylists && (
           <>
+            <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
+
             {/* Filter Controls */}
             <div className="mb-6">
               <FilterControls
@@ -271,11 +271,7 @@ const Playlist: React.FC = () => {
               />
             </div>
 
-            {/* Warning Component */}
-            <WarningComponent
-              message="Playlists created by another person cannot be modified."
-              type="info"
-            />
+
 
             {/* Selection Controls */}
             {selectedPlaylists.length > 0 && (
@@ -292,7 +288,11 @@ const Playlist: React.FC = () => {
                   </button>
                 </div>
                 <button
-                  onClick={() => setShowDeleteModal(true)}
+                  onClick={() => {
+                    setDeleteSuccess(null);
+                    setError(null);
+                    setShowDeleteModal(true);
+                  }}
                   className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -359,7 +359,7 @@ const Playlist: React.FC = () => {
               // Refresh playlists after deletion
               await fetchPlaylists(selectedPlatform);
               setSelectedPlaylists([]);
-              setShowDeleteModal(false);
+              // setShowDeleteModal(false);
               setDeleteSuccess(`Successfully deleted ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}`);
               // Clear success message after 3 seconds
               setTimeout(() => setDeleteSuccess(null), 3000);
@@ -369,7 +369,11 @@ const Playlist: React.FC = () => {
               throw err; // Re-throw to trigger error state in modal
             }
           }}
-          onCancel={() => setShowDeleteModal(false)}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setDeleteSuccess(null);
+            setError(null);
+          }}
           showSuccess={!!deleteSuccess}
           successMessage={deleteSuccess || "Operation completed successfully!"}
           showError={!!error && error === 'Failed to delete playlists'}

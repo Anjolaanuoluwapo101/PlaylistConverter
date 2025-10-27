@@ -4,10 +4,7 @@ import axios from 'axios';
 import ErrorState from '@/utils/ErrorState';
 import FilterControls from '@/utils/FilterControls';
 import ConfirmationModal from '@/utils/ConfirmationModal';
-import WarningComponent from '@/utils/WarningComponent';
 import AlertComponent from '@/utils/AlertComponent';
-import { usePagination } from '@/hooks/usePagination';
-import { useDataFetcher } from '@/hooks/useDataFetcher';
 
 export interface Track {
   id: string;
@@ -178,7 +175,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       </div>
 
       {/* Info for playlists created by others */}
-      <AlertComponent message="Playlists created by another person cannot be modified."  type="success" />
+      <AlertComponent message="Tracks created by another person cannot be modified."  type="info" />
 
       {/* Filter Controls */}
       <FilterControls
@@ -210,13 +207,17 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
               Clear selection
             </button>
           </div>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete Selected
-          </button>
+            <button
+              onClick={() => {
+                setDeleteSuccess(null);
+                setError(null);
+                setShowDeleteModal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Selected
+            </button>
         </div>
       )}
 
@@ -303,9 +304,9 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
               data: { track_ids: selectedTracks }
             });
             // Refresh tracks after deletion
-            fetchTracks();
+            await fetchTracks();
             setSelectedTracks([]);
-            setShowDeleteModal(false);
+            // setShowDeleteModal(false);
             setDeleteSuccess(`Successfully deleted ${selectedTracks.length} track${selectedTracks.length !== 1 ? 's' : ''}`);
             // Clear success message after 3 seconds
             setTimeout(() => setDeleteSuccess(null), 3000);
@@ -315,7 +316,11 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
             throw err; // Re-throw to trigger error state in modal
           }
         }}
-        onCancel={() => setShowDeleteModal(false)}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteSuccess(null);
+          setError(null);
+        }}
         showSuccess={!!deleteSuccess}
         successMessage={deleteSuccess || "Operation completed successfully!"}
         showError={!!error && error === 'Failed to delete tracks'}

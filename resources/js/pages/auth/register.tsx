@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
+import AlertComponent from '@/utils/AlertComponent';
 
 export default function Register() {
     return (
@@ -25,6 +26,11 @@ export default function Register() {
                         <p className="text-lg text-purple-600/80 dark:text-purple-400/80 font-medium">
                             Enter your details below to create your account
                         </p>
+                        {
+                            window.location.href.includes("onrender") && (
+                              <AlertComponent type='info' message='Render free tier does not support Email Verification, bear with us.' />  
+                            )
+                        }
                     </div>
 
                     <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg">
