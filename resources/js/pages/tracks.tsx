@@ -5,6 +5,7 @@ import ErrorState from '@/utils/ErrorState';
 import FilterControls from '@/utils/FilterControls';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import WarningComponent from '@/utils/WarningComponent';
+import AlertComponent from '@/utils/AlertComponent';
 import { usePagination } from '@/hooks/usePagination';
 import { useDataFetcher } from '@/hooks/useDataFetcher';
 
@@ -176,8 +177,8 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
         </button>
       </div>
 
-      {/* Warning for playlists created by others */}
-      <WarningComponent message="Playlists created by another person cannot be modified." />
+      {/* Info for playlists created by others */}
+      <AlertComponent message="Playlists created by another person cannot be modified."  type="success" />
 
       {/* Filter Controls */}
       <FilterControls

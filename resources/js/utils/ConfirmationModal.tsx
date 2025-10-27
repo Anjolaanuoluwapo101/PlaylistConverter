@@ -41,7 +41,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         setShowResult(false);
         setResultType(null);
         onCancel(); // Close modal after showing result
-      }, 3000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [showSuccess, showError, onCancel]);
