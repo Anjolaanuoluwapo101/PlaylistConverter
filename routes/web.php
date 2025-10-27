@@ -66,8 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{jobId}', [ApiBuildController::class, 'status']);
     });
 
-    Route::post('/spotify/search', [ApiPlaylistController::class, 'testSpotifySearch']);
-    Route::post('/youtube/search', [ApiPlaylistController::class, 'testYoutubeSearch']);
+    Route::post('/spotify/search', [ApiPlaylistController::class, 'spotifySearch']);
+    Route::post('/youtube/search', [ApiPlaylistController::class, 'youtubeSearch']);
 
 
     Route::get('/platforms/connected', [ApiConversionController::class, 'connectedPlatforms'])->name('platforms.connected');

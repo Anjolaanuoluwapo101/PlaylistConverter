@@ -218,24 +218,75 @@ class SpotifyPlatform implements PlatformInterface
         ]));
 
         try {
-            $result = $this->searchService->findTrack($artist, $title, $user);
+            // Get multiple results from the service
+            $results = $this->playlistService->searchTrack($artist, $title, $user);
 
-            if ($result) {
-                $this->logOperationSuccess('Searching for track on Spotify', $this->createUserContext($user, [
-                    'artist' => $artist,
-                    'title' => $title,
-                    'found_track' => $result['title']
-                ]));
-            } else {
-                $this->logWarning('Track not found on Spotify', $this->createUserContext($user, [
+            if (empty($results)) {
+                $this->logWarning('No tracks found on Spotify', $this->createUserContext($user, [
                     'artist' => $artist,
                     'title' => $title
                 ]));
+                return null;
             }
 
-            return $result;
+            // Clean the title for matching
+            $cleanTitle = $this->cleanTitle($title);
+
+            // Find the best match from the results
+            $bestMatch = $this->findBestMatch($results, $artist, $cleanTitle);
+
+            if (!$bestMatch) {
+                $this->logWarning('No suitable match found on Spotify', $this->createUserContext($user, [
+                    'artist' => $artist,
+                    'title' => $title
+                ]));
+                return null;
+            }
+
+            $this->logOperationSuccess('Searching for track on Spotify', $this->createUserContext($user, [
+                'artist' => $artist,
+                'title' => $title,
+                'found_track' => $bestMatch['title']
+            ]));
+
+            return $bestMatch;
         } catch (\Exception $e) {
             $this->logOperationFailure('Searching for track on Spotify', $e, $this->createUserContext($user, [
+                'artist' => $artist,
+                'title' => $title
+            ]));
+            return null;
+        }
+    }
+
+    public function searchTracks(string $artist, string $title, User $user): ?array
+    {
+        $this->logOperationStart('Searching for tracks on Spotify (unprocessed)', $this->createUserContext($user, [
+            'artist' => $artist,
+            'title' => $title
+        ]));
+
+        try {
+            // Get unprocessed results from the service
+            $results = $this->playlistService->searchTrack($artist, $title, $user);
+
+            if (empty($results)) {
+                $this->logWarning('No tracks found on Spotify', $this->createUserContext($user, [
+                    'artist' => $artist,
+                    'title' => $title
+                ]));
+                return null;
+            }
+
+            $this->logOperationSuccess('Searching for tracks on Spotify (unprocessed)', $this->createUserContext($user, [
+                'artist' => $artist,
+                'title' => $title,
+                'results_count' => count($results)
+            ]));
+
+            return $results;
+        } catch (\Exception $e) {
+            $this->logOperationFailure('Searching for tracks on Spotify (unprocessed)', $e, $this->createUserContext($user, [
                 'artist' => $artist,
                 'title' => $title
             ]));
@@ -334,5 +385,94 @@ class SpotifyPlatform implements PlatformInterface
             $this->logOperationFailure('Fetching Spotify playlist by ID', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
             return null;
         }
+    }
+
+    /**
+     * Clean track title by removing brackets, parentheses, and non-alphabetic symbols.
+     *
+     * @param string $title Raw track title
+     * @return string Cleaned title
+     */
+    private function cleanTitle(string $title): string
+    {
+        // Remove content within brackets and parentheses
+        $title = preg_replace('/\([^)]*\)/', '', $title); // Remove parentheses and content
+        $title = preg_replace('/\[[^\]]*\]/', '', $title); // Remove square brackets and content
+        $title = preg_replace('/\{[^}]*\}/', '', $title); // Remove curly brackets and content
+
+        // Remove non-alphabetic symbols but keep spaces and basic punctuation
+        $title = preg_replace('/[^a-zA-Z\s\'-]/', '', $title);
+
+        // Clean up extra spaces
+        $title = preg_replace('/\s+/', ' ', trim($title));
+
+        return trim($title);
+    }
+
+    /**
+     * Find the best matching track from search results based on artist and title similarity.
+     *
+     * @param array $items Search results from Spotify API
+     * @param string $targetArtist Target artist name
+     * @param string $targetTitle Target track title
+     * @return array|null Best matching item or null if no good match found
+     */
+    private function findBestMatch(array $items, string $targetArtist, string $targetTitle): ?array
+    {
+        $bestMatch = null;
+        $bestScore = 0;
+
+        foreach ($items as $item) {
+            $itemTitle = strtolower($item['title']);
+            $itemArtist = strtolower($item['artist']);
+
+            $targetTitleLower = strtolower($targetTitle);
+            $targetArtistLower = strtolower($targetArtist);
+
+            // Calculate similarity scores (0-100)
+            $titleSimilarity = $this->calculateSimilarity($targetTitleLower, $itemTitle);
+            $artistSimilarity = $this->calculateSimilarity($targetArtistLower, $itemArtist);
+
+            // Weighted score: title is more important (70%), artist (30%)
+            $score = ($titleSimilarity * 0.7) + ($artistSimilarity * 0.3);
+
+            // Bonus for exact matches
+            if ($itemTitle === $targetTitleLower) {
+                $score += 20;
+            }
+            if ($itemArtist === $targetArtistLower) {
+                $score += 10;
+            }
+
+            // Check if this item contains both artist and title in the title string
+            if (str_contains($itemTitle, $targetArtistLower) && str_contains($itemTitle, $targetTitleLower)) {
+                $score += 15;
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $bestMatch = $item;
+            }
+        }
+
+        // Only return if score is above threshold (avoids very poor matches)
+        return $bestScore >= 30 ? $bestMatch : null;
+    }
+
+    /**
+     * Calculate similarity percentage between two strings using PHP's similar_text.
+     *
+     * @param string $str1 First string
+     * @param string $str2 Second string
+     * @return float Similarity percentage (0-100)
+     */
+    private function calculateSimilarity(string $str1, string $str2): float
+    {
+        if (empty($str1) || empty($str2)) {
+            return 0.0;
+        }
+
+        similar_text($str1, $str2, $percent);
+        return (float) $percent;
     }
 }

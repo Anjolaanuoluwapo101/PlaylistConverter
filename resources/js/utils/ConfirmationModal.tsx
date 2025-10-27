@@ -61,7 +61,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         setResultType(null);
         onCancelRef.current(); // Close modal after showing result
         timerRef.current = null;
-      }, 3000);
+      }, 2000);
     }
     return () => {
       if (timerRef.current) {

@@ -304,7 +304,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
               data: { track_ids: selectedTracks }
             });
             // Refresh tracks after deletion
-            await fetchTracks();
+            fetchTracks();
             setSelectedTracks([]);
             // setShowDeleteModal(false);
             setDeleteSuccess(`Successfully deleted ${selectedTracks.length} track${selectedTracks.length !== 1 ? 's' : ''}`);

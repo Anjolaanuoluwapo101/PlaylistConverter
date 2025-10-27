@@ -49,8 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Test search endpoints
-    Route::post('/test/spotify/search', [PlaylistController::class, 'testSpotifySearch']);
-    Route::post('/test/youtube/search', [PlaylistController::class, 'testYoutubeSearch']);
+    Route::post('/test/spotify/search', [PlaylistController::class, 'spotifySearch']);
+    Route::post('/test/youtube/search', [PlaylistController::class, 'youtubeSearch']);
 
     // Conversions
     Route::prefix('conversions')->group(function () {

@@ -78,30 +78,33 @@ export default function Build() {
                 });
 
                 let tracks: Track[] = [];
-                if (response.data.found && response.data.track) {
-                    const track = response.data.track;
-                    if (platform === 'spotify') {
-                        tracks = [{
-                            id: `spotify-${track.id}`,
-                            name: track.title,
-                            artist: track.artist,
-                            platform: 'spotify' as const,
-                            track_id: track.id,
-                        }];
-                    } else if (platform === 'youtube') {
-                        tracks = [{
-                            id: `youtube-${track.id}`,
-                            name: track.title,
-                            artist: track.artist,
-                            platform: 'youtube' as const,
-                            track_id: track.id,
-                        }];
-                    }
+                console.log('response', response);
+                if (response.data.tracks && Array.isArray(response.data.tracks)) {
+                    tracks = response.data.tracks.map((track: Record<string, unknown>) => {
+                        if (platform === 'spotify') {
+                            return {
+                                id: `spotify-${track.id}`,
+                                name: track.title,
+                                artist: track.artist,
+                                platform: 'spotify' as const,
+                                track_id: track.id,
+                            };
+                        } else if (platform === 'youtube') {
+                            return {
+                                id: `youtube-${track.id}`,
+                                name: track.title,
+                                artist: track.artist,
+                                platform: 'youtube' as const,
+                                track_id: track.id,
+                            };
+                        }
+                        return null;
+                    }).filter((track: Track | null) => track !== null) as Track[];
                 }
 
                 allTracks.push(...tracks);
             }
-
+            console.log(allTracks);
             setSearchResults(allTracks);
         } catch (error) {
             console.error('Search failed:', error);

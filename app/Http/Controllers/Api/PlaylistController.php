@@ -113,7 +113,7 @@ class PlaylistController extends Controller
         }
     }
 
-    public function testSpotifySearch(Request $request)
+    public function spotifySearch(Request $request)
     {
         $request->validate([
             'artist' => 'required|string',
@@ -130,7 +130,7 @@ class PlaylistController extends Controller
                 ], 401);
             }
 
-            $result = $platform->searchTrack($request->artist, $request->title, $user);
+            $result = $platform->searchTracks($request->artist, $request->title, $user);
 
             if (!$result) {
                 return response()->json([
@@ -141,7 +141,7 @@ class PlaylistController extends Controller
 
             return response()->json([
                 'found' => true,
-                'track' => $result
+                'tracks' => $result
             ]);
 
         } catch (\Exception $e) {
@@ -152,7 +152,7 @@ class PlaylistController extends Controller
         }
     }
 
-    public function testYoutubeSearch(Request $request)
+    public function youtubeSearch(Request $request)
     {
         $request->validate([
             'artist' => 'required|string',
@@ -169,7 +169,7 @@ class PlaylistController extends Controller
                 ], 401);
             }
 
-            $result = $platform->searchTrack($request->artist, $request->title, $user);
+            $result = $platform->searchTracks($request->artist, $request->title, $user);
 
             if (!$result) {
                 return response()->json([
@@ -180,7 +180,7 @@ class PlaylistController extends Controller
 
             return response()->json([
                 'found' => true,
-                'track' => $result
+                'tracks' => $result
             ]);
 
         } catch (\Exception $e) {

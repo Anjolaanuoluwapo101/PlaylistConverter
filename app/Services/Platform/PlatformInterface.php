@@ -47,6 +47,11 @@ interface PlatformInterface
     public function searchTrack(string $artist, string $title, User $user): ?array;
 
     /**
+     * Search for tracks (returns unprocessed results)
+     */
+    public function searchTracks(string $artist, string $title, User $user): ?array;
+
+    /**
      * Add track to playlist
      */
     public function addTrackToPlaylist(string $playlistId, string $trackId, User $user): bool;
