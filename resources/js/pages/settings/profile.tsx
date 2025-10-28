@@ -13,7 +13,7 @@ import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import AlertComponent from '@/utils/AlertComponent';
 import NavBar from '@/components/user/NavBar';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/user/PageHeader';
 import { NavBarData } from '@/utils/global';
 
 interface User {

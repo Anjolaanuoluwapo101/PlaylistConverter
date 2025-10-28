@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { NavBarData } from '@/utils/global';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/user/PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import  useApiCache  from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { Music, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import NavBar from '@/components/user/NavBar';
+import Footer from '@/components/user/Footer';
 import LoadingState from '@/utils/LoadingState';
 import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
@@ -479,6 +480,7 @@ const Convert: React.FC = () => {
           </>
         )}
       </div>
+      <Footer />
     </>
   );
 };

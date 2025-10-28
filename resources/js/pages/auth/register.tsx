@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
 import AlertComponent from '@/utils/AlertComponent';
+import Footer from '@/components/user/Footer';
 
 export default function Register() {
     return (
@@ -135,6 +136,7 @@ export default function Register() {
                         </Form>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

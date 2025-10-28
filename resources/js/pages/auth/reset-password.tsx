@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
+import Footer from '@/components/user/Footer';
 
 interface ResetPasswordProps {
     token: string;
@@ -107,6 +108,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         </Form>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

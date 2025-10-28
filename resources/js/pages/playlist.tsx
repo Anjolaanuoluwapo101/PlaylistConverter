@@ -15,7 +15,8 @@ import ConfirmationModal from '@/utils/ConfirmationModal';
 import PlaylistGrid from '@/utils/PlaylistGrid';
 import FilterControls from '@/utils/FilterControls';
 import AlertComponent from '@/utils/AlertComponent';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/user/PageHeader';
+import Footer from '@/components/user/Footer';
 
 
 
@@ -380,6 +381,7 @@ const Playlist: React.FC = () => {
           errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
         />
       </div>
+      <Footer />
     </>
   );
 };

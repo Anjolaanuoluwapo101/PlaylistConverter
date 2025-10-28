@@ -5,6 +5,7 @@ import Platform from '@/components/user/Platform';
 import { Head } from '@inertiajs/react';
 import NavBar from '@/components/user/NavBar';
 import FeatureShowcase from '@/components/user/FeatureShowcase';
+import Footer from '@/components/user/Footer';
 import { NavBarData  } from '@/utils/global';
 
 export default function Dashboard() {
@@ -21,6 +22,7 @@ export default function Dashboard() {
                         <Platform />
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

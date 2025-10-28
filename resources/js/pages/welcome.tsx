@@ -1,9 +1,9 @@
-// import { dashboard, login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { Head,  usePage } from '@inertiajs/react';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
 import FeatureShowcase from '@/components/user/FeatureShowcase';
+import Footer from '@/components/user/Footer';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
@@ -38,6 +38,7 @@ export default function Welcome() {
                 <main className="w-full">
                     <FeatureShowcase />
                 </main>
+                <Footer />
             {/* </div> */}
         </>
     );

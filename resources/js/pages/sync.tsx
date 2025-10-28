@@ -5,11 +5,12 @@ import  useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import NavBar from '@/components/user/NavBar';
+import Footer from '@/components/user/Footer';
 import LoadingState from '@/utils/LoadingState';
 import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
 import PlaylistDropdown from '@/utils/PlaylistDropdown';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/user/PageHeader';
 
 interface Playlist {
   id: string;
@@ -480,6 +481,7 @@ const Sync: React.FC = () => {
           </>
         )}
       </div>
+      <Footer />
     </>
   );
 };

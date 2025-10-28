@@ -12,6 +12,7 @@ import { request } from '@/routes/password';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
 import AlertComponent from '@/utils/AlertComponent';
+import Footer from '@/components/user/Footer';
 
 interface LoginProps {
     status?: string;
@@ -132,6 +133,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </Form>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

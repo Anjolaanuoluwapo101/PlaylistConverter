@@ -7,6 +7,7 @@ import { Form, Head } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
+import Footer from '@/components/user/Footer';
 
 export default function ConfirmPassword() {
     return (
@@ -63,6 +64,7 @@ export default function ConfirmPassword() {
                         </Form>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import NavBar from '@/components/user/NavBar';
+import Footer from '@/components/user/Footer';
 import { NavBarData } from '@/utils/global';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/user/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -40,12 +41,10 @@ export default function Build() {
     const [buildJobs, setBuildJobs] = useState<BuildJob[]>([]);
     const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
-    const { data, setData, processing, errors, reset } = useForm({
-        playlist_name: '',
-        playlist_description: '',
-        selected_platforms: [] as string[],
-        selected_tracks: [] as Track[],
-    });
+    const [playlistName, setPlaylistName] = useState('');
+    const [playlistDescription, setPlaylistDescription] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         loadBuildJobs();
@@ -134,40 +133,57 @@ export default function Build() {
             ? [...selectedPlatforms, platform]
             : selectedPlatforms.filter(p => p !== platform);
         setSelectedPlatforms(newPlatforms);
-        setData('selected_platforms', newPlatforms);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Clear previous errors
+        setFormErrors({});
+
+        // Validation
+        const errors: Record<string, string> = {};
+        if (!playlistName.trim()) {
+            errors.playlist_name = 'Playlist name is required';
+        }
         if (selectedTracks.length === 0) {
-            alert('Please select at least one track');
-            return;
+            errors.tracks = 'Please select at least one track';
         }
-
         if (selectedPlatforms.length === 0) {
-            alert('Please select at least one platform');
+            errors.platforms = 'Please select at least one platform';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
 
-        const formData = {
-            playlist_name: data.playlist_name,
-            playlist_description: data.playlist_description,
-            selected_platforms: selectedPlatforms,
-            selected_tracks: selectedTracks.map(track => ({
-                track_id: track.track_id,
-                platform: track.platform,
-            })),
-        };
+        setIsSubmitting(true);
+        try {
+            const formData = {
+                playlist_name: playlistName,
+                playlist_description: playlistDescription,
+                selected_platforms: selectedPlatforms,
+                selected_tracks: selectedTracks.map(track => ({
+                    track_id: track.track_id,
+                    platform: track.platform,
+                })),
+            };
 
-        axios.post('/builder', formData).then(() => {
-            reset();
+            await axios.post('/builder', formData);
+
+            // Reset form
+            setPlaylistName('');
+            setPlaylistDescription('');
             setSelectedTracks([]);
             setSelectedPlatforms([]);
             loadBuildJobs();
-        }).catch((error) => {
+        } catch (error) {
             console.error('Build failed:', error);
-        });
+            setFormErrors({ submit: 'Failed to build playlist. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const getStatusIcon = (status: string) => {
@@ -213,14 +229,14 @@ export default function Build() {
                                         Playlist Name *
                                     </label>
                                     <Input
-                                        value={data.playlist_name}
-                                        onChange={(e) => setData('playlist_name', e.target.value)}
+                                        value={playlistName}
+                                        onChange={(e) => setPlaylistName(e.target.value)}
                                         placeholder="My Awesome Playlist"
                                         className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                         required
                                     />
-                                    {errors.playlist_name && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.playlist_name}</p>
+                                    {formErrors.playlist_name && (
+                                        <p className="text-red-500 text-sm mt-1">{formErrors.playlist_name}</p>
                                     )}
                                 </div>
                                 <div>
@@ -228,12 +244,15 @@ export default function Build() {
                                         Description
                                     </label>
                                     <textarea
-                                        value={data.playlist_description}
-                                        onChange={(e) => setData('playlist_description', e.target.value)}
+                                        value={playlistDescription}
+                                        onChange={(e) => setPlaylistDescription(e.target.value)}
                                         placeholder="Optional description..."
                                         rows={3}
                                         className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
                                     />
+                                    {formErrors.submit && (
+                                        <p className="text-red-500 text-sm mt-1">{formErrors.submit}</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -359,10 +378,10 @@ export default function Build() {
 
                             <Button
                                 type="submit"
-                                disabled={processing || selectedTracks.length === 0 || selectedPlatforms.length === 0}
+                                disabled={isSubmitting || selectedTracks.length === 0 || selectedPlatforms.length === 0}
                                 className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                             >
-                                {processing ? (
+                                {isSubmitting ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                         Building...
@@ -419,6 +438,7 @@ export default function Build() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     );
 }

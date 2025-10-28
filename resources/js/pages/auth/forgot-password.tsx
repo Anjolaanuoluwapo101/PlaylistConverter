@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
+import Footer from '@/components/user/Footer';
 
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
@@ -80,6 +81,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                         </div>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

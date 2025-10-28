@@ -8,6 +8,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
+import Footer from '@/components/user/Footer';
 
 export default function VerifyEmail({ status }: { status?: string }) {
     return (
@@ -61,6 +62,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         </Form>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );
