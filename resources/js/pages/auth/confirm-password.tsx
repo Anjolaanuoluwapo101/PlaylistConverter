@@ -64,8 +64,8 @@ export default function ConfirmPassword() {
                         </Form>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }

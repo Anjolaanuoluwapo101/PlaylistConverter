@@ -51,7 +51,7 @@ class ConversionController extends Controller
             // Create conversion job in controller
             $conversionJob = ConversionJob::create([
                 'user_id' => $user->id,
-                'source_playlist_id' => null, // Will be set by service
+                'source_playlist_id' => $parsedPlaylistId,
                 'target_platform' => $validated['target_platform'],
                 'status' => 'pending',
                 'total_tracks' => 0, // Will be updated by service

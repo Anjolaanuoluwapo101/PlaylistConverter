@@ -108,8 +108,8 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         </Form>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }

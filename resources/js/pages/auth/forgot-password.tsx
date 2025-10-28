@@ -81,8 +81,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
                         </div>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }

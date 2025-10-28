@@ -29,7 +29,7 @@ export default function Register() {
                         </p>
                         {
                             window.location.href.includes("onrender") && (
-                              <AlertComponent type='info' message='Render free tier does not support Email Verification, bear with us.' />  
+                                <AlertComponent type='info' message='Render free tier does not support Email Verification, bear with us.' />
                             )
                         }
                     </div>
@@ -136,8 +136,8 @@ export default function Register() {
                         </Form>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }

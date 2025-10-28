@@ -6,7 +6,7 @@ import { Head } from '@inertiajs/react';
 import NavBar from '@/components/user/NavBar';
 import FeatureShowcase from '@/components/user/FeatureShowcase';
 import Footer from '@/components/user/Footer';
-import { NavBarData  } from '@/utils/global';
+import { NavBarData } from '@/utils/global';
 
 export default function Dashboard() {
     return (
@@ -16,14 +16,14 @@ export default function Dashboard() {
                 <NavBar items={NavBarData} />
                 <div className="container mx-auto px-4 py-8 space-y-8">
                     <div className="max-w-7xl mx-auto">
-                        <FeatureShowcase/>
+                        <FeatureShowcase />
                     </div>
                     <div className="max-w-7xl mx-auto space-y-6">
                         <Platform />
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }

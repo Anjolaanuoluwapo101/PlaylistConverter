@@ -133,8 +133,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </Form>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </>
     );
 }
