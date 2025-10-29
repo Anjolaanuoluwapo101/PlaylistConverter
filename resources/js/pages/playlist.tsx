@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import NavBar from '@/components/user/NavBar';
 import PlaylistTracks from './tracks';
 import ErrorState from '@/utils/ErrorState';
-import LoadingState from '@/utils/LoadingState';
+
 import EmptyPlaylistState from '@/utils/EmptyPlaylistState';
 import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
@@ -230,7 +230,6 @@ const Playlist: React.FC = () => {
         </div>
 
         {/* Status Messages */}
-        {fetchingPlaylists && <LoadingState />}
         {error && !fetchingPlaylists && <ErrorState error={error} onDismiss={() => setError(null)} />}
         {deleteSuccess && (
           <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
@@ -251,7 +250,7 @@ const Playlist: React.FC = () => {
         )}
 
         {/* Playlists View */}
-        {selectedPlatform && !fetchingPlaylists && !error && playlists.length > 0 && showPlaylists && (
+        {selectedPlatform && showPlaylists && (
           <>
             <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
 
@@ -272,10 +271,8 @@ const Playlist: React.FC = () => {
               />
             </div>
 
-
-
             {/* Selection Controls */}
-            {selectedPlaylists.length > 0 && (
+            {selectedPlaylists.length > 0 && !fetchingPlaylists && (
               <div className="mb-6 flex items-center justify-between bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-4 shadow-lg">
                 <div className="flex items-center gap-3">
                   <span className="text-purple-900 dark:text-purple-100 font-medium">
@@ -302,35 +299,56 @@ const Playlist: React.FC = () => {
               </div>
             )}
 
-            {/* Playlist Grid */}
-            <PlaylistGrid
-              playlists={playlists}
-              platform={selectedPlatform}
-              selectedPlaylists={selectedPlaylists}
-              onSelectPlaylist={handleSelectPlaylist}
-              onViewPlaylist={handleViewPlaylist}
-            />
+            {/* Loading Skeleton or Playlist Grid */}
+            {fetchingPlaylists ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, index) => (
+                  <div key={`skeleton-${index}`} className="playlist-card bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border border-purple-200/30 dark:border-purple-800/30 rounded-2xl p-6 shadow-lg animate-pulse">
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl mb-4"></div>
+                    <div className="space-y-3">
+                      <div className="h-6 bg-purple-200 dark:bg-purple-800 rounded w-3/4"></div>
+                      <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-1/2"></div>
+                      <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-2/3"></div>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="w-6 h-6 bg-purple-200 dark:bg-purple-800 rounded"></div>
+                      <div className="w-20 h-8 bg-purple-200 dark:bg-purple-800 rounded-lg"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : !error && playlists.length > 0 ? (
+              <>
+                <PlaylistGrid
+                  playlists={playlists}
+                  platform={selectedPlatform}
+                  selectedPlaylists={selectedPlaylists}
+                  onSelectPlaylist={handleSelectPlaylist}
+                  onViewPlaylist={handleViewPlaylist}
+                />
 
-            {/* Pagination Controls */}
-            <div className="mt-8 flex justify-center items-center gap-4">
-              <button
-                onClick={loadPreviousPage}
-                disabled={!pagination.hasPrevious}
-                className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                Previous
-              </button>
-              <span className="text-purple-900 dark:text-purple-100">
-                Page {Math.floor(pagination.offset / 20) + 1}
-              </span>
-              <button
-                onClick={loadNextPage}
-                disabled={!pagination.hasMore}
-                className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-              </button>
-            </div>
+                {/* Pagination Controls */}
+                <div className="mt-8 flex justify-center items-center gap-4">
+                  <button
+                    onClick={loadPreviousPage}
+                    disabled={!pagination.hasPrevious}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-purple-900 dark:text-purple-100">
+                    Page {Math.floor(pagination.offset / 20) + 1}
+                  </span>
+                  <button
+                    onClick={loadNextPage}
+                    disabled={!pagination.hasMore}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            ) : null}
           </>
         )}
 
@@ -377,7 +395,7 @@ const Playlist: React.FC = () => {
           }}
           showSuccess={!!deleteSuccess}
           successMessage={deleteSuccess || "Operation completed successfully!"}
-          showError={!!error && error === 'Failed to delete playlists'}
+          showError={error === 'Failed to delete playlists'}
           errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
         />
       </div>

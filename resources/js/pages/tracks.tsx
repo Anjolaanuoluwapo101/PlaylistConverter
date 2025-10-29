@@ -152,6 +152,20 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
           <span className="text-purple-600 dark:text-purple-400 font-medium">Loading tracks...</span>
         </div>
       </div>
+      {/* Skeleton loading for tracks */}
+      <div className="tracks-list space-y-6 mt-8">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div key={index} className="track-item flex items-center gap-4 p-4 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border border-purple-200/30 dark:border-purple-800/30 rounded-2xl shadow-lg animate-pulse">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl"></div>
+            <div className="track-info flex-grow space-y-2">
+              <div className="h-5 bg-purple-200 dark:bg-purple-800 rounded w-3/4"></div>
+              <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-1/2"></div>
+              <div className="h-3 bg-purple-100 dark:bg-purple-700 rounded w-1/3"></div>
+            </div>
+            <div className="w-6 h-6 bg-purple-200 dark:bg-purple-800 rounded"></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -259,7 +273,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
               <p className="text-purple-700 dark:text-purple-300 line-clamp-1">{track.artist}</p>
               <p className="text-purple-600/80 dark:text-purple-400/80 text-sm line-clamp-1">{track.album}</p>
               <p className="text-purple-500/70 dark:text-purple-500/70 text-sm">
-                {track.duration_ms ? Math.floor(track.duration_ms / 60000)  + ':' : "Duration not availabale"}{ track.duration_ms ? ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0') : ''}
+                {track.duration_ms ? `${Math.floor(track.duration_ms / 60000)}:${((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}` : 'N/A'}
               </p>
             </div>
           </div>

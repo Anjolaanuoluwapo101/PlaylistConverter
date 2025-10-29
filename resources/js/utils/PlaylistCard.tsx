@@ -72,23 +72,23 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, platform, isSelec
         </button>
       </div>
 
-      <div className="relative p-5 flex-grow flex flex-col">
-        <div className="mb-4">
+      <div className="relative p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
+        <div className="mb-3 sm:mb-4">
           {playlist.image_url ? (
             <img
               src={playlist.image_url}
               alt={playlist.name}
-              className="w-full aspect-square object-cover rounded-xl shadow-md"
+              className="w-full aspect-square object-cover rounded-lg sm:rounded-xl shadow-md"
             />
           ) : (
-            <div className="w-full aspect-square bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl flex items-center justify-center">
-              <ListMusic className="w-12 h-12 text-purple-600 dark:text-purple-400" />
+            <div className="w-full aspect-square bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-lg sm:rounded-xl flex items-center justify-center">
+              <ListMusic className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-purple-600 dark:text-purple-400" />
             </div>
           )}
         </div>
 
-        <div className="space-y-2 flex-grow">
-          <h3 className={`text-lg font-bold line-clamp-2 transition-colors ${
+        <div className="space-y-1 sm:space-y-2 flex-grow">
+          <h3 className={`text-base sm:text-lg font-bold line-clamp-2 transition-colors ${
             isSelected
               ? 'text-purple-800 dark:text-purple-200'
               : 'text-purple-900 dark:text-purple-100 group-hover:text-purple-700 dark:group-hover:text-purple-300'
@@ -102,11 +102,11 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, platform, isSelec
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-purple-200/50 dark:border-purple-800/50 text-xs">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-purple-200/50 dark:border-purple-800/50 text-xs">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {selectedConfig && (
-                <div className={`p-1 rounded-md bg-gradient-to-br ${selectedConfig.gradient}`}>
+                <div className={`p-0.5 sm:p-1 rounded-md bg-gradient-to-br ${selectedConfig.gradient}`}>
                   <selectedConfig.icon />
                 </div>
               )}
@@ -115,7 +115,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, platform, isSelec
               </span>
             </div>
             {playlist.owner && (
-              <span className="text-purple-500/70 dark:text-purple-500/70 truncate">
+              <span className="text-purple-500/70 dark:text-purple-500/70 truncate text-xs">
                 by {playlist.owner}
               </span>
             )}
