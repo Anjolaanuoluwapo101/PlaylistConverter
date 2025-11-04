@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ConversionController as ApiConversionController;
 use App\Http\Controllers\Api\SyncController as ApiSyncController;
 use App\Http\Controllers\Api\BuildController as ApiBuildController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Middleware\ResponseCache;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -15,8 +16,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+    Route::get('connect', function () {
+        return Inertia::render('connect');
     })->name('dashboard');
 
 
@@ -32,11 +33,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('playlist');
     })->name('playlist');
     Route::prefix('playlists')->group(function () {
-        Route::get('/{platform}', [ApiPlaylistController::class, 'getUserPlaylists'])->middleware('cacheResponse:3000');
+        Route::get('/{platform}', [ApiPlaylistController::class, 'getUserPlaylists']);
         Route::get('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'getPlaylistTracks'])->middleware('cacheResponse:3000');
         Route::delete('/{platform}', [ApiPlaylistController::class, 'destroyPlaylists']);
         Route::delete('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'destroyTracks']);
 
+    });
+
+    Route::get('/clearcache', function(){
+        ResponseCache::clear();
+        return 'Cache cleared';
     });
 
     // Conversions

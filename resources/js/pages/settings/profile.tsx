@@ -12,9 +12,8 @@ import { User, Lock, Music, Play, Key, LogOut, Trash2, CheckCircle, XCircle } fr
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import ConfirmationModal from '@/utils/ConfirmationModal';
 import AlertComponent from '@/utils/AlertComponent';
-import NavBar from '@/components/user/NavBar';
+import MainLayout from '@/layouts/MainLayout';
 import PageHeader from '@/components/user/PageHeader';
-import { NavBarData } from '@/utils/global';
 
 interface User {
     id: number;
@@ -100,8 +99,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
     };
 
     return (
-        <>
-            <NavBar items={NavBarData} />
+        <MainLayout>
             <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
                 <PageHeader
                     title="Profile Settings"
@@ -416,7 +414,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                 confirmText="Confirm"
                 cancelText="Cancel"
             />
-        </>
+        </MainLayout>
     );
 }
 

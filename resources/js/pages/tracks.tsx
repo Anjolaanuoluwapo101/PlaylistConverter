@@ -148,21 +148,21 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
     <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-          <span className="text-purple-600 dark:text-purple-400 font-medium">Loading tracks...</span>
+          <div className="animate-spin h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="text-blue-600 font-medium">Loading tracks...</span>
         </div>
       </div>
       {/* Skeleton loading for tracks */}
       <div className="tracks-list space-y-6 mt-8">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="track-item flex items-center gap-4 p-4 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border border-purple-200/30 dark:border-purple-800/30 rounded-2xl shadow-lg animate-pulse">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl"></div>
+          <div key={index} className="track-item flex items-center gap-4 p-4 bg-white border border-gray-200 animate-pulse">
+            <div className="w-16 h-16 bg-gray-200"></div>
             <div className="track-info flex-grow space-y-2">
-              <div className="h-5 bg-purple-200 dark:bg-purple-800 rounded w-3/4"></div>
-              <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-1/2"></div>
-              <div className="h-3 bg-purple-100 dark:bg-purple-700 rounded w-1/3"></div>
+              <div className="h-5 bg-gray-200 w-3/4"></div>
+              <div className="h-4 bg-gray-100 w-1/2"></div>
+              <div className="h-3 bg-gray-100 w-1/3"></div>
             </div>
-            <div className="w-6 h-6 bg-purple-200 dark:bg-purple-800 rounded"></div>
+            <div className="w-6 h-6 bg-gray-200"></div>
           </div>
         ))}
       </div>
@@ -177,12 +177,12 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   return (
     <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold text-black">
           Playlist Tracks
         </h2>
         <button
           onClick={onHide}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="px-6 py-3 bg-blue-600 text-white font-semibold hover:bg-blue-700"
         >
           Hide
         </button>
@@ -209,14 +209,14 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
 
       {/* Selection controls, at the top of the tracks*/}
       {selectedTracks.length > 0 && (
-        <div className="mb-6 flex items-center justify-between bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-4 shadow-lg">
+        <div className="mb-6 flex items-center justify-between bg-white border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <span className="text-purple-900 dark:text-purple-100 font-medium">
+            <span className="text-black font-medium">
               {selectedTracks.length} track{selectedTracks.length !== 1 ? 's' : ''} selected
             </span>
             <button
               onClick={() => setSelectedTracks([])}
-              className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 text-sm underline"
+              className="text-blue-600 hover:text-blue-800 text-sm underline"
             >
               Clear selection
             </button>
@@ -227,7 +227,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
                 setError(null);
                 setShowDeleteModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
             >
               <Trash2 className="w-4 h-4" />
               Delete Selected
@@ -237,7 +237,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
 
       <div className="tracks-list space-y-6">
         {tracks.map(track => (
-          <div key={track.id} className="track-item relative flex items-center gap-4 p-4 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <div key={track.id} className="track-item relative flex items-center gap-4 p-4 bg-white border border-gray-200">
             {/* Selection checkbox */}
             <div className="absolute top-3 right-3 z-10 select-checkbox">
               <button
@@ -249,30 +249,30 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
                       : [...prev, track.id]
                   );
                 }}
-                className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                className={`w-6 h-6 border-2 flex items-center justify-center transition-colors ${
                   selectedTracks.includes(track.id)
-                    ? 'bg-purple-600 border-purple-600 text-white'
-                    : 'bg-white/80 dark:bg-neutral-800/80 border-purple-300 dark:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/50'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-300'
                 }`}
               >
-                {selectedTracks.includes(track.id) ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+                {selectedTracks.includes(track.id) ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-gray-600" />}
               </button>
             </div>
 
             <div className="w-16 h-16 flex-shrink-0">
               {track.image ? (
-                <img src={track.image} alt={track.title} className="w-full h-full object-cover rounded-xl shadow-md" />
+                <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl flex items-center justify-center">
-                  <Music className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <Music className="w-8 h-8 text-gray-400" />
                 </div>
               )}
             </div>
             <div className="track-info flex-grow">
-              <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 line-clamp-1">{track.title}</h3>
-              <p className="text-purple-700 dark:text-purple-300 line-clamp-1">{track.artist}</p>
-              <p className="text-purple-600/80 dark:text-purple-400/80 text-sm line-clamp-1">{track.album}</p>
-              <p className="text-purple-500/70 dark:text-purple-500/70 text-sm">
+              <h3 className="text-lg font-semibold text-black line-clamp-1">{track.title}</h3>
+              <p className="text-gray-700 line-clamp-1">{track.artist}</p>
+              <p className="text-gray-600 text-sm line-clamp-1">{track.album}</p>
+              <p className="text-gray-500 text-sm">
                 {track.duration_ms ? `${Math.floor(track.duration_ms / 60000)}:${((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}` : 'N/A'}
               </p>
             </div>
@@ -286,17 +286,17 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
           <button
             onClick={loadPreviousPage}
             disabled={!pagination.hasPrevious}
-            className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Previous
           </button>
-          <span className="text-purple-900 dark:text-purple-100">
+          <span className="text-black">
             Page {Math.floor(pagination.offset / 20) + 1}
           </span>
           <button
             onClick={loadNextPage}
             disabled={!pagination.hasMore}
-            className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Next
           </button>

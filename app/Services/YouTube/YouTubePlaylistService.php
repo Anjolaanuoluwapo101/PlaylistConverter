@@ -137,13 +137,14 @@ class YouTubePlaylistService
         ?string $pageToken = null,
         ?string $sortBy = null,
         ?string $order = null
-    ): array {
+    ) {
         try {
             if ($limit === null) {
                 throw new \Exception('Pagination parameters are required.');
             }
 
             $token = $this->authService->getValidToken($user);
+            
             $params = [
                 'part' => 'snippet,contentDetails',
                 'mine' => 'true',
@@ -153,6 +154,7 @@ class YouTubePlaylistService
             if ($pageToken) {
                 $params['pageToken'] = $pageToken;
             }
+          
 
             $response = Http::withToken($token)->get("{$this->baseUrl}/playlists", $params);
 

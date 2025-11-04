@@ -20,7 +20,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error, onDismiss, duration = 20
     <div className="flex items-center justify-center py-12">
       <div className="text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
+        <p className="text-red-600 font-medium">{error}</p>
       </div>
     </div>
   );

@@ -147,8 +147,7 @@ class SpotifyPlatform implements PlatformInterface
                 'offset' => $offset
             ])));
             throw new PlatformException(
-                'Failed to fetch Spotify playlist tracks',
-                'spotify',
+                $e->getMessage(),                'spotify',
                 'get_playlist_tracks',
                 $user->id,
                 0,

@@ -33,7 +33,8 @@ const WarningComponent: React.FC<WarningComponentProps> = ({
   const Icon = isWarning ? AlertTriangle : Info;
 
   return (
-    <div className={`flex items-start gap-3 p-4 my-4 ${bgColor} border ${borderColor} rounded-xl shadow-lg backdrop-blur-sm ${className}`}>
+    <div className={`flex items-start gap-3 p-4 my-4 ${bgColor} border ${borderColor} shadow-lg backdrop-blur-sm ${className}`}>
+
       <div className="flex-shrink-0 mt-0.5">
         <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>

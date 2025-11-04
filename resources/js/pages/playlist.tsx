@@ -1,10 +1,8 @@
 import { ConnectedPlatforms, Playlist as PlaylistType } from '@/types/index';
-import { NavBarData } from '@/utils/global';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import NavBar from '@/components/user/NavBar';
 import PlaylistTracks from './tracks';
 import ErrorState from '@/utils/ErrorState';
 
@@ -16,9 +14,7 @@ import PlaylistGrid from '@/utils/PlaylistGrid';
 import FilterControls from '@/utils/FilterControls';
 import AlertComponent from '@/utils/AlertComponent';
 import PageHeader from '@/components/user/PageHeader';
-import Footer from '@/components/user/Footer';
-
-
+import MainLayout from '@/layouts/MainLayout';
 
 // --- Main Component ---
 
@@ -31,7 +27,7 @@ const Playlist: React.FC = () => {
   const [fetchingPlaylists, setFetchingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [showPlaylists, setShowPlaylists] = useState(true); //controls the visibility toggle between the playlists grid and track of a selected playlist
+  const [showPlaylists, setShowPlaylists] = useState(true);
   const [playlistId, setPlaylistId] = useState<string | null>(null);
 
   // Selection and deletion state
@@ -189,9 +185,11 @@ const Playlist: React.FC = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin h-12 w-12 border-b-2 border-gray-800"></div>
+        </div>
+      </MainLayout>
     );
   }
 
@@ -200,19 +198,16 @@ const Playlist: React.FC = () => {
   // No connected platforms
   if (connectedPlatformKeys.length === 0) {
     return (
-      <>
-        <NavBar items={NavBarData} />
+      <MainLayout>
         <div className="w-full max-w-6xl mx-auto p-4 md:p-6">
           <NoPlatformsConnect />
         </div>
-      </>
+      </MainLayout>
     );
   }
 
   return (
-    <>
-      <NavBar items={NavBarData} />
-
+    <MainLayout>
       <div className="w-full max-w-6xl mx-auto p-4 md:p-6">
         {/* Header Section */}
         <PageHeader
@@ -232,22 +227,19 @@ const Playlist: React.FC = () => {
         {/* Status Messages */}
         {error && !fetchingPlaylists && <ErrorState error={error} onDismiss={() => setError(null)} />}
         {deleteSuccess && (
-          <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+          <div className="mb-4 p-4 bg-green-100 border border-green-200">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-500 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <span className="text-green-800 dark:text-green-200 font-medium">{deleteSuccess}</span>
+              <span className="text-green-800 font-medium">{deleteSuccess}</span>
             </div>
           </div>
         )}
 
         {/* Main Content */}
-        {selectedPlatform && !fetchingPlaylists && !error && playlists.length === 0 && (
-          <EmptyPlaylistState platform={selectedPlatform} />
-        )}
 
         {/* Playlists View */}
         {selectedPlatform && showPlaylists && (
@@ -273,14 +265,14 @@ const Playlist: React.FC = () => {
 
             {/* Selection Controls */}
             {selectedPlaylists.length > 0 && !fetchingPlaylists && (
-              <div className="mb-6 flex items-center justify-between bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-4 shadow-lg">
+              <div className="mb-6 flex items-center justify-between bg-white border border-gray-200 p-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-purple-900 dark:text-purple-100 font-medium">
+                  <span className="text-gray-800 font-medium">
                     {selectedPlaylists.length} playlist{selectedPlaylists.length !== 1 ? 's' : ''} selected
                   </span>
                   <button
                     onClick={() => setSelectedPlaylists([])}
-                    className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 text-sm underline"
+                    className="text-blue-600 hover:text-blue-800 text-sm underline"
                   >
                     Clear selection
                   </button>
@@ -291,7 +283,7 @@ const Playlist: React.FC = () => {
                     setError(null);
                     setShowDeleteModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Selected
@@ -303,16 +295,16 @@ const Playlist: React.FC = () => {
             {fetchingPlaylists ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, index) => (
-                  <div key={`skeleton-${index}`} className="playlist-card bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border border-purple-200/30 dark:border-purple-800/30 rounded-2xl p-6 shadow-lg animate-pulse">
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-200 to-purple-300 dark:from-purple-800 dark:to-purple-900 rounded-xl mb-4"></div>
+                  <div key={`skeleton-${index}`} className="border border-gray-200 p-6 animate-pulse">
+                    <div className="w-full h-48 bg-gray-200 mb-4"></div>
                     <div className="space-y-3">
-                      <div className="h-6 bg-purple-200 dark:bg-purple-800 rounded w-3/4"></div>
-                      <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-1/2"></div>
-                      <div className="h-4 bg-purple-100 dark:bg-purple-700 rounded w-2/3"></div>
+                      <div className="h-6 bg-gray-200 w-3/4"></div>
+                      <div className="h-4 bg-gray-100 w-1/2"></div>
+                      <div className="h-4 bg-gray-100 w-2/3"></div>
                     </div>
                     <div className="flex items-center justify-between mt-4">
-                      <div className="w-6 h-6 bg-purple-200 dark:bg-purple-800 rounded"></div>
-                      <div className="w-20 h-8 bg-purple-200 dark:bg-purple-800 rounded-lg"></div>
+                      <div className="w-6 h-6 bg-gray-200"></div>
+                      <div className="w-20 h-8 bg-gray-200"></div>
                     </div>
                   </div>
                 ))}
@@ -332,23 +324,27 @@ const Playlist: React.FC = () => {
                   <button
                     onClick={loadPreviousPage}
                     disabled={!pagination.hasPrevious}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
-                  <span className="text-purple-900 dark:text-purple-100">
+                  <span className="text-gray-800">
                     Page {Math.floor(pagination.offset / 20) + 1}
                   </span>
                   <button
                     onClick={loadNextPage}
                     disabled={!pagination.hasMore}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>
                 </div>
               </>
             ) : null}
+
+            {selectedPlatform && !fetchingPlaylists && !error && playlists.length === 0 && (
+              <EmptyPlaylistState platform={selectedPlatform} />
+            )}
           </>
         )}
 
@@ -399,8 +395,7 @@ const Playlist: React.FC = () => {
           errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
         />
       </div>
-      <Footer />
-    </>
+    </MainLayout>
   );
 };
 

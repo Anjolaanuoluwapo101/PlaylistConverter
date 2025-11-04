@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { NavBarData } from '@/utils/global';
+import { Head } from '@inertiajs/react';
+import MainLayout from '@/layouts/MainLayout';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
-import  useApiCache from '@/hooks/useApiCache';
+import useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import NavBar from '@/components/user/NavBar';
-import Footer from '@/components/user/Footer';
 import LoadingState from '@/utils/LoadingState';
 import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
 import PlatformDropdown from '@/utils/PlatformDropdown';
 import PlaylistDropdown from '@/utils/PlaylistDropdown';
 import PageHeader from '@/components/user/PageHeader';
+import AlertComponent from '@/utils/AlertComponent';
 
 interface Playlist {
   id: string;
@@ -34,7 +34,7 @@ interface SyncJob {
 }
 
 const Sync: React.FC = () => {
-  const { syncs: { getSyncHistory }, conversions :{ getConversionHistory} } = useApiCache();
+  const { syncs: { getSyncHistory }, conversions: { getConversionHistory } } = useApiCache();
 
   // State management
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<string, boolean>>({});
@@ -216,17 +216,22 @@ const Sync: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin h-12 w-12 border-b-2 border-gray-800"></div>
+        </div>
+      </MainLayout>
     );
   }
+
+
 
   const connectedPlatformKeys = Object.keys(connectedPlatforms).filter(key => connectedPlatforms[key]);
 
   return (
-    <>
-      <NavBar items={NavBarData} />
+    <MainLayout>
+      <Head title="Sync Playlists" />
+
       <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
         <PageHeader
           title="Sync Playlists"
@@ -237,20 +242,15 @@ const Sync: React.FC = () => {
           <NoPlatformsConnect />
         ) : (
           <>
-            {error && !syncing && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <AlertCircle className="w-5 h-5" />
-                  <span>{error}</span>
-                </div>
-              </div>
-            )}
+            {error && !syncing &&
+              <AlertComponent message={error} type={'error'} />
+            }
 
-            <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
               {/* Platform Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                     Source Platform
                   </label>
                   <PlatformDropdown
@@ -265,7 +265,7 @@ const Sync: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                     Target Platform
                   </label>
                   <PlatformDropdown
@@ -283,7 +283,7 @@ const Sync: React.FC = () => {
               {/* Playlist Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                     Source Playlist
                   </label>
                   {fetchingSourcePlaylists ? (
@@ -299,7 +299,7 @@ const Sync: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                     Target Playlist
                   </label>
                   {fetchingTargetPlaylists ? (
@@ -323,9 +323,9 @@ const Sync: React.FC = () => {
                     id="removeExtras"
                     checked={removeExtras}
                     onChange={(e) => setRemoveExtras(e.target.checked)}
-                    className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="removeExtras" className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                  <label htmlFor="removeExtras" className="text-sm font-medium text-gray-800 dark:text-white">
                     Remove tracks from target playlist that are not in source playlist
                   </label>
                 </div>
@@ -338,7 +338,7 @@ const Sync: React.FC = () => {
                 <button
                   onClick={handleSync}
                   disabled={syncing || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim() || !targetPlaylistId.trim()}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
+                  className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
                 >
                   {syncing ? (
                     <>
@@ -357,14 +357,14 @@ const Sync: React.FC = () => {
 
             {/* Sync Status */}
             {syncJob && (
-              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg">
-                <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">
+              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 p-6 shadow-lg">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
                   Sync Status
                 </h3>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-purple-700 dark:text-purple-300">Status:</span>
+                    <span className="text-gray-700 dark:text-gray-300">Status:</span>
                     <div className="flex items-center gap-2">
                       {React.createElement(getStatusDisplay(syncJob.status).icon, {
                         className: `w-5 h-5 ${getStatusDisplay(syncJob.status).color} ${syncJob.status === 'processing' ? 'animate-spin' : ''}`
@@ -376,28 +376,28 @@ const Sync: React.FC = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-purple-700 dark:text-purple-300">Source:</span>
-                    <span className="text-purple-900 dark:text-purple-100 capitalize">
+                    <span className="text-gray-700 dark:text-gray-300">Source:</span>
+                    <span className="text-gray-900 dark:text-white capitalize">
                       {syncJob.source_platform}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-purple-700 dark:text-purple-300">Target:</span>
-                    <span className="text-purple-900 dark:text-purple-100 capitalize">
+                    <span className="text-gray-700 dark:text-gray-300">Target:</span>
+                    <span className="text-gray-900 dark:text-white capitalize">
                       {syncJob.target_platform}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-purple-700 dark:text-purple-300">Remove Extras:</span>
-                    <span className="text-purple-900 dark:text-purple-100">
+                    <span className="text-gray-700 dark:text-gray-300">Remove Extras:</span>
+                    <span className="text-gray-900 dark:text-white">
                       {syncJob.remove_extras ? 'Yes' : 'No'}
                     </span>
                   </div>
 
                   {syncJob.status === 'completed' && (
-                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
                       <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                         <CheckCircle className="w-5 h-5" />
                         <span className="font-semibold">Sync completed successfully!</span>
@@ -409,30 +409,23 @@ const Sync: React.FC = () => {
                   )}
 
                   {syncJob.status === 'failed' && (
-                    <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                      <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                        <AlertCircle className="w-5 h-5" />
-                        <span className="font-semibold">Sync failed</span>
-                      </div>
-                      <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                        There was an error during sync. Please try again.
-                      </p>
-                    </div>
+                    <AlertComponent message={"Sync Failed \n There was an error during sync. Please try again later"} type={"error"} />
                   )}
                 </div>
               </div>
             )}
 
+
             {/* Sync History */}
             {syncHistory.length > 0 && (
-              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg">
-                <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">
+              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-gray-300/50 dark:border-gray-700/50 p-6 ">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
                   Sync History
                 </h3>
 
                 <div className="space-y-4">
                   {syncHistory.slice(0, 10).map((job) => (
-                    <div key={job.id} className="border border-purple-200/50 dark:border-purple-800/50 rounded-xl p-4 bg-purple-50/50 dark:bg-purple-900/10">
+                    <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/50 dark:bg-gray-800/10">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           {React.createElement(getStatusDisplay(job.status).icon, {
@@ -442,21 +435,21 @@ const Sync: React.FC = () => {
                             {getStatusDisplay(job.status).text}
                           </span>
                         </div>
-                        <span className="text-sm text-purple-600/70 dark:text-purple-400/70">
+                        <span className="text-sm text-gray-600/70 dark:text-gray-400/70">
                           {new Date(job.created_at).toLocaleDateString()}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="text-purple-700 dark:text-purple-300">From:</span>
-                          <span className="ml-2 text-purple-900 dark:text-purple-100 capitalize">
+                          <span className="text-gray-700 dark:text-gray-300">From:</span>
+                          <span className="ml-2 text-gray-900 dark:text-white capitalize">
                             {job.source_platform}
                           </span>
                         </div>
                         <div>
-                          <span className="text-purple-700 dark:text-purple-300">To:</span>
-                          <span className="ml-2 text-purple-900 dark:text-purple-100 capitalize">
+                          <span className="text-gray-700 dark:text-gray-300">To:</span>
+                          <span className="ml-2 text-gray-900 dark:text-white capitalize">
                             {job.target_platform}
                           </span>
                         </div>
@@ -481,8 +474,7 @@ const Sync: React.FC = () => {
           </>
         )}
       </div>
-      <Footer />
-    </>
+    </MainLayout>
   );
 };
 

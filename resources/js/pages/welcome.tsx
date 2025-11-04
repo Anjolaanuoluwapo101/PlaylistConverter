@@ -1,15 +1,11 @@
-import { type SharedData } from '@/types';
-import { Head,  usePage } from '@inertiajs/react';
-import NavBar from '@/components/user/NavBar';
-import { NavBarData } from '@/utils/global';
+import { Head } from '@inertiajs/react';
+import MainLayout from '@/layouts/MainLayout';
 import FeatureShowcase from '@/components/user/FeatureShowcase';
 import Footer from '@/components/user/Footer';
 
 export default function Welcome() {
-    const { auth } = usePage<SharedData>().props;
-
     return (
-        <>
+        <MainLayout>
             <Head title="Welcome">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
@@ -17,29 +13,8 @@ export default function Welcome() {
                     rel="stylesheet"
                 />
             </Head>
-            {/* <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]"> */}
-
-                {auth.user ? (
-                    <NavBar items={NavBarData}/>
-                ) : (
-                    <NavBar items={[
-                        {
-                            title : "Register",
-                            uri : "/register"
-                        },
-                        {
-                            title : "Login",
-                            uri : "/login"
-                        }
-                    ]}/>
-                )}
-
-
-                <main className="w-full">
-                    <FeatureShowcase />
-                </main>
-                <Footer />
-            {/* </div> */}
-        </>
+            <FeatureShowcase />
+            <Footer />
+        </MainLayout>
     );
 }

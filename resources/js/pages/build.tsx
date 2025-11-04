@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
-import NavBar from '@/components/user/NavBar';
-import Footer from '@/components/user/Footer';
-import { NavBarData } from '@/utils/global';
+import MainLayout from '@/layouts/MainLayout';
 import PageHeader from '@/components/user/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle, Clock, Plus, X } from 'lucide-react';
 import axios from 'axios';
 
@@ -39,7 +32,7 @@ export default function Build() {
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [buildJobs, setBuildJobs] = useState<BuildJob[]>([]);
-    const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [playlistName, setPlaylistName] = useState('');
     const [playlistDescription, setPlaylistDescription] = useState('');
@@ -51,16 +44,17 @@ export default function Build() {
     }, []);
 
     const loadBuildJobs = async () => {
-        setIsLoadingJobs(true);
+        setLoading(true);
         try {
             const response = await axios.get('/builder/jobs');
             setBuildJobs(response.data.jobs.data);
         } catch (error) {
         console.error('Failed to load build jobs:', error);
         } finally {
-            setIsLoadingJobs(false);
+            setLoading(false);
         }
     };
+
 
     const searchTracks = async () => {
         if (titleQuery.trim() === '' || artistQuery.trim() === '' || selectedPlatforms.length === 0) return;
@@ -127,7 +121,7 @@ export default function Build() {
         setSelectedTracks(selectedTracks.filter(t => t.id !== trackId));
     };
 
-    const handlePlatformChange = (platform: string, checked: boolean | "indeterminate" | undefined) => {
+    const handlePlatformChange = (platform: string, checked: boolean) => {
         const isChecked = checked === true;
         const newPlatforms = isChecked
             ? [...selectedPlatforms, platform]
@@ -208,10 +202,19 @@ export default function Build() {
         }
     };
 
+    if (loading) {
+        return (
+            <MainLayout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="animate-spin h-12 w-12 border-b-2 border-gray-800"></div>
+                </div>
+            </MainLayout>
+        );
+    }
+
     return (
-        <>
+        <MainLayout>
             <Head title="Build Playlist" />
-            <NavBar items={NavBarData} />
 
             <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
                 <PageHeader
@@ -219,20 +222,23 @@ export default function Build() {
                     description="Create playlists across multiple platforms by selecting your favorite tracks"
                 />
 
-                <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg">
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+
+
                     <div className="space-y-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Playlist Details */}
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                                    <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                         Playlist Name *
                                     </label>
-                                    <Input
+                                    <input
+                                        type="text"
                                         value={playlistName}
                                         onChange={(e) => setPlaylistName(e.target.value)}
                                         placeholder="My Awesome Playlist"
-                                        className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                        className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                         required
                                     />
                                     {formErrors.playlist_name && (
@@ -240,7 +246,7 @@ export default function Build() {
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                                    <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                         Description
                                     </label>
                                     <textarea
@@ -248,7 +254,7 @@ export default function Build() {
                                         onChange={(e) => setPlaylistDescription(e.target.value)}
                                         placeholder="Optional description..."
                                         rows={3}
-                                        className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                        className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                     />
                                     {formErrors.submit && (
                                         <p className="text-red-500 text-sm mt-1">{formErrors.submit}</p>
@@ -258,19 +264,19 @@ export default function Build() {
 
                             {/* Platform Selection */}
                             <div>
-                                <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-3">
+                                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
                                     Select Platforms *
                                 </label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {['spotify', 'youtube'].map((platform) => (
-                                        <label key={platform} className="flex items-center space-x-3 p-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all cursor-pointer">
-                                            <Checkbox
+                                        <label key={platform} className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                                            <input
+                                                type="checkbox"
                                                 checked={selectedPlatforms.includes(platform)}
-                                                onCheckedChange={(checked) =>
-                                                    handlePlatformChange(platform, checked === true)
-                                                }
+                                                onChange={(e) => handlePlatformChange(platform, e.target.checked)}
+                                                className="border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
-                                            <span className="capitalize font-medium text-purple-900 dark:text-purple-100">{platform}</span>
+                                            <span className="capitalize font-medium text-gray-900 dark:text-gray-100">{platform}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -278,30 +284,32 @@ export default function Build() {
 
                             {/* Track Search */}
                             <div>
-                                <label className="block text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                     Search & Select Tracks (Max 5)
                                 </label>
                                 <div className="space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                        <Input
+                                        <input
+                                            type="text"
                                             value={artistQuery}
                                             onChange={(e) => setArtistQuery(e.target.value)}
                                             placeholder="Artist name..."
-                                            className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             onKeyUp={(e: React.KeyboardEvent) => e.key === 'Enter' && searchTracks()}
                                         />
-                                        <Input
+                                        <input
+                                            type="text"
                                             value={titleQuery}
                                             onChange={(e) => setTitleQuery(e.target.value)}
                                             placeholder="Song title..."
-                                            className="w-full px-4 py-3 bg-white/60 dark:bg-neutral-800/60 border border-purple-200 dark:border-purple-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             onKeyUp={(e: React.KeyboardEvent) => e.key === 'Enter' && searchTracks()}
                                         />
-                                        <Button
+                                        <button
                                             type="button"
                                             onClick={searchTracks}
                                             disabled={isSearching}
-                                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                                            className="px-6 py-3 bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                                         >
                                             {isSearching ? (
                                                 <>
@@ -311,34 +319,34 @@ export default function Build() {
                                             ) : (
                                                 'Search'
                                             )}
-                                        </Button>
+                                        </button>
                                     </div>
                                 </div>
 
                                 {/* Search Results */}
                                 {searchResults.length > 0 && (
-                                    <div className="mt-4 max-h-60 overflow-y-auto border rounded-lg p-4 bg-neutral-50 dark:bg-neutral-800">
+                                    <div className="mt-4 max-h-60 overflow-y-auto border p-4 bg-gray-50 dark:bg-gray-800">
                                         <h4 className="font-medium mb-2">Search Results:</h4>
                                         <div className="space-y-2">
                                             {searchResults.map((track) => (
                                                 <div
                                                     key={track.id}
-                                                    className="flex items-center justify-between p-2 bg-white dark:bg-neutral-700 rounded"
+                                                    className="flex items-center justify-between p-2 bg-white dark:bg-gray-700"
                                                 >
                                                     <div>
                                                         <p className="font-medium">{track.name}</p>
-                                                        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300">
                                                             {track.artist} • {track.platform}
                                                         </p>
                                                     </div>
-                                                    <Button
+                                                    <button
                                                         type="button"
-                                                        size="sm"
                                                         onClick={() => addTrack(track)}
                                                         disabled={selectedTracks.length >= 5 || selectedTracks.some(t => t.id === track.id)}
+                                                        className="p-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                                     >
                                                         <Plus className="w-4 h-4" />
-                                                    </Button>
+                                                    </button>
                                                 </div>
                                             ))}
                                         </div>
@@ -353,22 +361,21 @@ export default function Build() {
                                             {selectedTracks.map((track) => (
                                                 <div
                                                     key={track.id}
-                                                    className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/20 rounded"
+                                                    className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20"
                                                 >
                                                     <div>
                                                         <p className="font-medium">{track.name}</p>
-                                                        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300">
                                                             {track.artist} • {track.platform}
                                                         </p>
                                                     </div>
-                                                    <Button
+                                                    <button
                                                         type="button"
-                                                        variant="ghost"
-                                                        size="sm"
                                                         onClick={() => removeTrack(track.id)}
+                                                        className="p-2 text-gray-500 hover:text-red-500"
                                                     >
                                                         <X className="w-4 h-4" />
-                                                    </Button>
+                                                    </button>
                                                 </div>
                                             ))}
                                         </div>
@@ -376,10 +383,10 @@ export default function Build() {
                                 )}
                             </div>
 
-                            <Button
+                            <button
                                 type="submit"
                                 disabled={isSubmitting || selectedTracks.length === 0 || selectedPlatforms.length === 0}
-                                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                                className="w-full px-6 py-3 bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                             >
                                 {isSubmitting ? (
                                     <>
@@ -389,22 +396,22 @@ export default function Build() {
                                 ) : (
                                     'Build Playlist'
                                 )}
-                            </Button>
+                            </button>
                         </form>
 
                         {/* Build Jobs History */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Build History</CardTitle>
-                                <CardDescription>
+                        <div className="border-t pt-6">
+                            <div className="mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Build History</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
                                     Track the status of your playlist builds
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {isLoadingJobs ? (
+                                </p>
+                            </div>
+                            <div>
+                                {loading ? (
                                     <div className="text-center py-4">Loading...</div>
                                 ) : buildJobs.length === 0 ? (
-                                    <div className="text-center py-4 text-neutral-500">
+                                    <div className="text-center py-4 text-gray-500">
                                         No builds yet. Create your first playlist above!
                                     </div>
                                 ) : (
@@ -412,33 +419,33 @@ export default function Build() {
                                         {buildJobs.map((job) => (
                                             <div
                                                 key={job.id}
-                                                className="flex items-center justify-between p-4 border rounded-lg"
+                                                className="flex items-center justify-between p-4 border"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     {getStatusIcon(job.status)}
                                                     <div>
                                                         <p className="font-medium">{job.playlist_name}</p>
-                                                        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300">
                                                             Platforms: {job.selected_platforms.join(', ')}
                                                         </p>
-                                                        <p className="text-xs text-neutral-500">
+                                                        <p className="text-xs text-gray-500">
                                                             {new Date(job.created_at).toLocaleString()}
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <Badge className={getStatusColor(job.status)}>
+                                                <span className={`px-2 py-1 text-xs font-medium ${getStatusColor(job.status)}`}>
                                                     {job.status}
-                                                </Badge>
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-            <Footer />
-        </>
+        </MainLayout>
     );
 }

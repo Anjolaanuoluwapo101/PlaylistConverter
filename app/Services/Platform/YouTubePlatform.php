@@ -57,6 +57,7 @@ class YouTubePlatform implements PlatformInterface
         $limit = $limit ?? $this->defaultLimit;
 
         try {
+
             $playlists = $this->playlistService->getUserPlaylists($user, $limit, $pageToken, $sortBy, $order);
 
             // Validate response structure
@@ -67,7 +68,7 @@ class YouTubePlatform implements PlatformInterface
             return $playlists;
         } catch (\Exception $e) {
             throw new PlatformException(
-                'Failed to fetch YouTube playlists',
+                $e->getMessage(),
                 'youtube',
                 'get_user_playlists',
                 $user->id,

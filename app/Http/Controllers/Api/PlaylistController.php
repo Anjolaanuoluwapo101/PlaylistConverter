@@ -44,6 +44,9 @@ class PlaylistController extends Controller
                     'error' => $playlists["error"]
                 ], 400);
             }
+            return $playlists;
+
+
 
             // Normalize the data
             $data = PlaylistResource::collection($playlists['items']);
@@ -57,6 +60,10 @@ class PlaylistController extends Controller
             return $playlists;
 
         } catch (\Exception $e) {
+            Log::error("Failed to fetch {$platform} playlists", [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]); 
             return response()->json([
                 'error' => 'Failed to fetch ' . ucfirst($platform) . ' playlists',
                 'message' => $e->getMessage()
