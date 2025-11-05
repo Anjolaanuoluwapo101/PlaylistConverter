@@ -3,7 +3,7 @@ import { LayoutDashboard, Music, Replace, RefreshCw, Wrench } from "lucide-react
 const NavBarData = [
     {
         title: "Connect Platforms",
-        uri: "/connect",
+        uri: "/dashboard",
         icon: LayoutDashboard
 
     },

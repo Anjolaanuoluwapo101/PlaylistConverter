@@ -6,10 +6,10 @@ import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { Music, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import LoadingState from '@/utils/LoadingState';
-import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
-import PlatformDropdown from '@/utils/PlatformDropdown';
-import PlaylistDropdown from '@/utils/PlaylistDropdown';
+import LoadingState from '@/components/user/LoadingState';
+import NoPlatformsConnect from '@/components/user/NoPlatformsConnect';
+import PlatformDropdown from '@/components/user/PlatformDropdown';
+import PlaylistDropdown from '@/components/user/PlaylistDropdown';
 
 interface Playlist {
   id: string;
@@ -61,8 +61,11 @@ const Convert: React.FC = () => {
           getConversionHistory()
         ]);
 
+
         if (platformsResult && platformsResult.connected_platforms) {
           setConnectedPlatforms(platformsResult.connected_platforms);
+          //set a default source platform
+          setSourcePlatform(platformsResult.connected_platforms ? Object.values(platformsResult.connected_platforms)[0] : '')
           const connectedKeys = Object.keys(platformsResult.connected_platforms).filter(key => platformsResult.connected_platforms[key]);
           if (connectedKeys.length > 0) {
             setSourcePlatform(connectedKeys[0]);
@@ -110,6 +113,7 @@ const Convert: React.FC = () => {
 
   const handleConvert = async () => {
     if (!sourcePlatform || !targetPlatform || !sourcePlaylistId.trim()) {
+      console.log('Please fill in all required fields')
       setError('Please fill in all required fields');
       return;
     }
@@ -249,7 +253,7 @@ const Convert: React.FC = () => {
               {/* Playlist Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                  Playlist
+                  Playlist from {sourcePlatform}
                 </label>
                 {fetchingPlaylists ? (
                   <LoadingState />
@@ -269,9 +273,9 @@ const Convert: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Paste playlist URL (e.g., https://open.spotify.com/playlist/...)"
-                      value={sourcePlaylistId.startsWith('http') ? sourcePlaylistId : ''}
+                      // value={sourcePlaylistId.startsWith('http') ? sourcePlaylistId : ''}
                       onChange={(e) => setSourcePlaylistId(e.target.value)}
-                      className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all "
+                      className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 "
                     />
                   </div>
                 )}
@@ -288,14 +292,14 @@ const Convert: React.FC = () => {
                     placeholder="Custom playlist name (leave empty for default)"
                     value={targetPlaylistName}
                     onChange={(e) => setTargetPlaylistName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600"
                   />
                   <textarea
                     placeholder="Custom playlist description (leave empty for default)"
                     value={targetPlaylistDescription}
                     onChange={(e) => setTargetPlaylistDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600  "
                   />
                 </div>
               </div>
@@ -411,7 +415,7 @@ const Convert: React.FC = () => {
 
                 <div className="space-y-4">
                   {conversionHistory.map((job) => (
-                    <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-neutral-700">
+                    <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-neutral-700  hover:shadow-xl hover:scale-105">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           {React.createElement(getStatusDisplay(job.status).icon, {

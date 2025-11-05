@@ -22,7 +22,9 @@ class PlaylistController extends Controller
             $user = $request->user();
             $platformService = $this->platformFactory->make($platform);
 
-            if (!$platformService->isConnected($user)) {
+            try {
+                $platformService->isConnected($user);
+            } catch (\App\Exceptions\PlatformException $e) {
                 return response()->json([
                     'error' => ucfirst($platform) . ' account not connected'
                 ], 401);
@@ -44,9 +46,6 @@ class PlaylistController extends Controller
                     'error' => $playlists["error"]
                 ], 400);
             }
-            return $playlists;
-
-
 
             // Normalize the data
             $data = PlaylistResource::collection($playlists['items']);
@@ -77,7 +76,9 @@ class PlaylistController extends Controller
             $user = $request->user();
             $platformService = $this->platformFactory->make($platform);
 
-            if (!$platformService->isConnected($user)) {
+            try {
+                $platformService->isConnected($user);
+            } catch (\App\Exceptions\PlatformException $e) {
                 return response()->json([
                     'error' => ucfirst($platform) . ' account not connected'
                 ], 401);
@@ -131,7 +132,9 @@ class PlaylistController extends Controller
             $user = $request->user();
             $platform = $this->platformFactory->make('spotify');
 
-            if (!$platform->isConnected($user)) {
+            try {
+                $platform->isConnected($user);
+            } catch (\App\Exceptions\PlatformException $e) {
                 return response()->json([
                     'error' => 'Spotify account not connected'
                 ], 401);
@@ -170,7 +173,9 @@ class PlaylistController extends Controller
             $user = $request->user();
             $platform = $this->platformFactory->make('youtube');
 
-            if (!$platform->isConnected($user)) {
+            try {
+                $platform->isConnected($user);
+            } catch (\App\Exceptions\PlatformException $e) {
                 return response()->json([
                     'error' => 'YouTube account not connected'
                 ], 401);

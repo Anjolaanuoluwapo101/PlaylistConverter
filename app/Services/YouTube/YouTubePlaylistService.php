@@ -125,6 +125,7 @@ class YouTubePlaylistService
                 $this->authService->refreshToken($user);
             }
             return false;
+            //throw new \Exception('YouTube not connected');
         }else{
             return true;
         }

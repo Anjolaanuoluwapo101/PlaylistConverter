@@ -33,8 +33,7 @@ class PlatformController extends Controller
         $code = $request->query('code');
         
         if (!$code) {
-            return redirect()->route('platforms.index')
-                ->with('error', 'Failed to connect Spotify');
+           die("Nope.");
         }
 
         try {
@@ -47,11 +46,11 @@ class PlatformController extends Controller
                 'spotify_token_expires_at' => $tokenData['expires_at'],
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('connect')
                 ->with('success', 'Spotify connected successfully!');
 
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')
+            return redirect()->route('connect')
                 ->with('error', 'Failed to connect Spotify: ' . $e->getMessage());
         }
     }
@@ -61,8 +60,7 @@ class PlatformController extends Controller
         $code = $request->query('code');
         
         if (!$code) {
-            return redirect()->route('platforms.index')
-                ->with('error', 'Failed to connect YouTube');
+            die("Nope.");
         }
 
         try {
@@ -75,11 +73,11 @@ class PlatformController extends Controller
                 'youtube_token_expires_at' => $tokenData['expires_at'],
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('connect')
                 ->with('success', 'YouTube connected successfully!');
 
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')
+            return redirect()->route('connect')
                 ->with('error', 'Failed to connect YouTube: ' . $e->getMessage());
         }
     }

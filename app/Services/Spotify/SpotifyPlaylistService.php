@@ -113,6 +113,7 @@ class SpotifyPlaylistService
             if($user->spotify_refresh_token){
                 $this->authService->refreshToken($user);
             }
+            //throw new \Exception('Spotify not connected');
             return false;
         }else{
             return true;

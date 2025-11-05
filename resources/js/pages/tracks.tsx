@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Music, Trash2, CheckSquare, Square } from 'lucide-react';
 import axios from 'axios';
-import ErrorState from '@/utils/ErrorState';
-import FilterControls from '@/utils/FilterControls';
-import ConfirmationModal from '@/utils/ConfirmationModal';
-import AlertComponent from '@/utils/AlertComponent';
+import ErrorState from '@/components/user/ErrorState';
+import FilterControls from '@/components/user/FilterControls';
+import ConfirmationModal from '@/components/user/ConfirmationModal';
+import AlertComponent from '@/components/user/AlertComponent';
 
 export interface Track {
   id: string;

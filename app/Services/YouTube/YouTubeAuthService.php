@@ -69,7 +69,7 @@ class YouTubeAuthService
 
     public function refreshToken(User $user): array
     {
-       
+
         if (!$user->youtube_refresh_token) {
             Log::error('No YouTube refresh token available for user ' . $user->id);
             throw new \Exception('No refresh token available');
@@ -93,15 +93,13 @@ class YouTubeAuthService
                 'youtube_refresh_token' => null,
                 'youtube_token_expires_at' => null
             ]);
-           
-            return [
-                'error' => $response->status()
-            ];
+
+            throw new \Exception('Failed to refresh YouTube token');
         }
 
         $data = $response->json();
 
-        $newRefreshToken = $data['youtube_refresh_token'] ??$user->youtube_refresh_token; 
+        $newRefreshToken = $data['refresh_token'] ?? $user->youtube_refresh_token;
 
         $user->update([
             'youtube_access_token' => $data['access_token'],
@@ -119,11 +117,8 @@ class YouTubeAuthService
     public function getValidToken(User $user): string
     {
         if (!$user->youtube_token_expires_at || Carbon::now()->greaterThan($user->youtube_token_expires_at)) {
-            
+
             $tokenData = $this->refreshToken($user);
-            if(isset($tokenData['error'])){
-                throw new \Exception('Failed to refresh Spotify token');
-            }
             return $tokenData['access_token'];
         }
 

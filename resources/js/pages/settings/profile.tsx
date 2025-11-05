@@ -4,14 +4,13 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { User, Lock, Music, Play, Key, LogOut, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
-import ConfirmationModal from '@/utils/ConfirmationModal';
-import AlertComponent from '@/utils/AlertComponent';
+import ConfirmationModal from '@/components/user/ConfirmationModal';
+import AlertComponent from '@/components/user/AlertComponent';
 import MainLayout from '@/layouts/MainLayout';
 import PageHeader from '@/components/user/PageHeader';
 
@@ -100,17 +99,17 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
 
     return (
         <MainLayout>
-            <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+            {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
                 <PageHeader
                     title="Profile Settings"
                     description="Manage your account settings and preferences"
                 />
 
                 {/* Profile Information */}
-                <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg mb-6">
+                <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6 mb-6">
                     <div className="mb-6">
-                        <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-2">Profile Information</h3>
-                        <p className="text-purple-600/70 dark:text-purple-400/70">Update your account's profile information and email address.</p>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Profile Information</h3>
+                        <p className="text-gray-600 dark:text-gray-400">Update your account's profile information and email address.</p>
                     </div>
                     <div className="space-y-4">
                         {profileUpdateSuccess && (
@@ -129,7 +128,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                         type="text"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        className="mt-1 bg-white/60 dark:bg-neutral-800/60 border-purple-200 dark:border-purple-700 focus:ring-purple-500"
+                                        className="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                                     />
                                     {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                                 </div>
@@ -143,37 +142,33 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                         value={data.email}
                                         // onChange={(e) => setData('email', e.target.value)}
                                         disabled={true}
-                                        className="mt-1 bg-white/60 dark:bg-neutral-800/60 border-purple-200 dark:border-purple-700 focus:ring-purple-500"
+                                        className="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                                     />
                                     {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
                                 </div>
                             </div>
 
                             {mustVerifyEmail && auth.user.email_verified_at === null && (
-                                <Alert>
-                                    <AlertDescription>
-                                        Your email address is unverified.
-                                        <button
-                                            onClick={() => axios.post('/email/verification-notification')}
-                                            className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Click here to re-send the verification email.
-                                        </button>
-                                    </AlertDescription>
-                                </Alert>
+                                <div
+                                 onClick={() => axios.post('/email/verification-notification')}
+                                >
+                                       <AlertComponent message = {' Your email address is unverified.  Click to verify'} type ='warning' />
+                                        
+                                    </div>
                             )}
 
                             {status === 'verification-link-sent' && (
-                                <Alert>
-                                    <AlertDescription className="text-green-600">
-                                        A new verification link has been sent to your email address.
-                                    </AlertDescription>
-                                </Alert>
+                                <AlertComponent message={" A new verification link has been sent to your email address."} type={"success"} />
                             )}
 
-                            <Button type="submit" disabled={processing} className="bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600">
-                                {processing ? 'Saving...' : 'Save Changes'}
-                            </Button>
+                            <div className='flex justify-end' >
+                                <Button type="submit" disabled={processing}
+                                    className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
+
+                                >
+                                    {processing ? 'Saving...' : 'Save Changes'}
+                                </Button>
+                            </div>
 
                             {recentlySuccessful && (
                                 <p className="text-sm text-green-600">Profile updated successfully.</p>
@@ -183,10 +178,10 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                 </div>
 
                 {/* Password Reset */}
-                <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg mb-6">
+                <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6 mb-6">
                     <div className="mb-6">
-                        <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-2">Password</h3>
-                        <p className="text-purple-600/70 dark:text-purple-400/70">Ensure your account is using a long, random password to stay secure.</p>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Password</h3>
+                        <p className="text-gray-600 dark:text-gray-400">Ensure your account is using a long, random password to stay secure.</p>
                     </div>
                     <div className="space-y-4">
                         {passwordAlert && (
@@ -238,7 +233,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                     id="current_password"
                                     name="current_password"
                                     type="password"
-                                    className="mt-1 bg-white/60 dark:bg-neutral-800/60 border-purple-200 dark:border-purple-700 focus:ring-purple-500"
+                                    className="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                                     required
                                 />
                             </div>
@@ -248,7 +243,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                     id="password"
                                     name="password"
                                     type="password"
-                                    className="mt-1 bg-white/60 dark:bg-neutral-800/60 border-purple-200 dark:border-purple-700 focus:ring-purple-500"
+                                    className="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                                     required
                                 />
                             </div>
@@ -258,27 +253,29 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     type="password"
-                                    className="mt-1 bg-white/60 dark:bg-neutral-800/60 border-purple-200 dark:border-purple-700 focus:ring-purple-500"
+                                    className="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                                     required
                                 />
                             </div>
-                            <Button type="submit" className="bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600 flex items-center gap-2">
-                                <Lock className="h-4 w-4" />
-                                Update Password
-                            </Button>
+                            <div className='flex justify-end' >
+                                <Button type="submit"
+                                    className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
+                                >
+                                    <Lock className="h-4 w-4" />
+                                    Update Password
+                                </Button>
+                            </div>
                         </form>
                     </div>
                 </div>
 
                 {/* Platform Connections */}
-                <Card className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg mb-6">
-                    <CardHeader>
-                        <CardTitle>Connected Platforms</CardTitle>
-                        <CardDescription>
-                            Manage your connected music platforms.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                    <div className="mb-6">
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Connected Platforms</h3>
+                        <p className="text-gray-600 dark:text-gray-400">Manage your connected music platforms.</p>
+                    </div>
+                    <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[
                                 { key: 'spotify', label: 'Spotify', icon: Music, color: 'green' },
@@ -288,7 +285,7 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                 const isConnected = connectedPlatforms[platform.key];
 
                                 return (
-                                    <div key={platform.key} className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div key={platform.key} className="flex items-center justify-between p-4 border">
                                         <div className="flex items-center gap-3">
                                             <IconComponent className={`h-6 w-6 text-${platform.color}-500`} />
                                             <div>
@@ -321,18 +318,16 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                 );
                             })}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
                 {/* API & Sessions */}
-                <Card className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-2xl p-6 shadow-lg mb-6">
-                    <CardHeader>
-                        <CardTitle>API Tokens & Sessions</CardTitle>
-                        <CardDescription>
-                            Manage your API access and active sessions.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                    <div className="mb-6">
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">API Tokens & Sessions</h3>
+                        <p className="text-gray-600 dark:text-gray-400">Manage your API access and active sessions.</p>
+                    </div>
+                    <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Revoke All API Tokens</p>
@@ -342,10 +337,10 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                 variant="outline"
                                 onClick={() => confirmActionHandler(handleRevokeTokens)}
                                 className="flex items-center gap-2"
-                                disabled = {true}
+                                disabled={true}
                             >
                                 <Key className="h-4 w-4" />
-                                Revoke Tokens 
+                                Revoke Tokens
                             </Button>
                         </div>
 
@@ -365,42 +360,38 @@ export default function Profile({ auth, mustVerifyEmail, status }: Props) {
                                 Logout All
                             </Button>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
                 {/* Danger Zone */}
-                <Card className="border-red-200">
-                    <CardHeader>
-                        <CardTitle className="text-red-600">Danger Zone</CardTitle>
-                        <CardDescription>
-                            Irreversible and destructive actions.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-medium">Delete Account</p>
-                                <p className="text-sm text-gray-600">Once you delete your account, there is no going back. Please be certain.</p>
-                            </div>
-                            <Button
-                                variant="destructive"
-                                onClick={() => confirmActionHandler(async () => {
-                                    try {
-                                        await axios.delete('/user/delete');
-                                        window.location.href = '/';
-                                    } catch (error) {
-                                        console.error('Failed to delete account:', error);
-                                    }
-                                })}
-                                className="flex items-center gap-2"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                Delete Account
-                            </Button>
+                <div className="bg-white dark:bg-neutral-800 border border-red-200 p-6 mb-6">
+                    <div className="mb-6">
+                        <h3 className="text-xl font-bold text-red-600 mb-2">Danger Zone</h3>
+                        <p className="text-gray-600 dark:text-gray-400">Irreversible and destructive actions.</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-medium">Delete Account</p>
+                            <p className="text-sm text-gray-600">Once you delete your account, there is no going back. Please be certain.</p>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        <Button
+                            variant="destructive"
+                            onClick={() => confirmActionHandler(async () => {
+                                try {
+                                    await axios.delete('/user/delete');
+                                    window.location.href = '/';
+                                } catch (error) {
+                                    console.error('Failed to delete account:', error);
+                                }
+                            })}
+                            className="flex items-center gap-2"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Account
+                        </Button>
+                    </div>
+                </div>
+            {/* </div> */}
 
             <ConfirmationModal
                 isOpen={showConfirmModal}

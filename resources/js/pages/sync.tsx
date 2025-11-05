@@ -5,12 +5,12 @@ import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import LoadingState from '@/utils/LoadingState';
-import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
-import PlatformDropdown from '@/utils/PlatformDropdown';
-import PlaylistDropdown from '@/utils/PlaylistDropdown';
+import LoadingState from '@/components/user/LoadingState';
+import NoPlatformsConnect from '@/components/user/NoPlatformsConnect';
+import PlatformDropdown from '@/components/user/PlatformDropdown';
+import PlaylistDropdown from '@/components/user/PlaylistDropdown';
 import PageHeader from '@/components/user/PageHeader';
-import AlertComponent from '@/utils/AlertComponent';
+import AlertComponent from '@/components/user/AlertComponent';
 
 interface Playlist {
   id: string;
@@ -232,7 +232,7 @@ const Sync: React.FC = () => {
     <MainLayout>
       <Head title="Sync Playlists" />
 
-      <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+      {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
         <PageHeader
           title="Sync Playlists"
           description="Keep your playlists synchronized across platforms"
@@ -323,7 +323,7 @@ const Sync: React.FC = () => {
                     id="removeExtras"
                     checked={removeExtras}
                     onChange={(e) => setRemoveExtras(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded "
                   />
                   <label htmlFor="removeExtras" className="text-sm font-medium text-gray-800 dark:text-white">
                     Remove tracks from target playlist that are not in source playlist
@@ -425,7 +425,7 @@ const Sync: React.FC = () => {
 
                 <div className="space-y-4">
                   {syncHistory.slice(0, 10).map((job) => (
-                    <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/50 dark:bg-gray-800/10">
+                    <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/100 dark:bg-gray-800/10 hover:shadow-xl hover:scale-105">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           {React.createElement(getStatusDisplay(job.status).icon, {
@@ -473,7 +473,7 @@ const Sync: React.FC = () => {
             )}
           </>
         )}
-      </div>
+      {/* </div> */}
     </MainLayout>
   );
 };

@@ -4,15 +4,14 @@ import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import PlaylistTracks from './tracks';
-import ErrorState from '@/utils/ErrorState';
 
-import EmptyPlaylistState from '@/utils/EmptyPlaylistState';
-import NoPlatformsConnect from '@/utils/NoPlatformsConnect';
-import PlatformDropdown from '@/utils/PlatformDropdown';
-import ConfirmationModal from '@/utils/ConfirmationModal';
-import PlaylistGrid from '@/utils/PlaylistGrid';
-import FilterControls from '@/utils/FilterControls';
-import AlertComponent from '@/utils/AlertComponent';
+import EmptyPlaylistState from '@/components/user/EmptyPlaylistState';
+import NoPlatformsConnect from '@/components/user/NoPlatformsConnect';
+import PlatformDropdown from '@/components/user/PlatformDropdown';
+import ConfirmationModal from '@/components/user/ConfirmationModal';
+import PlaylistGrid from '@/components/user/PlaylistGrid';
+import FilterControls from '@/components/user/FilterControls';
+import AlertComponent from '@/components/user/AlertComponent';
 import PageHeader from '@/components/user/PageHeader';
 import MainLayout from '@/layouts/MainLayout';
 
@@ -138,6 +137,10 @@ const Playlist: React.FC = () => {
       setPlaylists([]);
     } finally {
       setFetchingPlaylists(false);
+      //So that Error set by catch block is visible for few seconds
+      setTimeout( () => { 
+        setError(null);
+      }, 2500 )
     }
   };
 
@@ -208,7 +211,7 @@ const Playlist: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="w-full max-w-6xl mx-auto p-4 md:p-6">
+      {/* <div className="w-full max-w-6xl mx-auto p-4 md:p-6"> */}
         {/* Header Section */}
         <PageHeader
           title="Your Playlists"
@@ -224,27 +227,21 @@ const Playlist: React.FC = () => {
           />
         </div>
 
-        {/* Status Messages */}
-        {error && !fetchingPlaylists && <ErrorState error={error} onDismiss={() => setError(null)} />}
+        {/* Status Messages  for success delete or error*/}
         {deleteSuccess && (
-          <div className="mb-4 p-4 bg-green-100 border border-green-200">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-green-500 flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-green-800 font-medium">{deleteSuccess}</span>
-            </div>
-          </div>
+          <AlertComponent message={deleteSuccess} type="success" />
         )}
+
+        <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
+
+        {error && !fetchingPlaylists && <AlertComponent message={error} type='error' />}
+
 
         {/* Main Content */}
 
         {/* Playlists View */}
         {selectedPlatform && showPlaylists && (
           <>
-            <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
 
             {/* Filter Controls */}
             <div className="mb-6">
@@ -293,7 +290,7 @@ const Playlist: React.FC = () => {
 
             {/* Loading Skeleton or Playlist Grid */}
             {fetchingPlaylists ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, index) => (
                   <div key={`skeleton-${index}`} className="border border-gray-200 p-6 animate-pulse">
                     <div className="w-full h-48 bg-gray-200 mb-4"></div>
@@ -394,7 +391,7 @@ const Playlist: React.FC = () => {
           showError={error === 'Failed to delete playlists'}
           errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
         />
-      </div>
+      {/* </div> */}
     </MainLayout>
   );
 };

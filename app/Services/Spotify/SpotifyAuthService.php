@@ -88,16 +88,23 @@ class SpotifyAuthService
                 'status' => $response->status(),
                 'response' => $response->body(),
             ]);
-            // throw new \Exception('Failed to refresh Spotify token');
-            return [
-                'error' => $response->status()
-            ];
+
+            //clear all youtube tokens
+            $user->update([
+                'spotify_access_token' => null,
+                'spotify_refresh_token' => null,
+                'spotify_token_expires_at' => null
+            ]);
+
+            throw new \Exception('Failed to refresh Spotify token');
         }
 
         $data = $response->json();
+        $newRefreshToken = $data['refresh_token'] ?? $user->youtube_refresh_token;
 
         $user->update([
             'spotify_access_token' => $data['access_token'],
+            'spotify_refresh_token' => $newRefreshToken,
             'spotify_token_expires_at' => Carbon::now()->addSeconds($data['expires_in']),
         ]);
 

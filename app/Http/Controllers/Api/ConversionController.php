@@ -99,6 +99,17 @@ class ConversionController extends Controller
                 ],
             ], 201);
 
+        } catch (\App\Exceptions\PlatformException $e) {
+            Log::warning("Platform error during conversion", [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Platform connection error',
+                'message' => $e->getMessage(),
+            ], 401);
+
         } catch (\InvalidArgumentException $e) {
             Log::warning("Invalid conversion request", [
                 'user_id' => $request->user()->id,

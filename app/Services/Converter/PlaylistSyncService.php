@@ -45,25 +45,12 @@ class PlaylistSyncService
             throw new \InvalidArgumentException("Invalid target platform: {$targetPlatform}");
         }
 
-        // Check connections
+        // Check connections (exceptions will bubble up)
         $sourcePlatformInstance = $this->platformFactory->make($sourcePlatform);
         $targetPlatformInstance = $this->platformFactory->make($targetPlatform);
 
-        if (!$sourcePlatformInstance->isConnected($user)) {
-            Log::error("Source platform not connected", [
-                'user_id' => $user->id,
-                'platform' => $sourcePlatform
-            ]);
-            throw new \Exception("{$sourcePlatform} account not connected");
-        }
-
-        if (!$targetPlatformInstance->isConnected($user)) {
-            Log::error("Target platform not connected", [
-                'user_id' => $user->id,
-                'platform' => $targetPlatform
-            ]);
-            throw new \Exception("{$targetPlatform} account not connected");
-        }
+        $sourcePlatformInstance->isConnected($user);
+        $targetPlatformInstance->isConnected($user);
 
         // Perform the sync immediately using the provided job
         $this->performSyncing($job, $user);
@@ -104,14 +91,9 @@ class PlaylistSyncService
             $sourcePlatformInstance = $this->platformFactory->make($job->source_platform);
             $targetPlatformInstance = $this->platformFactory->make($job->target_platform);
 
-            // Check connections
-            if (!$sourcePlatformInstance->isConnected($user)) {
-                throw new \Exception("{$job->source_platform} account not connected");
-            }
-
-            if (!$targetPlatformInstance->isConnected($user)) {
-                throw new \Exception("{$job->target_platform} account not connected");
-            }
+            // Check connections (exceptions will bubble up)
+            $sourcePlatformInstance->isConnected($user);
+            $targetPlatformInstance->isConnected($user);
 
             // Fetch both playlists
             $sourcePlaylist = $sourcePlatformInstance->getPlaylistById($job->source_playlist_id, $user);

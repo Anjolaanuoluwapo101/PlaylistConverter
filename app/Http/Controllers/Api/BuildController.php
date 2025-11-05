@@ -56,20 +56,36 @@ class BuildController extends Controller
         // Dispatch to queue
         // BuildPlaylistJob::dispatch($buildJob);
 
-        // Perform synchronous build using the service with job instance
-        $results = $this->builderService->buildPlaylists($buildJob);
+        try {
+            // Perform synchronous build using the service with job instance
+            $results = $this->builderService->buildPlaylists($buildJob);
 
-        // Clear playlist caches for each selected platform after successful build
-        foreach ($request->selected_platforms as $platform) {
-            ResponseCache::forget("/playlists/{$platform}");
+            // Clear playlist caches for each selected platform after successful build
+            foreach ($request->selected_platforms as $platform) {
+                ResponseCache::forget("/playlists/{$platform}");
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Playlist build completed successfully',
+                'job_id' => $buildJob->id,
+                'results' => $results,
+            ]);
+
+        } catch (\App\Exceptions\PlatformException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Platform connection error',
+                'error' => $e->getMessage(),
+            ], 401);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Playlist build failed',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Playlist build completed successfully',
-            'job_id' => $buildJob->id,
-            'results' => $results,
-        ]);
     }
 
     /**

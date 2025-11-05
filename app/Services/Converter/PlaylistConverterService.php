@@ -57,22 +57,9 @@ class PlaylistConverterService
         $sourcePlatformInstance = $this->platformFactory->make($sourcePlatform);
         $targetPlatformInstance = $this->platformFactory->make($targetPlatform);
 
-        // Check connections
-        if (!$sourcePlatformInstance->isConnected($user)) {
-            Log::error("Source platform not connected", [
-                'user_id' => $user->id,
-                'platform' => $sourcePlatform
-            ]);
-            throw new \Exception("{$sourcePlatform} account not connected");
-        }
-
-        if (!$targetPlatformInstance->isConnected($user)) {
-            Log::error("Target platform not connected", [
-                'user_id' => $user->id,
-                'platform' => $targetPlatform
-            ]);
-            throw new \Exception("{$targetPlatform} account not connected");
-        }
+        // Check connections (exceptions will bubble up)
+        $sourcePlatformInstance->isConnected($user);
+        $targetPlatformInstance->isConnected($user);
 
         DB::beginTransaction();
 

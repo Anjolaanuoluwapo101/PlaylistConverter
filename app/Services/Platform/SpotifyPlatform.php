@@ -5,14 +5,12 @@ namespace App\Services\Platform;
 use App\Models\User;
 use App\Services\Spotify\SpotifyPlaylistService;
 use App\Services\Spotify\SpotifySearchService;
-use App\Traits\LogsOperations;
 use App\Exceptions\PlatformException;
 use App\Exceptions\ApiException;
 use Illuminate\Support\Facades\Log;
 
 class SpotifyPlatform implements PlatformInterface
 {
-    use LogsOperations;
 
     private int $defaultLimit = 20;
 
@@ -28,19 +26,30 @@ class SpotifyPlatform implements PlatformInterface
 
     public function isConnected(User $user): bool
     {
-        $this->logOperationStart('Spotify connection check', $this->createUserContext($user));
+        Log::info('Spotify connection check', [
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $connected = $this->playlistService->isConnected($user);
-            if(isset($connected['error'])){
-                return false;
-            }
-            $this->logOperationSuccess('Spotify connection check', $this->createUserContext($user, [
+            
+            Log::info('Spotify connection check completed successfully', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'connected' => $connected
-            ]));
+            ]);
             return $connected;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Spotify connection check', $e, $this->createUserContext($user));
+            Log::error('Spotify connection check failed', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             throw new PlatformException(
                 'Failed to check Spotify connection',
                 'spotify',
@@ -79,14 +88,24 @@ class SpotifyPlatform implements PlatformInterface
 
     public function getPlaylistData(string $playlistId, User $user): array
     {
-        $this->logOperationStart('Fetching Spotify playlist data', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+        Log::info('Fetching Spotify playlist data', [
+            'playlist_id' => $playlistId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $playlists = $this->getUserPlaylists($user, 2);
             $playlistInfo = collect($playlists["items"])->firstWhere('id', $playlistId);
 
             if (!$playlistInfo) {
-                $this->logWarning('Spotify playlist not found', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+                Log::warning('Spotify playlist not found', [
+                    'playlist_id' => $playlistId,
+                    'user_id' => $user->id,
+                    'service' => get_class($this),
+                    'timestamp' => now()->toISOString(),
+                ]);
                 throw new PlatformException(
                     'Playlist not found',
                     'spotify',
@@ -105,15 +124,26 @@ class SpotifyPlatform implements PlatformInterface
                 'tracks' => $tracks,
             ];
 
-            $this->logOperationSuccess('Fetching Spotify playlist data', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+            Log::info('Fetching Spotify playlist data completed successfully', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'track_count' => count($tracks['items'] ?? [])
-            ])));
+            ]);
 
             return $data;
         } catch (PlatformException $e) {
             throw $e;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Fetching Spotify playlist data', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+            Log::error('Fetching Spotify playlist data failed', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             throw new PlatformException(
                 'Failed to fetch Spotify playlist data',
                 'spotify',
@@ -128,24 +158,38 @@ class SpotifyPlatform implements PlatformInterface
     public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null,  ?string $sortBy = null, ?string $order = null): array
     {
         $limit = $limit ?? $this->defaultLimit;
-        $this->logOperationStart('Fetching Spotify playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+        Log::info('Fetching Spotify playlist tracks', [
+            'playlist_id' => $playlistId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
             'limit' => $limit,
             'offset' => $offset
-        ])));
+        ]);
 
         try {
             $tracks = $this->playlistService->getPlaylistTracks($playlistId, $user, $limit, $offset,   $sortBy , $order );
-            $this->logOperationSuccess('Fetching Spotify playlist tracks', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+            Log::info('Fetching Spotify playlist tracks completed successfully', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'limit' => $limit,
                 'offset' => $offset,
                 'track_count' => count($tracks['items'] ?? [])
-            ])));
+            ]);
             return $tracks;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Fetching Spotify playlist tracks', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+            Log::error('Fetching Spotify playlist tracks failed', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'limit' => $limit,
-                'offset' => $offset
-            ])));
+                'offset' => $offset,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             throw new PlatformException(
                 $e->getMessage(),                'spotify',
                 'get_playlist_tracks',
@@ -158,24 +202,35 @@ class SpotifyPlatform implements PlatformInterface
 
     public function createPlaylist(User $user, string $name, string $description = ''): array
     {
-        $this->logOperationStart('Creating Spotify playlist', $this->createUserContext($user, [
+        Log::info('Creating Spotify playlist', [
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
             'playlist_name' => $name,
             'description' => $description
-        ]));
+        ]);
 
         try {
             $playlist = $this->playlistService->createPlaylist($user, $name, $description);
-            $this->logOperationSuccess('Creating Spotify playlist', $this->createUserContext($user, [
+            Log::info('Creating Spotify playlist completed successfully', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'playlist_name' => $name,
                 'description' => $description,
                 'created_playlist_id' => $playlist['id']
-            ]));
+            ]);
             return $playlist;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Creating Spotify playlist', $e, $this->createUserContext($user, [
+            Log::error('Creating Spotify playlist failed', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'playlist_name' => $name,
-                'description' => $description
-            ]));
+                'description' => $description,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             throw new PlatformException(
                 'Failed to create Spotify playlist',
                 'spotify',
@@ -189,43 +244,66 @@ class SpotifyPlatform implements PlatformInterface
 
     public function deletePlaylist(string $playlistId, User $user): bool
     {
-        $this->logOperationStart('Deleting Spotify playlist', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+        Log::info('Deleting Spotify playlist', [
+            'playlist_id' => $playlistId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $success = $this->playlistService->deletePlaylist($playlistId, $user);
 
             if ($success) {
-                $this->logOperationSuccess('Deleting Spotify playlist', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+                Log::info('Deleting Spotify playlist completed successfully', [
+                    'playlist_id' => $playlistId,
+                    'user_id' => $user->id,
+                    'service' => get_class($this),
+                    'timestamp' => now()->toISOString(),
+                ]);
             } else {
-                $this->logWarning('Failed to delete Spotify playlist', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+                throw new PlatformException("Failed to delete Spotify playlist", 'spotify', 'delete_playlist', $user->id);
             }
 
             return $success;
 
         } catch (\Exception $e) {
-            $this->logOperationFailure('Deleting Spotify playlist', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
-            return false;
+            Log::error('Deleting Spotify playlist failed', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
+            throw new PlatformException(
+                'Failed to delete Spotify playlist',
+                'spotify',
+                'delete_playlist',
+                $user->id,
+                0,
+                $e
+            );
         }
     }
 
 
     public function searchTrack(string $artist, string $title, User $user): ?array
     {
-        $this->logOperationStart('Searching for track on Spotify', $this->createUserContext($user, [
+        Log::info('Searching for track on Spotify', [
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
             'artist' => $artist,
             'title' => $title
-        ]));
+        ]);
 
         try {
             // Get multiple results from the service
             $results = $this->playlistService->searchTrack($artist, $title, $user);
 
             if (empty($results)) {
-                $this->logWarning('No tracks found on Spotify', $this->createUserContext($user, [
-                    'artist' => $artist,
-                    'title' => $title
-                ]));
-                return null;
+                throw new PlatformException("No tracks found on Spotify", 'spotify', 'search_track', $user->id);
             }
 
             // Clean the title for matching
@@ -235,60 +313,87 @@ class SpotifyPlatform implements PlatformInterface
             $bestMatch = $this->findBestMatch($results, $artist, $cleanTitle);
 
             if (!$bestMatch) {
-                $this->logWarning('No suitable match found on Spotify', $this->createUserContext($user, [
-                    'artist' => $artist,
-                    'title' => $title
-                ]));
-                return null;
+                throw new PlatformException("No suitable match found on Spotify", 'spotify', 'search_track', $user->id);
             }
 
-            $this->logOperationSuccess('Searching for track on Spotify', $this->createUserContext($user, [
+            Log::info('Searching for track on Spotify completed successfully', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'artist' => $artist,
                 'title' => $title,
                 'found_track' => $bestMatch['title']
-            ]));
+            ]);
 
             return $bestMatch;
+        } catch (PlatformException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Searching for track on Spotify', $e, $this->createUserContext($user, [
+            Log::error('Searching for track on Spotify failed', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'artist' => $artist,
-                'title' => $title
-            ]));
-            return null;
+                'title' => $title,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
+            throw new PlatformException(
+                'Failed to search track on Spotify',
+                'spotify',
+                'search_track',
+                $user->id,
+                0,
+                $e
+            );
         }
     }
 
     public function searchTracks(string $artist, string $title, User $user): ?array
     {
-        $this->logOperationStart('Searching for tracks on Spotify (unprocessed)', $this->createUserContext($user, [
+        Log::info('Searching for tracks on Spotify (unprocessed)', [
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
             'artist' => $artist,
             'title' => $title
-        ]));
+        ]);
 
         try {
             // Get unprocessed results from the service
             $results = $this->playlistService->searchTrack($artist, $title, $user);
 
             if (empty($results)) {
-                $this->logWarning('No tracks found on Spotify', $this->createUserContext($user, [
+                Log::warning('No tracks found on Spotify', [
+                    'user_id' => $user->id,
+                    'service' => get_class($this),
+                    'timestamp' => now()->toISOString(),
                     'artist' => $artist,
                     'title' => $title
-                ]));
+                ]);
                 return null;
             }
 
-            $this->logOperationSuccess('Searching for tracks on Spotify (unprocessed)', $this->createUserContext($user, [
+            Log::info('Searching for tracks on Spotify (unprocessed) completed successfully', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'artist' => $artist,
                 'title' => $title,
                 'results_count' => count($results)
-            ]));
+            ]);
 
             return $results;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Searching for tracks on Spotify (unprocessed)', $e, $this->createUserContext($user, [
+            Log::error('Searching for tracks on Spotify (unprocessed) failed', [
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'artist' => $artist,
-                'title' => $title
-            ]));
+                'title' => $title,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             return null;
         }
     }
@@ -298,14 +403,34 @@ class SpotifyPlatform implements PlatformInterface
         // Spotify uses URIs, so we need to convert
         $trackUri = "spotify:track:{$trackId}";
 
-        $this->logOperationStart('Adding track to Spotify playlist', $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+        Log::info('Adding track to Spotify playlist', [
+            'playlist_id' => $playlistId,
+            'track_id' => $trackId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $this->playlistService->addTracksToPlaylist($playlistId, [$trackUri], $user);
-            $this->logOperationSuccess('Adding track to Spotify playlist', $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+            Log::info('Adding track to Spotify playlist completed successfully', [
+                'playlist_id' => $playlistId,
+                'track_id' => $trackId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+            ]);
             return true;
         } catch (\Exception $e) {
-            $this->logOperationFailure('Adding track to Spotify playlist', $e, $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+            Log::error('Adding track to Spotify playlist failed', [
+                'playlist_id' => $playlistId,
+                'track_id' => $trackId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             return false;
         }
     }
@@ -315,19 +440,33 @@ class SpotifyPlatform implements PlatformInterface
         // Convert track IDs to URIs
         $trackUris = array_map(fn($id) => "spotify:track:{$id}", $trackIds);
 
-        $this->logOperationStart('Adding multiple tracks to Spotify playlist', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+        Log::info('Adding multiple tracks to Spotify playlist', [
+            'playlist_id' => $playlistId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
             'track_count' => count($trackIds)
-        ])));
+        ]);
 
         try {
             $this->playlistService->addTracksToPlaylist($playlistId, $trackUris, $user);
-            $this->logOperationSuccess('Adding multiple tracks to Spotify playlist', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+            Log::info('Adding multiple tracks to Spotify playlist completed successfully', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
                 'track_count' => count($trackIds)
-            ])));
+            ]);
         } catch (\Exception $e) {
-            $this->logOperationFailure('Adding multiple tracks to Spotify playlist', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
-                'track_count' => count($trackIds)
-            ])));
+            Log::error('Adding multiple tracks to Spotify playlist failed', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'track_count' => count($trackIds),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
             throw new PlatformException(
                 'Failed to add tracks to Spotify playlist',
                 'spotify',
@@ -344,45 +483,95 @@ class SpotifyPlatform implements PlatformInterface
         // Convert track ID to URI
         $trackUri = "spotify:track:{$trackId}";
 
-        $this->logOperationStart('Removing track from Spotify playlist', $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+        Log::info('Removing track from Spotify playlist', [
+            'playlist_id' => $playlistId,
+            'track_id' => $trackId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $success = $this->playlistService->removeTrackFromPlaylist($playlistId, $trackUri, $user);
 
             if ($success) {
-                $this->logOperationSuccess('Removing track from Spotify playlist', $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+                Log::info('Removing track from Spotify playlist completed successfully', [
+                    'playlist_id' => $playlistId,
+                    'track_id' => $trackId,
+                    'user_id' => $user->id,
+                    'service' => get_class($this),
+                    'timestamp' => now()->toISOString(),
+                ]);
             } else {
-                $this->logWarning('Failed to remove track from Spotify playlist', $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
+                throw new PlatformException("Failed to remove track from Spotify playlist", 'spotify', 'remove_track_from_playlist', $user->id);
             }
 
             return $success;
 
         } catch (\Exception $e) {
-            $this->logOperationFailure('Removing track from Spotify playlist', $e, $this->createPlaylistContext($playlistId, $this->createTrackContext($trackId, $this->createUserContext($user))));
-            return false;
+            Log::error('Removing track from Spotify playlist failed', [
+                'playlist_id' => $playlistId,
+                'track_id' => $trackId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
+            throw new PlatformException(
+                'Failed to remove track from Spotify playlist',
+                'spotify',
+                'remove_track_from_playlist',
+                $user->id,
+                0,
+                $e
+            );
         }
     }
 
     public function getPlaylistById(string $playlistId, User $user): ?array
     {
-        $this->logOperationStart('Fetching Spotify playlist by ID', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+        Log::info('Fetching Spotify playlist by ID', [
+            'playlist_id' => $playlistId,
+            'user_id' => $user->id,
+            'service' => get_class($this),
+            'timestamp' => now()->toISOString(),
+        ]);
 
         try {
             $playlist = $this->playlistService->getPlaylistById($playlistId, $user);
 
             if ($playlist) {
-                $this->logOperationSuccess('Fetching Spotify playlist by ID', $this->createPlaylistContext($playlistId, $this->createUserContext($user, [
+                Log::info('Fetching Spotify playlist by ID completed successfully', [
+                    'playlist_id' => $playlistId,
+                    'user_id' => $user->id,
+                    'service' => get_class($this),
+                    'timestamp' => now()->toISOString(),
                     'track_count' => count($playlist['tracks']['items'] ?? [])
-                ])));
+                ]);
             } else {
-                $this->logWarning('Spotify playlist not found by ID', $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
+                throw new PlatformException("Spotify playlist not found by ID", 'spotify', 'get_playlist_by_id', $user->id);
             }
 
             return $playlist;
 
         } catch (\Exception $e) {
-            $this->logOperationFailure('Fetching Spotify playlist by ID', $e, $this->createPlaylistContext($playlistId, $this->createUserContext($user)));
-            return null;
+            Log::error('Fetching Spotify playlist by ID failed', [
+                'playlist_id' => $playlistId,
+                'user_id' => $user->id,
+                'service' => get_class($this),
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+            ]);
+            throw new PlatformException(
+                'Failed to fetch Spotify playlist by ID',
+                'spotify',
+                'get_playlist_by_id',
+                $user->id,
+                0,
+                $e
+            );
         }
     }
 

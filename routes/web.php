@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\ConversionController as ApiConversionController;
 use App\Http\Controllers\Api\SyncController as ApiSyncController;
 use App\Http\Controllers\Api\BuildController as ApiBuildController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Middleware\ResponseCache;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -16,7 +15,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
-    Route::get('connect', function () {
+    Route::get('/dashboard', function () {
         return Inertia::render('connect');
     })->name('dashboard');
 
@@ -38,11 +37,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{platform}', [ApiPlaylistController::class, 'destroyPlaylists']);
         Route::delete('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'destroyTracks']);
 
-    });
-
-    Route::get('/clearcache', function(){
-        ResponseCache::clear();
-        return 'Cache cleared';
     });
 
     // Conversions

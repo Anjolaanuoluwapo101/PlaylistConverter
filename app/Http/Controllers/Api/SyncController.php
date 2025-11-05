@@ -81,6 +81,17 @@ class SyncController extends Controller
                 'results' => $syncJob->results,
             ]);
 
+        } catch (\App\Exceptions\PlatformException $e) {
+            Log::warning("Platform error during sync", [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Platform connection error',
+                'message' => $e->getMessage(),
+            ], 401);
+
         } catch (\InvalidArgumentException $e) {
             Log::warning("Invalid sync request", [
                 'user_id' => $request->user()->id,

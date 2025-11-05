@@ -45,6 +45,9 @@ class PlaylistBuilderService
             try {
                 $platform = $this->platformFactory->make($platformName);
 
+                // Check connection (exceptions will bubble up)
+                $platform->isConnected($job->user);
+
                 // Create playlist on this platform
                 $playlistData = $platform->createPlaylist(
                     $job->user,

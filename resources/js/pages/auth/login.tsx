@@ -9,7 +9,7 @@ import { LoaderCircle } from 'lucide-react';
 import InputError from '@/components/input-error';
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import { request } from '@/routes/password';
-import AlertComponent from '@/utils/AlertComponent';
+import AlertComponent from '@/components/user/AlertComponent';
 import MainLayout from '@/layouts/MainLayout';
 
 interface LoginProps {

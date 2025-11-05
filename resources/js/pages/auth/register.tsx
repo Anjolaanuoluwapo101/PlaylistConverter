@@ -8,7 +8,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AlertComponent from '@/utils/AlertComponent';
+import AlertComponent from '@/components/user/AlertComponent';
 import MainLayout from '@/layouts/MainLayout';
 
 export default function Register() {
