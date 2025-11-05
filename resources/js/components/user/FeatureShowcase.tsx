@@ -17,7 +17,7 @@ const featureData = [
     {
         icon: Repeat,
         title: 'Sync',
-        description: 'Sync your playlists across platforms in real-time.',
+        description: 'Sync your playlists across platforms with a button click.',
     },
     {
         icon: Sparkles,

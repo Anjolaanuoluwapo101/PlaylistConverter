@@ -34,7 +34,7 @@ export default function NavBar({ items }: Props) {
                             : 'text-gray-600 hover:text-black hover:bg-gray-200'
                     }`}
                 >
-                    {item.icon && <item.icon className="h-5 w-5 mr-2" />}
+                    {item.icon && <item.icon className="h-5 w-5 mr-2  text-blue-500" />}
                     {item.title}
                 </button>
             ))}

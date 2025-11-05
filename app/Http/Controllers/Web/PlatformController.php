@@ -46,11 +46,11 @@ class PlatformController extends Controller
                 'spotify_token_expires_at' => $tokenData['expires_at'],
             ]);
 
-            return redirect()->route('connect')
+            return redirect()->route('dashboard')
                 ->with('success', 'Spotify connected successfully!');
 
         } catch (\Exception $e) {
-            return redirect()->route('connect')
+            return redirect()->route('dashbaord')
                 ->with('error', 'Failed to connect Spotify: ' . $e->getMessage());
         }
     }
@@ -73,11 +73,11 @@ class PlatformController extends Controller
                 'youtube_token_expires_at' => $tokenData['expires_at'],
             ]);
 
-            return redirect()->route('connect')
+            return redirect()->route('dashboard')
                 ->with('success', 'YouTube connected successfully!');
 
         } catch (\Exception $e) {
-            return redirect()->route('connect')
+            return redirect()->route('dashboard')
                 ->with('error', 'Failed to connect YouTube: ' . $e->getMessage());
         }
     }

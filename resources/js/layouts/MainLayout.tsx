@@ -3,6 +3,7 @@ import NavBar from '@/components/user/NavBar';
 import { NavBarData } from '@/utils/global';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
+import { UserPlus, LogIn } from 'lucide-react';
 import React from 'react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -19,16 +20,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                             {
                                 title: 'Register',
                                 uri: '/register',
+                                icon: UserPlus,
                             },
                             {
                                 title: 'Login',
                                 uri: '/login',
+                                icon: LogIn,
                             },
                         ]}
                     />
                 )}
             </div>
-            <main className="w-full lg:ml-[25%] p-6 lg:p-8 lg:pt-20 md:pt-20">{children}</main>
+            <main className="w-full lg:ml-[25%] p-2 lg:p-2 lg:pt-8 md:pt-20">{children}</main>
         </div>
     );
 }

@@ -201,7 +201,7 @@ const Convert: React.FC = () => {
   return (
     <MainLayout>
       <Head title="Convert Playlists" />
-      <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+      {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
         <PageHeader
           title="Convert Playlists"
           description="Convert your playlists between Spotify and YouTube Music"
@@ -469,7 +469,7 @@ const Convert: React.FC = () => {
             )}
           </>
         )}
-      </div>
+      {/* </div> */}
     </MainLayout>
   );
 };

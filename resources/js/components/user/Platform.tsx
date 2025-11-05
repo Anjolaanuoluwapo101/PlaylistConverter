@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import PageHeader from './PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import { Music, Play, CheckCircle, Plus } from 'lucide-react';
 import { router } from '@inertiajs/react';
@@ -43,16 +44,7 @@ const Platform: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="text-center mb-12" onClick={ () => router.visit('/connect')}>
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-white">
-          Connect Your Platforms
-        </h2>
-        <div className="flex items-center justify-center" >
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Link your music accounts to start syncing playlists seamlessly
-          </p>
-        </div>
-      </div>
+      <PageHeader title={"Connect Your Platforms"} description={" Link your music accounts to start syncing playlists seamlessly"} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {PLATFORM_CONFIG.map((platform) => {

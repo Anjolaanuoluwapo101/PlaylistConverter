@@ -246,7 +246,7 @@ const Sync: React.FC = () => {
               <AlertComponent message={error} type={'error'} />
             }
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6">
               {/* Platform Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
