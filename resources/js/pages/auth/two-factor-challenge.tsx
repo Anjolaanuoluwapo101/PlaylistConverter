@@ -129,7 +129,7 @@ export default function TwoFactorChallenge() {
                                             {authConfigContent.toggleText}
                                         </button>
                                     </div>
-                                <>
+                                </>
                             )}
                         </Form>
                     </div>

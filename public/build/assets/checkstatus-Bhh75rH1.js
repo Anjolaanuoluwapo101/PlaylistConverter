@@ -1,1 +1,0 @@
-import{a as e}from"./app-BhP5LsBi.js";const t=async()=>{try{return(await e.get("/platforms/connected")).data}catch(r){return console.error("Error checking connected platforms:",r),null}};export{t as c};
