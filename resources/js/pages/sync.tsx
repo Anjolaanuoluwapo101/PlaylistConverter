@@ -5,7 +5,6 @@ import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import LoadingState from '@/components/user/LoadingState';
 import NoPlatformsConnect from '@/components/user/NoPlatformsConnect';
 import PlatformDropdown from '@/components/user/PlatformDropdown';
 import PlaylistDropdown from '@/components/user/PlaylistDropdown';
@@ -233,246 +232,238 @@ const Sync: React.FC = () => {
       <Head title="Sync Playlists" />
 
       {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
-        <PageHeader
-          title="Sync Playlists"
-          description="Keep your playlists synchronized across platforms"
-        />
+      <PageHeader
+        title="Sync Playlists"
+        description="Keep your playlists synchronized across platforms"
+      />
 
-        {connectedPlatformKeys.length === 0 ? (
-          <NoPlatformsConnect />
-        ) : (
-          <>
-            {error && !syncing &&
-              <AlertComponent message={error} type={'error'} />
-            }
+      {connectedPlatformKeys.length === 0 ? (
+        <NoPlatformsConnect />
+      ) : (
+        <>
+          {error && !syncing &&
+            <AlertComponent message={error} type={'error'} />
+          }
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6">
-              {/* Platform Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Source Platform
-                  </label>
-                  <PlatformDropdown
-                    connectedPlatformKeys={connectedPlatformKeys}
-                    selectedPlatform={sourcePlatform}
-                    onSelectPlatform={(platform) => {
-                      setSourcePlatform(platform);
-                      setSourcePlaylistId('');
-                      setSourcePlaylists([]);
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Target Platform
-                  </label>
-                  <PlatformDropdown
-                    connectedPlatformKeys={connectedPlatformKeys}
-                    selectedPlatform={targetPlatform}
-                    onSelectPlatform={(platform) => {
-                      setTargetPlatform(platform);
-                      setTargetPlaylistId('');
-                      setTargetPlaylists([]);
-                    }}
-                  />
-                </div>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6">
+            {/* Platform Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Source Platform
+                </label>
+                <PlatformDropdown
+                  connectedPlatformKeys={connectedPlatformKeys}
+                  selectedPlatform={sourcePlatform}
+                  onSelectPlatform={(platform) => {
+                    setSourcePlatform(platform);
+                    setSourcePlaylistId('');
+                    setSourcePlaylists([]);
+                  }}
+                />
               </div>
 
-              {/* Playlist Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Source Playlist
-                  </label>
-                  {fetchingSourcePlaylists ? (
-                    <LoadingState />
-                  ) : (
-                    <PlaylistDropdown
-                      playlists={sourcePlaylists}
-                      selectedPlaylistId={sourcePlaylistId}
-                      onSelectPlaylist={setSourcePlaylistId}
-                      placeholder="Select source playlist"
-                    />
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Target Playlist
-                  </label>
-                  {fetchingTargetPlaylists ? (
-                    <LoadingState />
-                  ) : (
-                    <PlaylistDropdown
-                      playlists={targetPlaylists}
-                      selectedPlaylistId={targetPlaylistId}
-                      onSelectPlaylist={setTargetPlaylistId}
-                      placeholder="Select target playlist"
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Sync Options */}
-              <div className="mb-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="removeExtras"
-                    checked={removeExtras}
-                    onChange={(e) => setRemoveExtras(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded "
-                  />
-                  <label htmlFor="removeExtras" className="text-sm font-medium text-gray-800 dark:text-white">
-                    Remove tracks from target playlist that are not in source playlist
-                  </label>
-                </div>
-
-
-              </div>
-
-              {/* Sync Button */}
-              <div className="flex justify-center">
-                <button
-                  onClick={handleSync}
-                  disabled={syncing || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim() || !targetPlaylistId.trim()}
-                  className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
-                >
-                  {syncing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Syncing...
-                    </>
-                  ) : (
-                    <>
-                      <ArrowLeftRight className="w-5 h-5" />
-                      Sync Now
-                    </>
-                  )}
-                </button>
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Target Platform
+                </label>
+                <PlatformDropdown
+                  connectedPlatformKeys={connectedPlatformKeys}
+                  selectedPlatform={targetPlatform}
+                  onSelectPlatform={(platform) => {
+                    setTargetPlatform(platform);
+                    setTargetPlaylistId('');
+                    setTargetPlaylists([]);
+                  }}
+                />
               </div>
             </div>
 
-            {/* Sync Status */}
-            {syncJob && (
-              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 p-6 shadow-lg">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                  Sync Status
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Status:</span>
-                    <div className="flex items-center gap-2">
-                      {React.createElement(getStatusDisplay(syncJob.status).icon, {
-                        className: `w-5 h-5 ${getStatusDisplay(syncJob.status).color} ${syncJob.status === 'processing' ? 'animate-spin' : ''}`
-                      })}
-                      <span className={`font-semibold ${getStatusDisplay(syncJob.status).color}`}>
-                        {getStatusDisplay(syncJob.status).text}
-                      </span>
-                    </div>
+            {/* Playlist Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Source Playlist
+                </label>
+                {fetchingSourcePlaylists ? (
+                  <div className="flex items-center justify-start">
+                    <div className="animate-spin h-4 w-4 border-b-2 border-gray-500"></div>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Source:</span>
-                    <span className="text-gray-900 dark:text-white capitalize">
-                      {syncJob.source_platform}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Target:</span>
-                    <span className="text-gray-900 dark:text-white capitalize">
-                      {syncJob.target_platform}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300">Remove Extras:</span>
-                    <span className="text-gray-900 dark:text-white">
-                      {syncJob.remove_extras ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-
-                  {syncJob.status === 'completed' && (
-                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                        <CheckCircle className="w-5 h-5" />
-                        <span className="font-semibold">Sync completed successfully!</span>
-                      </div>
-                      <p className="text-green-600 dark:text-green-400 text-sm mt-1">
-                        Your playlists have been synchronized.
-                      </p>
-                    </div>
-                  )}
-
-                  {syncJob.status === 'failed' && (
-                    <AlertComponent message={"Sync Failed \n There was an error during sync. Please try again later"} type={"error"} />
-                  )}
-                </div>
+                ) : (
+                  <PlaylistDropdown
+                    playlists={sourcePlaylists}
+                    selectedPlaylistId={sourcePlaylistId}
+                    onSelectPlaylist={setSourcePlaylistId}
+                    placeholder="Select source playlist"
+                  />
+                )}
               </div>
-            )}
+
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Target Playlist
+                </label>
+                {fetchingTargetPlaylists ? (
+                  <div className="flex items-center justify-start">
+                    <div className="animate-spin h-4 w-4 border-b-2 border-gray-500"></div>
+                  </div>
+                ) : (
+                  <PlaylistDropdown
+                    playlists={targetPlaylists}
+                    selectedPlaylistId={targetPlaylistId}
+                    onSelectPlaylist={setTargetPlaylistId}
+                    placeholder="Select target playlist"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Sync Options */}
+            <div className="mb-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="removeExtras"
+                  checked={removeExtras}
+                  onChange={(e) => setRemoveExtras(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded "
+                />
+                <label htmlFor="removeExtras" className="text-sm font-medium text-blue-500 dark:text-white">
+                  Remove tracks from target playlist that are not in source playlist
+                </label>
+              </div>
 
 
-            {/* Sync History */}
-            {syncHistory.length > 0 && (
-              <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-gray-300/50 dark:border-gray-700/50 p-6 ">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                  Sync History
-                </h3>
+            </div>
 
-                <div className="space-y-4">
-                  {syncHistory.slice(0, 10).map((job) => (
-                    <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/100 dark:bg-gray-800/10 hover:shadow-xl hover:scale-105">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {React.createElement(getStatusDisplay(job.status).icon, {
-                            className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
-                          })}
-                          <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
-                            {getStatusDisplay(job.status).text}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-600/70 dark:text-gray-400/70">
-                          {new Date(job.created_at).toLocaleDateString()}
+            {/* Sync Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={handleSync}
+                disabled={syncing || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim() || !targetPlaylistId.trim()}
+                className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
+              >
+                {syncing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <ArrowLeftRight className="w-5 h-5" />
+                    Sync Now
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Sync Status */}
+          {syncJob && (
+            <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Sync Status
+              </h3>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 dark:text-gray-300">Status:</span>
+                  <div className="flex items-center gap-2">
+                    {React.createElement(getStatusDisplay(syncJob.status).icon, {
+                      className: `w-5 h-5 ${getStatusDisplay(syncJob.status).color} ${syncJob.status === 'processing' ? 'animate-spin' : ''}`
+                    })}
+                    <span className={`font-semibold ${getStatusDisplay(syncJob.status).color}`}>
+                      {getStatusDisplay(syncJob.status).text}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 dark:text-gray-300">Source:</span>
+                  <span className="text-gray-900 dark:text-white capitalize">
+                    {syncJob.source_platform}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 dark:text-gray-300">Target:</span>
+                  <span className="text-gray-900 dark:text-white capitalize">
+                    {syncJob.target_platform}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 dark:text-gray-300">Remove Extras:</span>
+                  <span className="text-gray-900 dark:text-white">
+                    {syncJob.remove_extras ? 'Yes' : 'No'}
+                  </span>
+                </div>
+
+                {syncJob.status === 'completed' && (
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-semibold">Sync completed successfully!</span>
+                    </div>
+                    <p className="text-green-600 dark:text-green-400 text-sm mt-1">
+                      Your playlists have been synchronized.
+                    </p>
+                  </div>
+                )}
+
+                {syncJob.status === 'failed' && (
+                  <AlertComponent message={"Sync Failed \n There was an error during sync. Please try again later"} type={"error"} />
+                )}
+              </div>
+            </div>
+          )}
+
+
+          {/* Sync History */}
+          {syncHistory.length > 0 && (
+            <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-gray-300/50 dark:border-gray-700/50 p-6 ">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Sync History
+              </h3>
+
+              <div className="space-y-4">
+                {syncHistory.slice(0, 10).map((job) => (
+                  <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/100 dark:bg-gray-800/10 hover:shadow-xl hover:scale-105">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {React.createElement(getStatusDisplay(job.status).icon, {
+                          className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
+                        })}
+                        <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
+                          {getStatusDisplay(job.status).text}
                         </span>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-gray-700 dark:text-gray-300">From:</span>
-                          <span className="ml-2 text-gray-900 dark:text-white capitalize">
-                            {job.source_platform}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-700 dark:text-gray-300">To:</span>
-                          <span className="ml-2 text-gray-900 dark:text-white capitalize">
-                            {job.target_platform}
-                          </span>
-                        </div>
-                      </div>
-
-                      {job.status === 'completed' && (
-                        <div className="mt-2 text-sm text-green-600 dark:text-green-400">
-                          ✓ Sync completed successfully
-                        </div>
-                      )}
-
-                      {job.status === 'failed' && (
-                        <div className="mt-2 text-sm text-red-600 dark:text-red-400">
-                          ✗ Sync failed
-                        </div>
-                      )}
+                      <span className="text-sm text-gray-600/70 dark:text-gray-400/70">
+                        {new Date(job.created_at).toLocaleDateString()}
+                      </span>
                     </div>
-                  ))}
-                </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-gray-700 dark:text-gray-300">From:</span>
+                        <span className="ml-2 text-gray-900 dark:text-white capitalize">
+                          {job.source_platform}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-700 dark:text-gray-300">To:</span>
+                        <span className="ml-2 text-gray-900 dark:text-white capitalize">
+                          {job.target_platform}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </>
-        )}
+            </div>
+          )}
+        </>
+      )}
       {/* </div> */}
     </MainLayout>
   );

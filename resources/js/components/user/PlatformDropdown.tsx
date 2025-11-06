@@ -39,10 +39,10 @@ const PlatformDropdown: React.FC<PlatformDropdownProps> = ({ connectedPlatformKe
         {selectedConfig && (
           <selectedConfig.icon />
         )}
-        <span className="font-semibold text-black">
+        <span className="font-semibold text-gray-500">
           {selectedConfig?.label || 'Select Platform'}
         </span>
-        <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {dropdownOpen && (

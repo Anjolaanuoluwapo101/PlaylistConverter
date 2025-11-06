@@ -43,7 +43,7 @@ const PlaylistDropdown: React.FC<PlaylistDropdownProps> = ({
             />
           )}
           <div className="text-left min-w-0 flex-1">
-            <span className="font-semibold text-gray-900 dark:text-white block truncate">
+            <span className="font-semibold text-gray-500 dark:text-white block truncate">
               {selectedPlaylist?.name || placeholder}
             </span>
             {selectedPlaylist?.track_count && (

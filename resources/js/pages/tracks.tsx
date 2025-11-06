@@ -4,7 +4,6 @@ import axios from 'axios';
 import ErrorState from '@/components/user/ErrorState';
 import FilterControls from '@/components/user/FilterControls';
 import ConfirmationModal from '@/components/user/ConfirmationModal';
-import AlertComponent from '@/components/user/AlertComponent';
 
 export interface Track {
   id: string;
@@ -145,13 +144,7 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
   };
 
   if (isLoading) return (
-    <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="text-blue-600 font-medium">Loading tracks...</span>
-        </div>
-      </div>
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
       {/* Skeleton loading for tracks */}
       <div className="tracks-list space-y-6 mt-8">
         {Array.from({ length: 5 }).map((_, index) => (
@@ -187,9 +180,6 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
           Hide
         </button>
       </div>
-
-      {/* Info for playlists created by others */}
-      <AlertComponent message="Tracks created by another person cannot be modified."  type="info" />
 
       {/* Filter Controls */}
       <FilterControls

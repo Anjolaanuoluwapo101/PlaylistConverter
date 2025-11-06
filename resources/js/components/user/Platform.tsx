@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import PageHeader from './PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import { Music, Play, CheckCircle, Plus } from 'lucide-react';
-import { router } from '@inertiajs/react';
 
 const PLATFORM_CONFIG = [
   {

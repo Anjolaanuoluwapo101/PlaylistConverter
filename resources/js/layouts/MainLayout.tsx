@@ -31,7 +31,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     />
                 )}
             </div>
-            <main className="w-full lg:ml-[25%] p-2 lg:p-2 lg:pt-8 md:pt-20">{children}</main>
+            <main className="w-full lg:ml-[25%] p-2 sm:p-6 lg:p-2 lg:pt-8 md:pt-20">{children}</main>
         </div>
     );
 }

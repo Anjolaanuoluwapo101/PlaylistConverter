@@ -6,7 +6,6 @@ import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import useApiCache from '@/hooks/useApiCache';
 import axios, { AxiosError } from 'axios';
 import { Music, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import LoadingState from '@/components/user/LoadingState';
 import NoPlatformsConnect from '@/components/user/NoPlatformsConnect';
 import PlatformDropdown from '@/components/user/PlatformDropdown';
 import PlaylistDropdown from '@/components/user/PlaylistDropdown';
@@ -65,7 +64,7 @@ const Convert: React.FC = () => {
         if (platformsResult && platformsResult.connected_platforms) {
           setConnectedPlatforms(platformsResult.connected_platforms);
           //set a default source platform
-          setSourcePlatform(platformsResult.connected_platforms ? Object.values(platformsResult.connected_platforms)[0] : '')
+          setSourcePlatform(Object.values(platformsResult.connected_platforms)[0])
           const connectedKeys = Object.keys(platformsResult.connected_platforms).filter(key => platformsResult.connected_platforms[key]);
           if (connectedKeys.length > 0) {
             setSourcePlatform(connectedKeys[0]);
@@ -202,273 +201,265 @@ const Convert: React.FC = () => {
     <MainLayout>
       <Head title="Convert Playlists" />
       {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
-        <PageHeader
-          title="Convert Playlists"
-          description="Convert your playlists between Spotify and YouTube Music"
-        />
+      <PageHeader
+        title="Convert Playlists"
+        description="Convert your playlists between Spotify and YouTube Music"
+      />
 
-        {connectedPlatformKeys.length === 0 ? (
-          <NoPlatformsConnect />
-        ) : (
-          <>
-            {error && !converting && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <AlertCircle className="w-5 h-5" />
-                  <span>{error}</span>
-                </div>
+      {connectedPlatformKeys.length === 0 ? (
+        <NoPlatformsConnect />
+      ) : (
+        <>
+          {error && !converting && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                <AlertCircle className="w-5 h-5" />
+                <span>{error}</span>
               </div>
-            )}
+            </div>
+          )}
 
-            <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
-              {/* Platform Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Source Platform
-                  </label>
-                  <PlatformDropdown
-                    connectedPlatformKeys={connectedPlatformKeys}
-                    selectedPlatform={sourcePlatform}
-                    onSelectPlatform={(platform) => {
-                      setSourcePlatform(platform);
-                      setSourcePlaylistId('');
-                      setPlaylists([]);
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                    Target Platform
-                  </label>
-                  <PlatformDropdown
-                    connectedPlatformKeys={connectedPlatformKeys}
-                    selectedPlatform={targetPlatform}
-                    onSelectPlatform={setTargetPlatform}
-                  />
-                </div>
-              </div>
-
-              {/* Playlist Selection */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                  Playlist from {sourcePlatform}
+          <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
+            {/* Platform Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Source Platform
                 </label>
-                {fetchingPlaylists ? (
-                  <LoadingState />
-                ) : (
-                  <div className="space-y-3">
-                    <PlaylistDropdown
-                      playlists={playlists}
-                      selectedPlaylistId={sourcePlaylistId.startsWith('http') ? '' : sourcePlaylistId}
-                      onSelectPlaylist={setSourcePlaylistId}
-                      placeholder="Select a playlist"
-                    />
-
-                    <div className="text-center">
-                      <span className="text-gray-500 dark:text-gray-400 text-sm">or</span>
-                    </div>
-
-                    <input
-                      type="text"
-                      placeholder="Paste playlist URL (e.g., https://open.spotify.com/playlist/...)"
-                      // value={sourcePlaylistId.startsWith('http') ? sourcePlaylistId : ''}
-                      onChange={(e) => setSourcePlaylistId(e.target.value)}
-                      className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 "
-                    />
-                  </div>
-                )}
+                <PlatformDropdown
+                  connectedPlatformKeys={connectedPlatformKeys}
+                  selectedPlatform={sourcePlatform}
+                  onSelectPlatform={(platform) => {
+                    setSourcePlatform(platform);
+                    setSourcePlaylistId('');
+                    setPlaylists([]);
+                  }}
+                />
               </div>
 
-              {/* Target Playlist Details */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                  Target Playlist Details (Optional)
+              <div>
+                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                  Target Platform
                 </label>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Custom playlist name (leave empty for default)"
-                    value={targetPlaylistName}
-                    onChange={(e) => setTargetPlaylistName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600"
-                  />
-                  <textarea
-                    placeholder="Custom playlist description (leave empty for default)"
-                    value={targetPlaylistDescription}
-                    onChange={(e) => setTargetPlaylistDescription(e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600  "
-                  />
-                </div>
-              </div>
-
-              {/* Convert Button */}
-              <div className="flex justify-center">
-                <button
-                  onClick={handleConvert}
-                  disabled={converting || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim()}
-                  className="px-8 py-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-3"
-                >
-                  {converting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Starting Conversion...
-                    </>
-                  ) : (
-                    <>
-                      <Music className="w-5 h-5" />
-                      Convert Playlist
-                    </>
-                  )}
-                </button>
+                <PlatformDropdown
+                  connectedPlatformKeys={connectedPlatformKeys}
+                  selectedPlatform={targetPlatform}
+                  onSelectPlatform={setTargetPlatform}
+                />
               </div>
             </div>
 
-            {/* Conversion Status */}
-            {conversionJob && (
-              <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                  Conversion Status
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                    <div className="flex items-center gap-2">
-                      {React.createElement(getStatusDisplay(conversionJob.status).icon, {
-                        className: `w-5 h-5 ${getStatusDisplay(conversionJob.status).color} ${conversionJob.status === 'processing' ? 'animate-spin' : ''}`
-                      })}
-                      <span className={`font-semibold ${getStatusDisplay(conversionJob.status).color}`}>
-                        {getStatusDisplay(conversionJob.status).text}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Source:</span>
-                    <span className="text-gray-800 dark:text-white">
-                      {conversionJob.source_playlist.name} ({conversionJob.source_playlist.platform})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Target:</span>
-                    <span className="text-gray-800 dark:text-white capitalize">
-                      {conversionJob.target_platform}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Progress:</span>
-                    <span className="text-gray-800 dark:text-white">
-                      {conversionJob.matched_tracks} / {conversionJob.total_tracks} tracks
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 h-3">
-                    <div
-                      className="bg-blue-600 h-3"
-                      style={{ width: `${conversionJob.progress_percentage}%` }}
-                    ></div>
-                  </div>
-
-                  <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-                    {conversionJob.progress_percentage}% complete
-                  </div>
-
-                  {conversionJob.status === 'completed' && conversionJob.target_playlist_id && (
-                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                        <CheckCircle className="w-5 h-5" />
-                        <span className="font-semibold">Conversion completed successfully!</span>
-                      </div>
-                      <p className="text-green-600 dark:text-green-400 text-sm mt-1">
-                        Your playlist has been created on {conversionJob.target_platform}.
-                      </p>
-                    </div>
-                  )}
-
-                  {conversionJob.status === 'failed' && (
-                    <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                      <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                        <AlertCircle className="w-5 h-5" />
-                        <span className="font-semibold">Conversion failed</span>
-                      </div>
-                      <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                        There was an error during conversion. Please try again.
-                      </p>
-                    </div>
-                  )}
+            {/* Playlist Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                Playlist from {sourcePlatform}
+              </label>
+              {fetchingPlaylists ? (
+                <div className="flex items-center justify-start">
+                  <div className="animate-spin h-4 w-4 border-b-2 border-gray-500"></div>
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  <PlaylistDropdown
+                    playlists={playlists}
+                    selectedPlaylistId={sourcePlaylistId.startsWith('http') ? '' : sourcePlaylistId}
+                    onSelectPlaylist={setSourcePlaylistId}
+                    placeholder="Select a playlist"
+                  />
+
+                  <div className="text-center">
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">or</span>
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="Paste playlist URL (e.g., https://open.spotify.com/playlist/...)"
+                    // value={sourcePlaylistId.startsWith('http') ? sourcePlaylistId : ''}
+                    onChange={(e) => setSourcePlaylistId(e.target.value)}
+                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 "
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Target Playlist Details */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                Target Playlist Details (Optional)
+              </label>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Custom playlist name (leave empty for default)"
+                  value={targetPlaylistName}
+                  onChange={(e) => setTargetPlaylistName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600"
+                />
+                <textarea
+                  placeholder="Custom playlist description (leave empty for default)"
+                  value={targetPlaylistDescription}
+                  onChange={(e) => setTargetPlaylistDescription(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600  "
+                />
               </div>
-            )}
+            </div>
 
-            {/* Conversion History */}
-            {conversionHistory.length > 0 && (
-              <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                  Conversion History
-                </h3>
+            {/* Convert Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={handleConvert}
+                disabled={converting || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim()}
+                className="px-8 py-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-3"
+              >
+                {converting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Starting Conversion...
+                  </>
+                ) : (
+                  <>
+                    <Music className="w-5 h-5" />
+                    Convert Playlist
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
 
-                <div className="space-y-4">
-                  {conversionHistory.map((job) => (
-                    <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-neutral-700  hover:shadow-xl hover:scale-105">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {React.createElement(getStatusDisplay(job.status).icon, {
-                            className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
-                          })}
-                          <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
-                            {getStatusDisplay(job.status).text}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(job.created_at).toLocaleDateString()}
+          {/* Conversion Status */}
+          {conversionJob && (
+            <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Conversion Status
+              </h3>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Status:</span>
+                  <div className="flex items-center gap-2">
+                    {React.createElement(getStatusDisplay(conversionJob.status).icon, {
+                      className: `w-5 h-5 ${getStatusDisplay(conversionJob.status).color} ${conversionJob.status === 'processing' ? 'animate-spin' : ''}`
+                    })}
+                    <span className={`font-semibold ${getStatusDisplay(conversionJob.status).color}`}>
+                      {getStatusDisplay(conversionJob.status).text}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Source:</span>
+                  <span className="text-gray-800 dark:text-white">
+                    {conversionJob.source_playlist.name} ({conversionJob.source_playlist.platform})
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Target:</span>
+                  <span className="text-gray-800 dark:text-white capitalize">
+                    {conversionJob.target_platform}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Progress:</span>
+                  <span className="text-gray-800 dark:text-white">
+                    {conversionJob.matched_tracks} / {conversionJob.total_tracks} tracks
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 h-3">
+                  <div
+                    className="bg-blue-600 h-3"
+                    style={{ width: `${conversionJob.progress_percentage}%` }}
+                  ></div>
+                </div>
+
+                <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                  {conversionJob.progress_percentage}% complete
+                </div>
+
+                {conversionJob.status === 'completed' && conversionJob.target_playlist_id && (
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-semibold">Conversion completed successfully!</span>
+                    </div>
+                    <p className="text-green-600 dark:text-green-400 text-sm mt-1">
+                      Your playlist has been created on {conversionJob.target_platform}.
+                    </p>
+                  </div>
+                )}
+
+                {conversionJob.status === 'failed' && (
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                      <AlertCircle className="w-5 h-5" />
+                      <span className="font-semibold">Conversion failed</span>
+                    </div>
+                    <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                      There was an error during conversion. Please try again.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Conversion History */}
+          {conversionHistory.length > 0 && (
+            <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Conversion History
+              </h3>
+
+              <div className="space-y-4">
+                {conversionHistory.map((job) => (
+                  <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-neutral-700  hover:shadow-xl hover:scale-105">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {React.createElement(getStatusDisplay(job.status).icon, {
+                          className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
+                        })}
+                        <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
+                          {getStatusDisplay(job.status).text}
                         </span>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">From:</span>
-                          <span className="ml-2 text-gray-800 dark:text-white">
-                            {job.source_playlist.name} ({job.source_playlist.platform})
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">To:</span>
-                          <span className="ml-2 text-gray-800 dark:text-white capitalize">
-                            {job.target_platform}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">Tracks:</span>
-                          <span className="ml-2 text-gray-800 dark:text-white">
-                            {job.matched_tracks}/{job.total_tracks}
-                          </span>
-                        </div>
-                      </div>
-
-                      {job.status === 'completed' && (
-                        <div className="mt-2 text-sm text-green-600 dark:text-green-400">
-                          ✓ Conversion completed successfully
-                        </div>
-                      )}
-
-                      {job.status === 'failed' && (
-                        <div className="mt-2 text-sm text-red-600 dark:text-red-400">
-                          ✗ Conversion failed
-                        </div>
-                      )}
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(job.created_at).toLocaleDateString()}
+                      </span>
                     </div>
-                  ))}
-                </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">From:</span>
+                        <span className="ml-2 text-gray-800 dark:text-white">
+                          {job.source_playlist.name} ({job.source_playlist.platform})
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">To:</span>
+                        <span className="ml-2 text-gray-800 dark:text-white capitalize">
+                          {job.target_platform}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">Tracks:</span>
+                        <span className="ml-2 text-gray-800 dark:text-white">
+                          {job.matched_tracks}/{job.total_tracks}
+                        </span>
+                      </div>
+                    </div>
+
+                    
+                  </div>
+                ))}
               </div>
-            )}
-          </>
-        )}
+            </div>
+          )}
+        </>
+      )}
       {/* </div> */}
     </MainLayout>
   );

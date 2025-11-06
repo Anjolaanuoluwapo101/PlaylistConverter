@@ -199,7 +199,7 @@ export default function Build() {
         return (
             <MainLayout>
                 <div className="flex items-center justify-center min-h-screen">
-                    <div className="animate-spin h-12 w-12 border-b-2 border-gray-800"></div>
+                    <div className="animate-spin h-12 w-12 border-b-2 border-gray-500"></div>
                 </div>
             </MainLayout>
         );
@@ -222,8 +222,8 @@ export default function Build() {
                     {/* Playlist Details */}
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                                Playlist Name *
+                            <label className="block text-sm font-semibold text-blue-500 dark:text-blue-100 mb-2">
+                                Playlist Name
                             </label>
                             <input
                                 type="text"
@@ -238,7 +238,7 @@ export default function Build() {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            <label className="block text-sm font-semibold text-blue-500 dark:text-blue-100 mb-2">
                                 Description
                             </label>
                             <textarea
@@ -256,8 +256,8 @@ export default function Build() {
 
                     {/* Platform Selection */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                            Select Platforms *
+                        <label className="block text-sm font-semibold text-blue-500 dark:text-gray-100 mb-3">
+                            Select Platforms
                         </label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {['spotify', 'youtube'].map((platform) => (
@@ -268,7 +268,7 @@ export default function Build() {
                                         onChange={(e) => handlePlatformChange(platform, e.target.checked)}
                                         className="border-gray-300 text-gray-600 focus:ring-gray-500"
                                     />
-                                    <span className="capitalize font-medium text-gray-900 dark:text-gray-100">{platform}</span>
+                                    <span className="capitalize font-medium text-blue-500 dark:text-gray-100">{platform}</span>
                                 </label>
                             ))}
                         </div>
@@ -276,7 +276,7 @@ export default function Build() {
 
                     {/* Track Search */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        <label className="block text-sm font-semibold text-blue-500 dark:text-gray-100 mb-2">
                             Search & Select Tracks (Max 5)
                         </label>
                         <div className="space-y-3">
@@ -389,6 +389,7 @@ export default function Build() {
                         )}
                     </button>
                 </form>
+                </div>
 
                 {/* Build Jobs History */}
                 {buildJobs.length > 0 && (
@@ -428,24 +429,12 @@ export default function Build() {
                                             </span>
                                         </div>
                                     </div>
-
-                                    {job.status === 'completed' && (
-                                        <div className="mt-2 text-sm text-green-600 dark:text-green-400">
-                                            ✓ Build completed successfully
-                                        </div>
-                                    )}
-
-                                    {job.status === 'failed' && (
-                                        <div className="mt-2 text-sm text-red-600 dark:text-red-400">
-                                            ✗ Build failed
-                                        </div>
-                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
-            </div>
+            
             {/* </div> */}
         </MainLayout>
     );

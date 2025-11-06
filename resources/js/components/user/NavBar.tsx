@@ -44,7 +44,7 @@ export default function NavBar({ items }: Props) {
     return (
         <>
             {/* Mobile Nav - Fixed */}
-            <nav className="md:hidden lg:hidden  sticky top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+            <nav className="lg:hidden  sticky top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <Link href="/" className="flex-shrink-0 text-black font-bold text-xl">
@@ -80,7 +80,7 @@ export default function NavBar({ items }: Props) {
                                             : 'text-gray-600 hover:bg-gray-200 hover:text-black'
                                     }`}
                                 >
-                                    {item.icon && <item.icon className="h-5 w-5 mr-3" />}
+                                    {item.icon && <item.icon className="h-5 w-5 mr-3 text-blue-500" />}
                                     {item.title}
                                 </button>
                             ))}
@@ -93,7 +93,7 @@ export default function NavBar({ items }: Props) {
             </nav>
 
             {/* Desktop Sidebar - 35% width */}
-            <nav className="hidden md:flex md:flex-col md:w-full h-screen bg-white border-r border-gray-200 p-4">
+            <nav className="hidden lg:flex lg:flex-col lg:w-full h-screen bg-white border-r border-gray-200 p-4">
                 <Link href="/" className="flex-shrink-0 text-black font-bold text-xl mb-8">
                     PlaylistConverter
                 </Link>
