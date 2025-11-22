@@ -60,11 +60,10 @@ const Convert: React.FC = () => {
           getConversionHistory()
         ]);
 
-
         if (platformsResult && platformsResult.connected_platforms) {
           setConnectedPlatforms(platformsResult.connected_platforms);
           //set a default source platform
-          setSourcePlatform(Object.values(platformsResult.connected_platforms)[0])
+          setSourcePlatform(Object.values(platformsResult.connected_platforms)[0] as string)
           const connectedKeys = Object.keys(platformsResult.connected_platforms).filter(key => platformsResult.connected_platforms[key]);
           if (connectedKeys.length > 0) {
             setSourcePlatform(connectedKeys[0]);
@@ -200,7 +199,6 @@ const Convert: React.FC = () => {
   return (
     <MainLayout>
       <Head title="Convert Playlists" />
-      {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
       <PageHeader
         title="Convert Playlists"
         description="Convert your playlists between Spotify and YouTube Music"
@@ -211,7 +209,7 @@ const Convert: React.FC = () => {
       ) : (
         <>
           {error && !converting && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
                 <AlertCircle className="w-5 h-5" />
                 <span>{error}</span>
@@ -219,11 +217,11 @@ const Convert: React.FC = () => {
             </div>
           )}
 
-          <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
             {/* Platform Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Source Platform
                 </label>
                 <PlatformDropdown
@@ -238,7 +236,7 @@ const Convert: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Target Platform
                 </label>
                 <PlatformDropdown
@@ -251,7 +249,7 @@ const Convert: React.FC = () => {
 
             {/* Playlist Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Playlist from {sourcePlatform}
               </label>
               {fetchingPlaylists ? (
@@ -276,7 +274,7 @@ const Convert: React.FC = () => {
                     placeholder="Paste playlist URL (e.g., https://open.spotify.com/playlist/...)"
                     // value={sourcePlaylistId.startsWith('http') ? sourcePlaylistId : ''}
                     onChange={(e) => setSourcePlaylistId(e.target.value)}
-                    className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 "
+                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white"
                   />
                 </div>
               )}
@@ -284,7 +282,7 @@ const Convert: React.FC = () => {
 
             {/* Target Playlist Details */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Target Playlist Details (Optional)
               </label>
               <div className="space-y-3">
@@ -293,14 +291,14 @@ const Convert: React.FC = () => {
                   placeholder="Custom playlist name (leave empty for default)"
                   value={targetPlaylistName}
                   onChange={(e) => setTargetPlaylistName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600"
+                  className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white"
                 />
                 <textarea
                   placeholder="Custom playlist description (leave empty for default)"
                   value={targetPlaylistDescription}
                   onChange={(e) => setTargetPlaylistDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600  "
+                  className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -310,16 +308,16 @@ const Convert: React.FC = () => {
               <button
                 onClick={handleConvert}
                 disabled={converting || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim()}
-                className="px-8 py-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-3"
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 {converting ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Starting Conversion...
                   </>
                 ) : (
                   <>
-                    <Music className="w-5 h-5" />
+                    <Music className="w-4 h-4" />
                     Convert Playlist
                   </>
                 )}
@@ -329,8 +327,8 @@ const Convert: React.FC = () => {
 
           {/* Conversion Status */}
           {conversionJob && (
-            <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            <div className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Conversion Status
               </h3>
 
@@ -339,9 +337,9 @@ const Convert: React.FC = () => {
                   <span className="text-gray-600 dark:text-gray-400">Status:</span>
                   <div className="flex items-center gap-2">
                     {React.createElement(getStatusDisplay(conversionJob.status).icon, {
-                      className: `w-5 h-5 ${getStatusDisplay(conversionJob.status).color} ${conversionJob.status === 'processing' ? 'animate-spin' : ''}`
+                      className: `w-4 h-4 ${getStatusDisplay(conversionJob.status).color} ${conversionJob.status === 'processing' ? 'animate-spin' : ''}`
                     })}
-                    <span className={`font-semibold ${getStatusDisplay(conversionJob.status).color}`}>
+                    <span className={`font-medium ${getStatusDisplay(conversionJob.status).color}`}>
                       {getStatusDisplay(conversionJob.status).text}
                     </span>
                   </div>
@@ -349,29 +347,29 @@ const Convert: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Source:</span>
-                  <span className="text-gray-800 dark:text-white">
+                  <span className="text-gray-900 dark:text-white">
                     {conversionJob.source_playlist.name} ({conversionJob.source_playlist.platform})
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Target:</span>
-                  <span className="text-gray-800 dark:text-white capitalize">
+                  <span className="text-gray-900 dark:text-white capitalize">
                     {conversionJob.target_platform}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Progress:</span>
-                  <span className="text-gray-800 dark:text-white">
+                  <span className="text-gray-900 dark:text-white">
                     {conversionJob.matched_tracks} / {conversionJob.total_tracks} tracks
                   </span>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 dark:bg-gray-700 h-3">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full">
                   <div
-                    className="bg-blue-600 h-3"
+                    className="bg-blue-600 h-2 rounded-full"
                     style={{ width: `${conversionJob.progress_percentage}%` }}
                   ></div>
                 </div>
@@ -381,10 +379,10 @@ const Convert: React.FC = () => {
                 </div>
 
                 {conversionJob.status === 'completed' && conversionJob.target_playlist_id && (
-                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                       <CheckCircle className="w-5 h-5" />
-                      <span className="font-semibold">Conversion completed successfully!</span>
+                      <span className="font-medium">Conversion completed successfully!</span>
                     </div>
                     <p className="text-green-600 dark:text-green-400 text-sm mt-1">
                       Your playlist has been created on {conversionJob.target_platform}.
@@ -393,10 +391,10 @@ const Convert: React.FC = () => {
                 )}
 
                 {conversionJob.status === 'failed' && (
-                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-semibold">Conversion failed</span>
+                      <span className="font-medium">Conversion failed</span>
                     </div>
                     <p className="text-red-600 dark:text-red-400 text-sm mt-1">
                       There was an error during conversion. Please try again.
@@ -409,20 +407,20 @@ const Convert: React.FC = () => {
 
           {/* Conversion History */}
           {conversionHistory.length > 0 && (
-            <div className="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            <div className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Conversion History
               </h3>
 
               <div className="space-y-4">
                 {conversionHistory.map((job) => (
-                  <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-neutral-700  hover:shadow-xl hover:scale-105">
+                  <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {React.createElement(getStatusDisplay(job.status).icon, {
                           className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
                         })}
-                        <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
+                        <span className={`font-medium ${getStatusDisplay(job.status).color}`}>
                           {getStatusDisplay(job.status).text}
                         </span>
                       </div>
@@ -434,25 +432,23 @@ const Convert: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">From:</span>
-                        <span className="ml-2 text-gray-800 dark:text-white">
+                        <span className="ml-2 text-gray-900 dark:text-white">
                           {job.source_playlist.name} ({job.source_playlist.platform})
                         </span>
                       </div>
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">To:</span>
-                        <span className="ml-2 text-gray-800 dark:text-white capitalize">
+                        <span className="ml-2 text-gray-900 dark:text-white capitalize">
                           {job.target_platform}
                         </span>
                       </div>
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">Tracks:</span>
-                        <span className="ml-2 text-gray-800 dark:text-white">
+                        <span className="ml-2 text-gray-900 dark:text-white">
                           {job.matched_tracks}/{job.total_tracks}
                         </span>
                       </div>
                     </div>
-
-                    
                   </div>
                 ))}
               </div>
@@ -460,7 +456,6 @@ const Convert: React.FC = () => {
           )}
         </>
       )}
-      {/* </div> */}
     </MainLayout>
   );
 };

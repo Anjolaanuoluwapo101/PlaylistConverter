@@ -10,9 +10,8 @@ export default function SettingsWrapper({ showText = false }: Props) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const buttonClassName = showText
-        ? "w-full flex items-center gap-2 text-left px-3 py-2 text-gray-600 hover:bg-gray-200 hover:text-black"
-        : "p-1 text-gray-600 hover:text-black focus:outline-none";
-
+        ? "w-full flex items-center gap-3 text-left px-3 py-2.5 text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-lg"
+        : "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-md";
 
     return (
         <div className="relative">
@@ -20,7 +19,7 @@ export default function SettingsWrapper({ showText = false }: Props) {
                 onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                 className={buttonClassName}
             >
-                <SettingsIcon className="h-6 w-6" />
+                <SettingsIcon className="h-5 w-5" />
                 {showText && <span>Settings</span>}
                 {!showText && <span className="sr-only">View settings</span>}
             </button>

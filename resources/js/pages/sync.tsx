@@ -195,8 +195,6 @@ const Sync: React.FC = () => {
     poll();
   };
 
-
-
   // Get status color and icon
   const getStatusDisplay = (status: string) => {
     switch (status) {
@@ -223,15 +221,11 @@ const Sync: React.FC = () => {
     );
   }
 
-
-
   const connectedPlatformKeys = Object.keys(connectedPlatforms).filter(key => connectedPlatforms[key]);
 
   return (
     <MainLayout>
       <Head title="Sync Playlists" />
-
-      {/* <div className="w-full max-w-4xl mx-auto p-4 md:p-6"> */}
       <PageHeader
         title="Sync Playlists"
         description="Keep your playlists synchronized across platforms"
@@ -245,11 +239,11 @@ const Sync: React.FC = () => {
             <AlertComponent message={error} type={'error'} />
           }
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
             {/* Platform Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Source Platform
                 </label>
                 <PlatformDropdown
@@ -264,7 +258,7 @@ const Sync: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Target Platform
                 </label>
                 <PlatformDropdown
@@ -282,7 +276,7 @@ const Sync: React.FC = () => {
             {/* Playlist Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Source Playlist
                 </label>
                 {fetchingSourcePlaylists ? (
@@ -300,7 +294,7 @@ const Sync: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-blue-500 dark:text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Target Playlist
                 </label>
                 {fetchingTargetPlaylists ? (
@@ -319,21 +313,19 @@ const Sync: React.FC = () => {
             </div>
 
             {/* Sync Options */}
-            <div className="mb-6 space-y-4">
-              <div className="flex items-center gap-3">
+            <div className="mb-6">
+              <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="removeExtras"
                   checked={removeExtras}
                   onChange={(e) => setRemoveExtras(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded "
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
-                <label htmlFor="removeExtras" className="text-sm font-medium text-blue-500 dark:text-white">
+                <label htmlFor="removeExtras" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   Remove tracks from target playlist that are not in source playlist
                 </label>
               </div>
-
-
             </div>
 
             {/* Sync Button */}
@@ -341,16 +333,16 @@ const Sync: React.FC = () => {
               <button
                 onClick={handleSync}
                 disabled={syncing || !sourcePlatform || !targetPlatform || !sourcePlaylistId.trim() || !targetPlaylistId.trim()}
-                className="px-8 py-4 bg-blue-600  text-white font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3"
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 {syncing ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Syncing...
                   </>
                 ) : (
                   <>
-                    <ArrowLeftRight className="w-5 h-5" />
+                    <ArrowLeftRight className="w-4 h-4" />
                     Sync Now
                   </>
                 )}
@@ -360,50 +352,50 @@ const Sync: React.FC = () => {
 
           {/* Sync Status */}
           {syncJob && (
-            <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            <div className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Sync Status
               </h3>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300">Status:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Status:</span>
                   <div className="flex items-center gap-2">
                     {React.createElement(getStatusDisplay(syncJob.status).icon, {
-                      className: `w-5 h-5 ${getStatusDisplay(syncJob.status).color} ${syncJob.status === 'processing' ? 'animate-spin' : ''}`
+                      className: `w-4 h-4 ${getStatusDisplay(syncJob.status).color} ${syncJob.status === 'processing' ? 'animate-spin' : ''}`
                     })}
-                    <span className={`font-semibold ${getStatusDisplay(syncJob.status).color}`}>
+                    <span className={`font-medium ${getStatusDisplay(syncJob.status).color}`}>
                       {getStatusDisplay(syncJob.status).text}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300">Source:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Source:</span>
                   <span className="text-gray-900 dark:text-white capitalize">
                     {syncJob.source_platform}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300">Target:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Target:</span>
                   <span className="text-gray-900 dark:text-white capitalize">
                     {syncJob.target_platform}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300">Remove Extras:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Remove Extras:</span>
                   <span className="text-gray-900 dark:text-white">
                     {syncJob.remove_extras ? 'Yes' : 'No'}
                   </span>
                 </div>
 
                 {syncJob.status === 'completed' && (
-                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                       <CheckCircle className="w-5 h-5" />
-                      <span className="font-semibold">Sync completed successfully!</span>
+                      <span className="font-medium">Sync completed successfully!</span>
                     </div>
                     <p className="text-green-600 dark:text-green-400 text-sm mt-1">
                       Your playlists have been synchronized.
@@ -418,40 +410,39 @@ const Sync: React.FC = () => {
             </div>
           )}
 
-
           {/* Sync History */}
           {syncHistory.length > 0 && (
-            <div className="mt-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-gray-300/50 dark:border-gray-700/50 p-6 ">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            <div className="mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Sync History
               </h3>
 
               <div className="space-y-4">
                 {syncHistory.slice(0, 10).map((job) => (
-                  <div key={job.id} className="border border-gray-300/50 dark:border-gray-700/50 p-4 bg-gray-50/100 dark:bg-gray-800/10 hover:shadow-xl hover:scale-105">
+                  <div key={job.id} className="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {React.createElement(getStatusDisplay(job.status).icon, {
                           className: `w-4 h-4 ${getStatusDisplay(job.status).color} ${job.status === 'processing' ? 'animate-spin' : ''}`
                         })}
-                        <span className={`font-semibold ${getStatusDisplay(job.status).color}`}>
+                        <span className={`font-medium ${getStatusDisplay(job.status).color}`}>
                           {getStatusDisplay(job.status).text}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-600/70 dark:text-gray-400/70">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(job.created_at).toLocaleDateString()}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-gray-700 dark:text-gray-300">From:</span>
+                        <span className="text-gray-600 dark:text-gray-400">From:</span>
                         <span className="ml-2 text-gray-900 dark:text-white capitalize">
                           {job.source_platform}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-700 dark:text-gray-300">To:</span>
+                        <span className="text-gray-600 dark:text-gray-400">To:</span>
                         <span className="ml-2 text-gray-900 dark:text-white capitalize">
                           {job.target_platform}
                         </span>
@@ -464,7 +455,6 @@ const Sync: React.FC = () => {
           )}
         </>
       )}
-      {/* </div> */}
     </MainLayout>
   );
 };

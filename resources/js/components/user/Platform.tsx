@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import PageHeader from './PageHeader';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
@@ -40,10 +39,12 @@ const Platform: React.FC = () => {
     );
   }
 
-
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <PageHeader title={"Connect Your Platforms"} description={" Link your music accounts to start syncing playlists seamlessly"} />
+    <div className="w-full max-w-4xl mx-auto">
+      <PageHeader 
+        title="Connect Your Platforms" 
+        description="Link your music accounts to start syncing playlists seamlessly" 
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {PLATFORM_CONFIG.map((platform) => {
@@ -59,30 +60,30 @@ const Platform: React.FC = () => {
                 }
               }}
               className={`
-                p-8 border-2 transition-all duration-300 cursor-pointer
+                p-6 border rounded-lg transition-all duration-200 cursor-pointer
                 ${connected
-                  ? 'border-gray-300 dark:border-gray-600'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:shadow-md'
                 }
               `}
             >
-              <div className="flex items-center justify-between mb-6">
-                <div className={`p-4`}>
-                  <IconComponent className={`w-8 h-8 ${connected ? 'text-gray-800 dark:text-white' : 'text-gray-500'}`} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <IconComponent className={`w-6 h-6 ${connected ? 'text-green-600 dark:text-green-400' : 'text-gray-600'}`} />
                 </div>
                 {connected && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <div className="flex items-center gap-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-semibold text-green-700 dark:text-green-300">Connected</span>
+                    <span className="text-xs font-semibold text-green-700 dark:text-green-300">Connected</span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+              <div className="space-y-3">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                   {platform.label}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
                   {connected
                     ? `Your ${platform.label} account is connected and ready to sync.`
                     : `Connect your ${platform.label} account to start syncing playlists.`
@@ -91,10 +92,10 @@ const Platform: React.FC = () => {
               </div>
 
               {!connected && (
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                    <Plus className="w-5 h-5" />
-                    <span className="font-semibold">Connect Account</span>
+                <div className="mt-4">
+                  <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm">Connect Account</span>
                   </div>
                 </div>
               )}
@@ -103,7 +104,7 @@ const Platform: React.FC = () => {
         })}
       </div>
 
-      <div className="text-center mt-12">
+      <div className="text-center mt-8">
         <p className="text-sm text-gray-500 dark:text-gray-400">
           More platforms coming soon • Secure OAuth connections
         </p>

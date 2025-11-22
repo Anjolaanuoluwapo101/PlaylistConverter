@@ -258,32 +258,12 @@ class SpotifyPlaylistService
             Log::info("data response", [
                 $data
             ]);
-            $sorted = null;
-
-            if ($sortBy !== null) {
-                $sorted = collect($data['items'])->sortBy(function ($track) use ($sortBy) {
-                    switch ($sortBy) {
-                        case 'title':
-                            return strtolower($track['track']['name']);
-                        case 'artist':
-                            return strtolower($track['track']['artists'][0]['name']);
-                        case 'duration':
-                            return $track['track']['duration_ms'] ?? 0;
-                        case 'date':
-                        default:
-                            // Maintain playlist order for 'date' (Spotify adds tracks chronologically)
-                            return $track['track']['id'];
-                    }
-                }, SORT_REGULAR, $order === 'desc');
-
-                $sorted = $sorted->values()->all();
-            }
-
-            $items = [];
-
-            foreach ($sorted ?? $data['items'] as $item) {
+            
+            // Process items first to ensure they have the right structure
+            $processedItems = [];
+            foreach ($data['items'] as $item) {
                 if ($item['track']) {
-                    $items[] = [
+                    $processedItems[] = [
                         'id' => $item['track']['id'],
                         'title' => $item['track']['name'],
                         'artist' => $item['track']['artists'][0]['name'] ?? 'Unknown',
@@ -294,8 +274,29 @@ class SpotifyPlaylistService
                 }
             }
 
+            if ($sortBy !== null) {
+                $sorted = collect($processedItems)->sortBy(function ($track) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'title':
+                            return strtolower($track['title']);
+                        case 'artist':
+                            return strtolower($track['artist']);
+                        case 'duration':
+                            return $track['duration_ms'] ?? 0;
+                        case 'date':
+                        default:
+                            // Maintain playlist order for 'date' (Spotify adds tracks chronologically)
+                            return 0;
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            } else {
+                $sorted = $processedItems;
+            }
+
             return [
-                'items' => $items,
+                'items' => $sorted,
                 'total' => $data['total'],
                 'limit' => $data['limit'],
                 'offset' => $data['offset'],

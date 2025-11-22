@@ -46,7 +46,7 @@ interface PlaylistTracksProps {
   onHide: () => void;
 }
 
-const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId, onHide }) => {
+export default function PlaylistTracks({ playlistId, platformId, onHide }: PlaylistTracksProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,10 +189,10 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
         onOrderChange={setOrder}
         onApplyFilters={handleApplyFilters}
         sortOptions={[
-          { value: 'name', label: 'Title' },
+          { value: 'title', label: 'Title' },
           { value: 'artist', label: 'Artist' },
-          { value: 'date', label: 'Date added' },
-          { value: 'duration', label: 'Duration' }
+          { value: 'duration', label: 'Duration' },
+          { value: 'date', label: 'Date Added' }
         ]}
         isLoading={applyingFilters}
       />
@@ -332,6 +332,4 @@ const PlaylistTracks: React.FC<PlaylistTracksProps> = ({ playlistId, platformId,
       />
     </div>
   );
-};
-
-export default PlaylistTracks;
+}

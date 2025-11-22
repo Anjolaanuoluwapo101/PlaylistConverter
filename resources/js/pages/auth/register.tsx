@@ -15,33 +15,35 @@ export default function Register() {
     return (
         <MainLayout>
             <Head title="Register" />
-            <div className="w-full max-w-md mx-auto p-4 md:p-6">
+            <div className="w-full max-w-md mx-auto py-12">
                 <div className="text-center mb-8">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-black">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         Create an account
-                    </h2>
-                    <p className="text-lg text-gray-600">
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400">
                         Enter your details below to create your account
                     </p>
                     {
                         window.location.href.includes("onrender") && (
-                            <AlertComponent type='info' message='Render free tier does not support Email Verification, bear with us.' />
+                            <div className="mt-4">
+                                <AlertComponent type='info' message='Render free tier does not support Email Verification, bear with us.' />
+                            </div>
                         )
                     }
                 </div>
 
-                <div className="bg-white border border-gray-200 p-6">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6">
                     <Form
                         {...RegisteredUserController.store.form()}
                         resetOnSuccess={['password', 'password_confirmation']}
                         disableWhileProcessing
-                        className="flex flex-col gap-6"
+                        className="space-y-6"
                     >
                         {({ processing, errors }) => (
                             <>
-                                <div className="grid gap-6">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="name">Name</Label>
+                                <div className="space-y-5">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Name</Label>
                                         <Input
                                             id="name"
                                             type="text"
@@ -51,6 +53,7 @@ export default function Register() {
                                             autoComplete="name"
                                             name="name"
                                             placeholder="Full name"
+                                            className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                         />
                                         <InputError
                                             message={errors.name}
@@ -58,8 +61,8 @@ export default function Register() {
                                         />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="email">Email address</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email address</Label>
                                         <Input
                                             id="email"
                                             type="email"
@@ -68,12 +71,13 @@ export default function Register() {
                                             autoComplete="email"
                                             name="email"
                                             placeholder="email@example.com"
+                                            className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                         />
                                         <InputError message={errors.email} />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="password">Password</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
                                         <Input
                                             id="password"
                                             type="password"
@@ -81,13 +85,14 @@ export default function Register() {
                                             tabIndex={3}
                                             autoComplete="new-password"
                                             name="password"
-                                            placeholder="Password"
+                                            placeholder="••••••••"
+                                            className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                         />
                                         <InputError message={errors.password} />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="password_confirmation">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password_confirmation" className="text-gray-700 dark:text-gray-300">
                                             Confirm password
                                         </Label>
                                         <Input
@@ -97,7 +102,8 @@ export default function Register() {
                                             tabIndex={4}
                                             autoComplete="new-password"
                                             name="password_confirmation"
-                                            placeholder="Confirm password"
+                                            placeholder="••••••••"
+                                            className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                                         />
                                         <InputError
                                             message={errors.password_confirmation}
@@ -106,7 +112,7 @@ export default function Register() {
 
                                     <Button
                                         type="submit"
-                                        className="mt-2 w-full"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                                         tabIndex={5}
                                         data-test="register-user-button"
                                     >
@@ -121,9 +127,9 @@ export default function Register() {
                                     </Button>
                                 </div>
 
-                                <div className="text-center text-sm text-gray-500">
+                                <div className="text-center text-sm text-gray-600 dark:text-gray-400">
                                     Already have an account?{' '}
-                                    <TextLink href={login()} tabIndex={6}>
+                                    <TextLink href={login()} tabIndex={6} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                                         Log in
                                     </TextLink>
                                 </div>

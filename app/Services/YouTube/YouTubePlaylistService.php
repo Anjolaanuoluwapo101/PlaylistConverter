@@ -270,33 +270,14 @@ class YouTubePlaylistService
             }
 
             $data = $response->json();
-            Log::info('Yotube Fetched',[
+            Log::info('YouTube Fetched',[
                 $data
             ]);
 
-            if ($sortBy !== null) {
-                $sorted = collect($data['items'])->sortBy(function ($track) use ($sortBy) {
-                    switch ($sortBy) {
-                        case 'title':
-                            return strtolower($track['title']);
-                        case 'artist':
-                            return strtolower($track['artist']);
-                        case 'date':
-                        default:
-                            // YouTube tracks don't have date added, maintain order
-                            return $track['id'];
-                    }
-                }, SORT_REGULAR, $order === 'desc');
-
-                $sorted = $sorted->values()->all();
-            }
-
-
-            $items = [];
-
-
-            foreach ($sorted ?? $data['items'] as $item) {
-                $items[] = [
+            // Process items first to ensure they have the right structure
+            $processedItems = [];
+            foreach ($data['items'] ?? [] as $item) {
+                $processedItems[] = [
                     'id' => $item['contentDetails']['videoId'],
                     'title' => $item['snippet']['title'],
                     'artist' => $item['snippet']['videoOwnerChannelTitle'] ?? 'Unknown',
@@ -308,8 +289,30 @@ class YouTubePlaylistService
                 ];
             }
 
+            if ($sortBy !== null) {
+                $sorted = collect($processedItems)->sortBy(function ($track) use ($sortBy) {
+                    switch ($sortBy) {
+                        case 'title':
+                            return strtolower($track['title']);
+                        case 'artist':
+                            return strtolower($track['artist']);
+                        case 'duration':
+                            // YouTube tracks don't have duration in this context, return 0
+                            return 0;
+                        case 'date':
+                        default:
+                            // YouTube tracks don't have date added, maintain order
+                            return 0;
+                    }
+                }, SORT_REGULAR, $order === 'desc');
+
+                $sorted = $sorted->values()->all();
+            } else {
+                $sorted = $processedItems;
+            }
+
             return [
-                'items' => $items,
+                'items' => $sorted,
                 'total' => $data['pageInfo']['totalResults'] ?? 0,
                 'next_page_token' => $data['nextPageToken'] ?? null,
                 'prev_page_token' => $data['prevPageToken'] ?? null,

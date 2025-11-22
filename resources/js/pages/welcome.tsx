@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react';
 import MainLayout from '@/layouts/MainLayout';
 import FeatureShowcase from '@/components/user/FeatureShowcase';
-import Footer from '@/components/user/Footer';
 
 export default function Welcome() {
     return (
@@ -13,8 +12,9 @@ export default function Welcome() {
                     rel="stylesheet"
                 />
             </Head>
-            <FeatureShowcase />
-            <Footer />
+            <div className="max-w-7xl mx-auto">
+                <FeatureShowcase />
+            </div>
         </MainLayout>
     );
 }

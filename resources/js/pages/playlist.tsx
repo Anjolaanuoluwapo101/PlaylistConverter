@@ -17,7 +17,7 @@ import MainLayout from '@/layouts/MainLayout';
 
 // --- Main Component ---
 
-const Playlist: React.FC = () => {
+export function Playlist() {
   // --- State Management ---
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<string, boolean>>({});
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
