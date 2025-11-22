@@ -30,7 +30,7 @@ return new class extends Migration
             $table->integer('failed_to_add_count')->default(0);
             $table->integer('failed_to_remove_count')->default(0);
             $table->integer('progress_percentage')->default(0);
-            $table->json('results')->nullable();
+            $table->longText('results')->nullable();
             $table->text('error_message')->nullable();
         });
     }

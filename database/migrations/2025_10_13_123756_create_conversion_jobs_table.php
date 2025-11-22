@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('progress_percentage')->default(0);
             $table->string('target_playlist_id')->nullable();
             $table->text('error_message')->nullable();
-            $table->json('failed_track_details')->nullable();
+            $table->longText('failed_track_details')->nullable(); //change to json in recent mysql version..check other job migrations
             $table->timestamps();
             
             $table->index(['user_id', 'status']);
