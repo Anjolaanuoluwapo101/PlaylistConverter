@@ -4,7 +4,7 @@ namespace App\Services\Converter;
 
 use App\Models\User;
 use App\Models\SyncJob;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

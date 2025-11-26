@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Platform;
+namespace App\Platform;
 
 use App\Models\User;
 
@@ -71,7 +71,7 @@ interface PlatformInterface
      * @param int|null $limit Optional limit for pagination
      * @param int|string|null $offset Offset (Spotify) or pageToken (YouTube)
      */
-    public function getUserPlaylists(User $user, int $limit , $offset = null, ?string $sortBy , ?string $order): array;
+    public function getUserPlaylists(User $user, int $limit, $offset = null, ?string $sortBy, ?string $order): array;
 
     /**
      * Get tracks from a playlist
@@ -82,4 +82,31 @@ interface PlatformInterface
      */
     public function getPlaylistTracks(string $playlistId, User $user, ?int $limit = null, $offset = null, ?string $sortBy = null, ?string $order = null): array;
 
+
+    // Playlist settings methods
+    
+    /**
+     * Update playlist name
+     */
+    public function updatePlaylistName(string $playlistId, string $name, User $user): bool;
+
+    /**
+     * Update playlist description
+     */
+    public function updatePlaylistDescription(string $playlistId, string $description, User $user): bool;
+
+    /**
+     * Update playlist settings (bulk)
+     */
+    public function updatePlaylistSettings(string $playlistId, array $settings, User $user): bool;
+
+    /**
+     * Get playlist settings
+     */
+    public function getPlaylistSettings(string $playlistId, User $user): ?array;
+
+    /**
+     * Update playlist cover image 
+     */
+    public function updatePlaylistCover(string $playlistId, string $imagePath, User $user): bool;
 }

@@ -71,3 +71,13 @@ export interface Track {
 export interface ConnectedPlatforms {
     connected_platforms: Record<string, boolean>;
 }
+
+export interface PlaylistSettings {
+    name: string;
+    description: string;
+    public?: boolean;           // Spotify only
+    collaborative?: boolean;    // Spotify only
+    privacy_status?: 'public' | 'private' | 'unlisted'; // YouTube only
+    cover_image?: string;       // Spotify only
+    thumbnail?: string;         // YouTube only
+}

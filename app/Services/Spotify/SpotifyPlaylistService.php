@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\Spotify\SpotifyAuthService;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Spotify\SpotifySettingsTrait;
 
 class SpotifyPlaylistService
 {
+    use SpotifySettingsTrait;
+
     private string $baseUrl = 'https://api.spotify.com/v1';
 
     public function __construct(

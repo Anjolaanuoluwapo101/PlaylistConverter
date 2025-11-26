@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import MainLayout from '@/layouts/MainLayout';
 import PageHeader from '@/components/user/PageHeader';
+import TrackSearchSection from '@/components/user/TrackSearchSection';
 import axios from 'axios';
 import { Loader2, CheckCircle, AlertCircle, Plus, X } from 'lucide-react';
 
@@ -28,9 +29,9 @@ export default function Build() {
     const [artistQuery, setArtistQuery] = useState('');
     const [titleQuery, setTitleQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Track[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
     const [buildJobs, setBuildJobs] = useState<BuildJob[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -54,6 +55,8 @@ export default function Build() {
             setLoading(false);
         }
     };
+
+
 
     const searchTracks = async () => {
         if (titleQuery.trim() === '' || artistQuery.trim() === '' || selectedPlatforms.length === 0) return;
@@ -105,6 +108,8 @@ export default function Build() {
             setIsSearching(false);
         }
     };
+
+
 
     const addTrack = (track: Track) => {
         if (selectedTracks.length >= 5) {
@@ -269,105 +274,14 @@ export default function Build() {
                         </div>
                     </div>
 
-                    {/* Track Search */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Search & Select Tracks (Max 5)
-                        </label>
-                        <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <input
-                                    type="text"
-                                    value={artistQuery}
-                                    onChange={(e) => setArtistQuery(e.target.value)}
-                                    placeholder="Artist name..."
-                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white"
-                                    onKeyUp={(e: React.KeyboardEvent) => e.key === 'Enter' && searchTracks()}
-                                />
-                                <input
-                                    type="text"
-                                    value={titleQuery}
-                                    onChange={(e) => setTitleQuery(e.target.value)}
-                                    placeholder="Song title..."
-                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={searchTracks}
-                                    disabled={isSearching}
-                                    className="px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
-                                >
-                                    {isSearching ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Searching...
-                                        </>
-                                    ) : (
-                                        'Search'
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Search Results */}
-                        {searchResults.length > 0 && (
-                            <div className="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
-                                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Search Results:</h4>
-                                <div className="space-y-2 max-h-60 overflow-y-auto">
-                                    {searchResults.map((track) => (
-                                        <div
-                                            key={track.id}
-                                            className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
-                                        >
-                                            <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">{track.name}</p>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                    {track.artist} • {track.platform}
-                                                </p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => addTrack(track)}
-                                                disabled={selectedTracks.length >= 5 || selectedTracks.some(t => t.id === track.id)}
-                                                className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                            >
-                                                <Plus className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Selected Tracks */}
-                        {selectedTracks.length > 0 && (
-                            <div className="mt-4">
-                                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Selected Tracks ({selectedTracks.length}/5):</h4>
-                                <div className="space-y-2">
-                                    {selectedTracks.map((track) => (
-                                        <div
-                                            key={track.id}
-                                            className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md"
-                                        >
-                                            <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">{track.name}</p>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                    {track.artist} • {track.platform}
-                                                </p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => removeTrack(track.id)}
-                                                className="p-2 text-gray-500 hover:text-red-500 rounded-md"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    {/* Track Search - now using the modular component */}
+                    <TrackSearchSection
+                        selectedPlatforms={selectedPlatforms}
+                        selectedTracks={selectedTracks}
+                        onAddTrack={addTrack}
+                        onRemoveTrack={removeTrack}
+                        maxTracks={5}
+                    />
 
                     <button
                         type="submit"

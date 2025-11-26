@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlaylistResource;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\ResponseCache\Facades\ResponseCache;
+use Illuminate\Support\Facades\Cache;
+
 
 class PlaylistController extends Controller
 {
@@ -258,6 +260,71 @@ class PlaylistController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Failed to process track removal request',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function addTracksToPlaylist(Request $request, string $platform, string $playlistId)
+    {
+        try {
+            $user = $request->user();
+
+            // Validate request data
+            $request->validate([
+                'track_ids' => 'required|array',
+                'track_ids.*' => 'required|string'
+            ]);
+
+            $trackIds = $request->input('track_ids');
+            // Get the available platforms
+            $availablePlatforms = $this->platformFactory->getAvailablePlatforms();
+
+            if (!in_array($platform, $availablePlatforms)) {
+                return response()->json([
+                    'error' => 'Invalid platform'
+                ], 400);
+            }
+
+            $platformService = $this->platformFactory->make($platform);
+
+            $results = [
+                'added' => [],
+                'failed' => [],
+                'errors' => []
+            ];
+
+            foreach ($trackIds as $trackId) {
+                try {
+                    $success = $platformService->addTrackToPlaylist($playlistId, $trackId, $user);
+
+                    if ($success) {
+                        $results['added'][] = $trackId;
+                    } else {
+                        $results['failed'][] = $trackId;
+                    }
+                } catch (\Exception $e) {
+                    $results['failed'][] = $trackId;
+                    $results['errors'][] = [
+                        'track_id' => $trackId,
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+            
+            ResponseCache::forget("/playlists/$platform/$playlistId/tracks");
+            // If Forgetting does not work as expected
+            ResponseCache::forget("playlists.$platform.$playlistId.tracks");
+            Cache::forget("playlists/$platform/$playlistId/tracks");
+
+            return response()->json([
+                'message' => 'Batch track addition completed',
+                'results' => $results
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to process track addition request',
                 'message' => $e->getMessage()
             ], 500);
         }

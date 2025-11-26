@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/youtube/{playlistId}/tracks', [PlaylistController::class, 'getYoutubePlaylistTracks']);
         Route::delete('/{platform}', [PlaylistController::class, 'destroyPlaylists']);
         Route::delete('/{platform}/{playlistId}/tracks', [PlaylistController::class, 'destroyTracks']);
+        Route::post('/{platform}/{playlistId}/tracks', [PlaylistController::class, 'addTracks']);
     });
 
     // Test search endpoints

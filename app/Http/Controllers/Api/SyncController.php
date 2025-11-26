@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\SyncJob;
 use App\Services\Converter\PlaylistSyncService;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;

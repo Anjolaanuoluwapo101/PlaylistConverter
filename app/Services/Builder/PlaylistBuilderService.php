@@ -4,7 +4,7 @@ namespace App\Services\Builder;
 
 use App\Models\PlaylistBuildJob;
 use App\Models\User;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use App\Traits\LogsOperations;
 use Exception;
 

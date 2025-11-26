@@ -54,6 +54,7 @@ class SpotifyAuthService
         if ($response->failed()) {
             Log::error('Failed to get Spotify access token', [
                 'status' => $response->status(),
+                'code' => $code,
                 'response' => $response->body(),
             ]);
             throw new \Exception('Failed to get Spotify access token');

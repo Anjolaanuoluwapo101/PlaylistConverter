@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Music, Trash2, CheckSquare, Square } from 'lucide-react';
+import { Music, Trash2, CheckSquare, Square, Plus } from 'lucide-react'; // Removed Settings icon
 import axios from 'axios';
 import ErrorState from '@/components/user/ErrorState';
 import FilterControls from '@/components/user/FilterControls';
 import ConfirmationModal from '@/components/user/ConfirmationModal';
+import TrackSearchSection from '@/components/user/TrackSearchSection';
+import AlertComponent from '@/components/user/AlertComponent';
+// Removed PlaylistSettingsSection import
 
 export interface Track {
   id: string;
@@ -12,6 +15,14 @@ export interface Track {
   album: string;
   image?: string;
   duration_ms: number;
+}
+
+interface SearchTrack {
+  id: string;
+  name: string;
+  artist: string;
+  platform: 'spotify' | 'youtube';
+  track_id: string;
 }
 
 export interface TracksResponse {
@@ -43,10 +54,10 @@ export interface Playlist {
 interface PlaylistTracksProps {
   playlistId: string;
   platformId: string;
-  onHide: () => void;
+  onHide?: () => void;
 }
 
-export default function PlaylistTracks({ playlistId, platformId, onHide }: PlaylistTracksProps) {
+export default function PlaylistTracks({ playlistId, platformId }: PlaylistTracksProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,11 +67,18 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
+  // Add tracks state
+  const [showAddTracks, setShowAddTracks] = useState(false);
+  const [selectedSearchTracks, setSelectedSearchTracks] = useState<SearchTrack[]>([]);
+  const [addSuccess, setAddSuccess] = useState<string | null>(null);
+
   // Filter and sort state
   const [sortBy, setSortBy] = useState<string>('title');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [applyingFilters, setApplyingFilters] = useState(false);
 
+  // Track addition state
+  const [addingTracks, setAddingTracks] = useState(false);
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -143,6 +161,59 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
     }
   };
 
+  // Add tracks handlers
+  const handleAddTrack = (track: SearchTrack) => {
+    if (selectedSearchTracks.length >= 5) {
+      alert('Maximum 5 tracks allowed');
+      return;
+    }
+    if (!selectedSearchTracks.find(t => t.id === track.id)) {
+      setSelectedSearchTracks([...selectedSearchTracks, track]);
+    }
+  };
+
+  const handleRemoveTrack = (trackId: string) => {
+    setSelectedSearchTracks(selectedSearchTracks.filter(t => t.id !== trackId));
+  };
+
+  const handleAddTracksToPlaylist = async () => {
+    if (selectedSearchTracks.length === 0) {
+      setError('Please select at least one track to add');
+      return;
+    }
+
+    try {
+      const trackIds = selectedSearchTracks.map(track => track.track_id);
+      setAddingTracks(true);
+      setError(null); // Clear any previous errors
+      
+      const response = await axios.post(`/playlists/${platformId}/${playlistId}/tracks`, {
+        track_ids: trackIds
+      });
+
+      // Refresh tracks after addition
+      await fetchTracks();
+      
+      setAddingTracks(false);
+      setShowAddTracks(false);
+      setAddSuccess(`Successfully added ${selectedSearchTracks.length} track${selectedSearchTracks.length !== 1 ? 's' : ''}`);
+
+      // Clear selected search tracks
+      setSelectedSearchTracks([]);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setAddSuccess(null), 3000);
+    } catch (err) {
+      setAddingTracks(false);
+      setShowAddTracks(false);
+      console.error('Error adding tracks:', err);
+      setError('Failed to add tracks');
+      
+      // Clear error message after 3 seconds
+      setTimeout(() => setError(null), 3000);
+    }
+  };
+
   if (isLoading) return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
       {/* Skeleton loading for tracks */}
@@ -165,21 +236,17 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
   if (error) return (
     <ErrorState error={error} onDismiss={() => setError(null)} />
   );
-  
+
 
   return (
-    <div className="playlist-tracks w-full max-w-4xl mx-auto p-4 md:p-6">
-      <div className="flex justify-between items-center mb-8">
+    <div className="w-full max-w-4xl">
+      {/* <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-black">
           Playlist Tracks
         </h2>
-        <button
-          onClick={onHide}
-          className="px-6 py-3 bg-blue-600 text-white font-semibold hover:bg-blue-700"
-        >
-          Hide
-        </button>
-      </div>
+        
+      </div> */}
+
 
       {/* Filter Controls */}
       <FilterControls
@@ -197,6 +264,55 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
         isLoading={applyingFilters}
       />
 
+      {/* Add Tracks Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowAddTracks(!showAddTracks)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 ml-auto"
+        >
+          <Plus className="w-4 h-4" />
+          {showAddTracks ? 'Cancel Add Tracks' : 'Add Tracks'}
+        </button>
+      </div>
+
+      {/* Add Tracks Section */}
+      {showAddTracks && (
+        <div className="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <h3 className="text-xl font-semibold mb-4">Add Tracks to Playlist</h3>
+          <TrackSearchSection
+            selectedPlatforms={[platformId]}
+            selectedTracks={selectedSearchTracks}
+            onAddTrack={handleAddTrack}
+            onRemoveTrack={handleRemoveTrack}
+            maxTracks={5}
+          />
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => {
+                setShowAddTracks(false);
+                setSelectedSearchTracks([]);
+              }}
+              className="px-4 py-2 bg-gray-300 text-gray-700 hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddTracksToPlaylist}
+              disabled={selectedSearchTracks.length === 0 || addingTracks}
+              className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {addingTracks ? 'Adding...' : 'Add Selected Tracks'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success message for add tracks */}
+      {addSuccess && (
+        // Use AlertComponent here
+        <AlertComponent message={addSuccess} type="success" />
+      )}
+
       {/* Selection controls, at the top of the tracks*/}
       {selectedTracks.length > 0 && (
         <div className="mb-6 flex items-center justify-between bg-white border border-gray-200 p-4">
@@ -211,17 +327,17 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
               Clear selection
             </button>
           </div>
-            <button
-              onClick={() => {
-                setDeleteSuccess(null);
-                setError(null);
-                setShowDeleteModal(true);
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete Selected
-            </button>
+          <button
+            onClick={() => {
+              setDeleteSuccess(null);
+              setError(null);
+              setShowDeleteModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Selected
+          </button>
         </div>
       )}
 
@@ -239,11 +355,10 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
                       : [...prev, track.id]
                   );
                 }}
-                className={`w-6 h-6 border-2 flex items-center justify-center transition-colors ${
-                  selectedTracks.includes(track.id)
+                className={`w-6 h-6 border-2 flex items-center justify-center transition-colors ${selectedTracks.includes(track.id)
                     ? 'bg-blue-600 border-blue-600 text-white'
                     : 'bg-white border-gray-300'
-                }`}
+                  }`}
               >
                 {selectedTracks.includes(track.id) ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-gray-600" />}
               </button>
@@ -308,12 +423,14 @@ export default function PlaylistTracks({ playlistId, platformId, onHide }: Playl
               data: { track_ids: selectedTracks }
             });
             // Refresh tracks after deletion
-            fetchTracks();
+            await fetchTracks();
             setSelectedTracks([]);
-            // setShowDeleteModal(false);
             setDeleteSuccess(`Successfully deleted ${selectedTracks.length} track${selectedTracks.length !== 1 ? 's' : ''}`);
-            // Clear success message after 3 seconds
-            setTimeout(() => setDeleteSuccess(null), 3000);
+            
+            // Close modal programmatically after a short delay to allow success message to show
+            setTimeout(() => {
+              setShowDeleteModal(false);
+            }, 2000);
           } catch (err) {
             console.error('Error deleting tracks:', err);
             setError('Failed to delete tracks');

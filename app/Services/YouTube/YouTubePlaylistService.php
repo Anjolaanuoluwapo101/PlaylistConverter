@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\YouTube\YouTubeAuthService;
 use Illuminate\Support\Facades\Cache;
+use App\Services\YouTube\YouTubeSettingsTrait;
 
 class YouTubePlaylistService
 {
+    use YouTubeSettingsTrait;
+    
     private string $baseUrl = 'https://www.googleapis.com/youtube/v3';
 
     public function __construct(

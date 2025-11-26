@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ConversionJob;
 use App\Services\Converter\PlaylistConverterService;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;

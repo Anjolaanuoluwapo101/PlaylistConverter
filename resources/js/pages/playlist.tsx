@@ -1,7 +1,7 @@
 import { ConnectedPlatforms, Playlist as PlaylistType } from '@/types/index';
 import { checkConnectedPlatforms } from '@/utils/checkstatus';
 import axios from 'axios';
-import { Trash2 } from 'lucide-react';
+import { ArrowBigLeftIcon, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import PlaylistTracks from './tracks';
 
@@ -14,6 +14,7 @@ import FilterControls from '@/components/user/FilterControls';
 import AlertComponent from '@/components/user/AlertComponent';
 import PageHeader from '@/components/user/PageHeader';
 import MainLayout from '@/layouts/MainLayout';
+import PlaylistSettingsModal from '@/components/user/PlaylistSettingsModal'; // Import the new modal
 
 // --- Main Component ---
 
@@ -28,6 +29,10 @@ export function Playlist() {
 
   const [showPlaylists, setShowPlaylists] = useState(true);
   const [playlistId, setPlaylistId] = useState<string | null>(null);
+
+  // State for settings modal
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [selectedPlaylistForSettings, setSelectedPlaylistForSettings] = useState<PlaylistType | null>(null);
 
   // Selection and deletion state
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
@@ -85,6 +90,8 @@ export function Playlist() {
     setSelectedPlatform(platform);
     setShowPlaylists(true);
     setPlaylistId(null);
+    //reset any selected playlists
+    setSelectedPlaylists([]);
     // Reset pagination when switching platforms
     setPagination({
       offset: 0,
@@ -138,9 +145,9 @@ export function Playlist() {
     } finally {
       setFetchingPlaylists(false);
       //So that Error set by catch block is visible for few seconds
-      setTimeout( () => { 
+      setTimeout(() => {
         setError(null);
-      }, 2500 )
+      }, 2500)
     }
   };
 
@@ -183,6 +190,20 @@ export function Playlist() {
     setShowPlaylists(false);
   };
 
+  // Handle delete from hamburger menu
+  const handleDeleteFromMenu = (playlistId: string) => {
+    // Set the playlist to be deleted
+    setSelectedPlaylists([playlistId]);
+    // Show the delete confirmation modal
+    setShowDeleteModal(true);
+  };
+
+  // Handle settings from hamburger menu
+  const handleSettingsFromMenu = (playlist: PlaylistType) => {
+    setSelectedPlaylistForSettings(playlist);
+    setShowSettingsModal(true);
+  };
+
   // --- Render Logic ---
 
   // Loading state
@@ -212,37 +233,49 @@ export function Playlist() {
   return (
     <MainLayout>
       {/* <div className="w-full max-w-6xl mx-auto p-4 md:p-6"> */}
-        {/* Header Section */}
-        <PageHeader
-          title="Your Playlists"
-          description="View and manage your playlists across connected platforms"
+      {/* Header Section */}
+      <PageHeader
+        title="Your Playlists"
+        description="View and manage your playlists across connected platforms"
+      />
+
+      {/* Platform Selection */}
+      <div className="mb-8 flex justify-center">
+        <PlatformDropdown
+          connectedPlatformKeys={connectedPlatformKeys}
+          selectedPlatform={selectedPlatform}
+          onSelectPlatform={handlePlatformSelect}
         />
+      </div>
 
-        {/* Platform Selection */}
-        <div className="mb-8 flex justify-center">
-          <PlatformDropdown
-            connectedPlatformKeys={connectedPlatformKeys}
-            selectedPlatform={selectedPlatform}
-            onSelectPlatform={handlePlatformSelect}
-          />
-        </div>
+      {/* Status Messages  for success delete or error*/}
+      {deleteSuccess && (
+        <AlertComponent message={deleteSuccess} type="success" />
+      )}
 
-        {/* Status Messages  for success delete or error*/}
-        {deleteSuccess && (
-          <AlertComponent message={deleteSuccess} type="success" />
-        )}
+      <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
 
-        <AlertComponent message="Playlists created by another person cannot be modified." type="info" />
-
-        {error && !fetchingPlaylists && <AlertComponent message={error} type='error' />}
+      {error && !fetchingPlaylists && <AlertComponent message={error} type='error' />}
 
 
-        {/* Main Content */}
+      {/* Main Content */}
+
+      <div className="flex gap-2 mt-2 mb-2 border border-gray-200 float-left">
+        <button
+          onClick={() => {
+            setShowPlaylists(true)
+          }}
+          className="px-6 py-3  text-blue-400 font-semibold "
+        >
+          <ArrowBigLeftIcon className="mr-2" />
+        </button>
+      </div>
+
+      <div className='clear-both'>
 
         {/* Playlists View */}
         {selectedPlatform && showPlaylists && (
-          <>
-
+          <div className='clear-both'>
             {/* Filter Controls */}
             <div className="mb-6">
               <FilterControls
@@ -288,9 +321,10 @@ export function Playlist() {
               </div>
             )}
 
+
             {/* Loading Skeleton or Playlist Grid */}
             {fetchingPlaylists ? (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                 {[...Array(8)].map((_, index) => (
                   <div key={`skeleton-${index}`} className="border border-gray-200 p-6 animate-pulse">
                     <div className="w-full h-48 bg-gray-200 mb-4"></div>
@@ -314,6 +348,8 @@ export function Playlist() {
                   selectedPlaylists={selectedPlaylists}
                   onSelectPlaylist={handleSelectPlaylist}
                   onViewPlaylist={handleViewPlaylist}
+                  onDeletePlaylist={handleDeleteFromMenu}
+                  onSettingsPlaylist={handleSettingsFromMenu} // Add this line
                 />
 
                 {/* Pagination Controls */}
@@ -342,55 +378,78 @@ export function Playlist() {
             {selectedPlatform && !fetchingPlaylists && !error && playlists.length === 0 && (
               <EmptyPlaylistState platform={selectedPlatform} />
             )}
-          </>
+          </div>
         )}
+
+
 
         {/* Tracks View */}
         {playlistId && !showPlaylists && (
           <PlaylistTracks
             playlistId={playlistId}
             platformId={selectedPlatform}
-            onHide={() => setShowPlaylists(true)}
           />
         )}
 
-        {/* Confirmation Modal */}
-        <ConfirmationModal
-          isOpen={showDeleteModal}
-          title="Delete Playlists"
-          message={`Are you sure you want to delete ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}? This action cannot be undone.`}
-          confirmText="Delete"
-          cancelText="Cancel"
-          onConfirm={async () => {
-            setError(null);
-            setDeleteSuccess(null);
-            try {
-              await axios.delete(`/playlists/${selectedPlatform}`, {
-                data: { playlist_ids: selectedPlaylists }
-              });
-              // Refresh playlists after deletion
-              await fetchPlaylists(selectedPlatform);
-              setSelectedPlaylists([]);
-              // setShowDeleteModal(false);
-              setDeleteSuccess(`Successfully deleted ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}`);
-              // Clear success message after 3 seconds
-              setTimeout(() => setDeleteSuccess(null), 3000);
-            } catch (err) {
-              console.error('Error deleting playlists:', err);
-              setError('Failed to delete playlists');
-              throw err; // Re-throw to trigger error state in modal
-            }
+      </div>
+
+      {/* Playlist Settings Modal */}
+      {selectedPlaylistForSettings && (
+        <PlaylistSettingsModal
+          isOpen={showSettingsModal}
+          platform={selectedPlatform}
+          playlistId={selectedPlaylistForSettings.id}
+          playlistName={selectedPlaylistForSettings.name}
+          onClose={() => {
+            setShowSettingsModal(false);
+            setSelectedPlaylistForSettings(null);
           }}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setDeleteSuccess(null);
-            setError(null);
+          onSettingsUpdated={async () => {
+            // Refresh playlists after settings update
+            await fetchPlaylists(selectedPlatform);
           }}
-          showSuccess={!!deleteSuccess}
-          successMessage={deleteSuccess || "Operation completed successfully!"}
-          showError={error === 'Failed to delete playlists'}
-          errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
         />
+      )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete Playlists"
+        message={`Are you sure you want to delete ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          setError(null);
+          setDeleteSuccess(null);
+          try {
+            await axios.delete(`/playlists/${selectedPlatform}`, {
+              data: { playlist_ids: selectedPlaylists }
+            });
+            // Refresh playlists after deletion
+            await fetchPlaylists(selectedPlatform);
+            setSelectedPlaylists([]);
+            setDeleteSuccess(`Successfully deleted ${selectedPlaylists.length} playlist${selectedPlaylists.length !== 1 ? 's' : ''}`);
+
+            // Close modal programmatically after a short delay to allow success message to show
+            setTimeout(() => {
+              setShowDeleteModal(false);
+            }, 2000);
+          } catch (err) {
+            console.error('Error deleting playlists:', err);
+            setError('Failed to delete playlists');
+            throw err; // Re-throw to trigger error state in modal
+          }
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteSuccess(null);
+          setError(null);
+        }}
+        showSuccess={!!deleteSuccess}
+        successMessage={deleteSuccess || "Operation completed successfully!"}
+        showError={error === 'Failed to delete playlists'}
+        errorMessage={error === 'Failed to delete playlists' ? error : "An error occurred. Please try again."}
+      />
       {/* </div> */}
     </MainLayout>
   );

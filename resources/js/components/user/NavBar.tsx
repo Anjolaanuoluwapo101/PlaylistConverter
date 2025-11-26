@@ -74,7 +74,7 @@ export default function NavBar({ items }: Props) {
                                 <button
                                     key={item.uri}
                                     onClick={() => handleNavClick(item.uri)}
-                                    className={`flex items-center px-3 py-2.5 text-base font-medium w-full text-left rounded-md ${
+                                    className={`flex items-center px-3 py-2.5 text-base font-medium w-full text-left rounded-md z-50 ${
                                         url === item.uri
                                             ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
                                             : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'

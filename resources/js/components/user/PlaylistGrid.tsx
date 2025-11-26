@@ -8,9 +8,19 @@ interface PlaylistGridProps {
   selectedPlaylists: string[];
   onSelectPlaylist: (playlistId: string) => void;
   onViewPlaylist: (playlistId: string) => void;
+  onDeletePlaylist?: (playlistId: string) => void;
+  onSettingsPlaylist?: (playlist: PlaylistType) => void; // Add onSettingsPlaylist prop
 }
 
-const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, platform, selectedPlaylists, onSelectPlaylist, onViewPlaylist }) => (
+const PlaylistGrid: React.FC<PlaylistGridProps> = ({ 
+  playlists, 
+  platform, 
+  selectedPlaylists, 
+  onSelectPlaylist, 
+  onViewPlaylist,
+  onDeletePlaylist,
+  onSettingsPlaylist
+}) => (
   <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-8">
     {playlists.map((playlist, index) => (
       <PlaylistCard
@@ -20,6 +30,8 @@ const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, platform, select
         isSelected={selectedPlaylists.includes(playlist.id)}
         onSelect={onSelectPlaylist}
         onView={onViewPlaylist}
+        onDelete={onDeletePlaylist}
+        onSettings={onSettingsPlaylist} // Pass onSettings prop
       />
     ))}
   </div>

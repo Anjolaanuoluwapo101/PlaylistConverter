@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PlaylistController as ApiPlaylistController;
 use App\Http\Controllers\Api\ConversionController as ApiConversionController;
 use App\Http\Controllers\Api\SyncController as ApiSyncController;
 use App\Http\Controllers\Api\BuildController as ApiBuildController;
+use App\Http\Controllers\Api\PlaylistSettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Inertia\Inertia;
 
@@ -20,23 +21,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
 
-    // Platform connections
-    // Route::get('/platforms', [PlatformController::class, 'index'])->name('platforms.index');
-    Route::get('/platforms/spotify/connect', [PlatformController::class, 'connectSpotify'])->name('platforms.spotify.connect');
-    Route::get('/platforms/youtube/connect', [PlatformController::class, 'connectYoutube'])->name('platforms.youtube.connect');
-    Route::post('/platforms/spotify/disconnect', [PlatformController::class, 'disconnectSpotify'])->name('platforms.spotify.disconnect');
-    Route::post('/platforms/youtube/disconnect', [PlatformController::class, 'disconnectYoutube'])->name('platforms.youtube.disconnect');
+    // Platform connections - Dynamic routes
+    Route::get('/platforms/{platform}/connect', [PlatformController::class, 'connect'])->name('platforms.connect');
+    Route::post('/platforms/{platform}/disconnect', [PlatformController::class, 'disconnect'])->name('platforms.disconnect');
 
     // Playlists
     Route::get('/playlists', function () {
         return Inertia::render('playlist');
     })->name('playlist');
     Route::prefix('playlists')->group(function () {
-        Route::get('/{platform}', [ApiPlaylistController::class, 'getUserPlaylists']);
+        Route::get('/{platform}', [ApiPlaylistController::class, 'getUserPlaylists'])->middleware('cacheResponse:3000');
+        ;
         Route::get('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'getPlaylistTracks'])->middleware('cacheResponse:3000');
         Route::delete('/{platform}', [ApiPlaylistController::class, 'destroyPlaylists']);
         Route::delete('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'destroyTracks']);
-
+        Route::post('/{platform}/{playlistId}/tracks', [ApiPlaylistController::class, 'addTracksToPlaylist']);
+        
+        Route::get('/{platform}/{playlistId}/settings', [PlaylistSettingsController::class, 'show']);
+        Route::post('/{platform}/{playlistId}/settings', [PlaylistSettingsController::class, 'update']);
+        Route::post('/{platform}/{playlistId}/cover', [PlaylistSettingsController::class, 'updateCover']);
     });
 
     // Conversions
@@ -76,9 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/user/delete', [AuthenticatedSessionController::class, 'delete'])->name('user.delete');
 });
 
-//callbacks
-Route::get('/auth/spotify/callback', [PlatformController::class, 'spotifyCallback'])->name('platforms.spotify.callback');
-Route::get('/auth/youtube/callback', [PlatformController::class, 'youtubeCallback'])->name('platforms.youtube.callback');
+//callbacks - Dynamic routes
+Route::get('/auth/{platform}/callback', [PlatformController::class, 'callback'])->name('platforms.callback');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

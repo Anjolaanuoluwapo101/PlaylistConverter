@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Platform;
+namespace App\Platform;
 
 use App\Models\User;
 use App\Services\Spotify\SpotifyPlaylistService;
@@ -8,6 +8,7 @@ use App\Services\Spotify\SpotifySearchService;
 use App\Exceptions\PlatformException;
 use App\Exceptions\ApiException;
 use Illuminate\Support\Facades\Log;
+
 
 class SpotifyPlatform implements PlatformInterface
 {
@@ -662,5 +663,54 @@ class SpotifyPlatform implements PlatformInterface
 
         similar_text($str1, $str2, $percent);
         return (float) $percent;
+    }
+
+    
+    /**
+     * Update playlist name
+     */
+    public function updatePlaylistName(string $playlistId, string $name, User $user): bool
+    {
+        return $this->playlistService->updatePlaylistName($playlistId, $name, $user);
+    }
+
+    /**
+     * Update playlist description
+     */
+    public function updatePlaylistDescription(string $playlistId, string $description, User $user): bool
+    {
+        return $this->playlistService->updatePlaylistDescription($playlistId, $description, $user);
+    }
+
+    /**
+     * Update playlist settings (bulk)
+     */
+    public function updatePlaylistSettings(string $playlistId, array $settings, User $user): bool
+    {
+        return $this->playlistService->updatePlaylistSettings($playlistId, $settings, $user);
+    }
+
+    /**
+     * Get playlist settings
+     */
+    public function getPlaylistSettings(string $playlistId, User $user): ?array
+    {
+        return $this->playlistService->getPlaylistSettings($playlistId, $user);
+    }
+
+    /**
+     * Update playlist cover image 
+     */
+    public function updatePlaylistCover(string $playlistId, string $image, User $user): bool
+    {
+        // For Spotify, we need to convert the image to base64
+        // if (!file_exists($imagePath)) {
+        //     return false;
+        // }
+        
+        // $imageData = file_get_contents($imagePath);
+        // $base64Image = base64_encode($imageData);
+        
+        return $this->playlistService->updatePlaylistCover($playlistId, $image, $user);
     }
 }

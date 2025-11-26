@@ -47,7 +47,7 @@ const PlatformDropdown: React.FC<PlatformDropdownProps> = ({ connectedPlatformKe
       </button>
 
       {dropdownOpen && (
-        <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50">
+        <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-20">
           {connectedPlatformKeys.map(platformKey => {
             const config = getPlatformConfig(platformKey);
             if (!config) return null;

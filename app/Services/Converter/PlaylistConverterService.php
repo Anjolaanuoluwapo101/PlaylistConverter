@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Playlist;
 use App\Models\ConversionJob;
 use App\Models\Track;
-use App\Services\Platform\PlatformFactory;
+use App\Platform\PlatformFactory;
 use App\Jobs\ConvertPlaylistJob as ConvertPlaylistJobQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

@@ -17,7 +17,7 @@ const NoPlatformsConnect: React.FC = () => (
       <button
         className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
         onClick={() => {
-          router.visit('/connect')
+          router.visit('/dashboard')
         }}
       >
         <Music className="w-5 h-5" />
