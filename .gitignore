@@ -29,3 +29,5 @@ yarn-error.log
 .blackboxrules
 TODO.md
 2k7yonBom8wIh181
+*.env
+.blackbox

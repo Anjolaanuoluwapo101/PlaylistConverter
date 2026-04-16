@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('playlist_name');
             $table->text('playlist_description')->nullable();
-            $table->longText('selected_platforms'); // Array of platform names
-            $table->longText('selected_tracks'); // Array of {platform, track_id, title, artist} objects
-            $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
-            $table->longText('results')->nullable(); // Store results for each platform
+            $table->json('selected_platforms');
+            $table->json('selected_tracks');
+            $table->string('status')->default('pending');
+            $table->json('results')->nullable();
             $table->text('error_message')->nullable();
             $table->timestamps();
         });

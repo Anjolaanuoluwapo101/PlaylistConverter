@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('playlists', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('source_platform', ['spotify', 'youtube']);
+            $table->string('source_platform');
             $table->string('source_playlist_id');
             $table->string('name');
             $table->text('description')->nullable();
